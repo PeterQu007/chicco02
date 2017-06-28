@@ -1,0 +1,19 @@
+/* svg sprite icon css class generator */
+/* svg-sprite github repo docs to check out what is the viarables */
+/* Final Gulp automation template */
+
+
+
+{{#shapes}}
+	{{#first}}
+	.icon{
+		background-image: url('../../assets/images/sprites/{{{sprite}}}') ;
+	}
+	{{/first}}
+
+	.icon--{{base}}{
+		width:{{width.outer}}px;
+		height:{{height.outer}}px;
+		background-position: {{position.relative.xy}};
+	}
+{{/shapes}}

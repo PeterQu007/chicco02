@@ -1,0 +1,292 @@
+//content layer for reading the craigslist table from web pages
+// {
+// 		"matches": ["https://accounts.craigslist.org/login/home?*"],
+// 		"js": ["jquery-3.2.1.js","readlisting.js"]
+// }
+
+//import Listing from '../assets/scripts/modules/Listing';
+import Listing from "../assets/scripts/modules/Listing";
+import Table from '../assets/scripts/modules/Table';
+import Paginator from '../assets/scripts/modules/Paginator';
+import Repost from '../assets/scripts/modules/Repost';
+
+'use strict';
+
+var log = console.log;
+
+var BreakException = {};
+var form; //keep the submit form, for auto click 'repost' link
+var words; // compare the title, if the first a few words same, skip to next listing
+var backupListing;  // keep the candidate listings for repost records
+var listingInfo; //keep the repostable listing details
+var pn; //paginator object
+var cgTable = new Table('table'); //listing table on the account page
+var cgRepost;
+
+log("////cgRepost: ", cgRepost);
+
+//define a Listing object, 
+//constructor function Listing();
+// function Listing(status, postID, manage, title, postedDate, from, subject){
+//   this.status = status || '';
+//   this.postID = postID || '';
+//   this.manage = manage || '';
+//   this.title = title || '';
+//   this.postedDate = postedDate || '';
+//   this.from = from || '';
+//   this.subject = subject || '';
+
+// };
+
+//read a repostable listing from the table
+//parameter: table - web page selecotr
+//parameter: baseListing - get a Listing with postID > baseListing.postID
+//return: Listing object
+// function readTable(table, baseListing){
+
+// 	var status, postID, manage, title, postedDate;
+// 	var thisListing; //return thisListing
+
+// 	if($(table)){
+
+// 		var myListings = $($('table tr').get().reverse());
+		
+// 		//for each listing, get to the first repostable one
+// 		try {
+// 			myListings.each(function(){
+
+// 				var currentListing = $(this);
+// 				log("readTable.1.00..read currentListing from the Table: ", currentListing);
+
+// 				status = currentListing.find("td:eq(0)").text().trim(); 
+// 				postID = currentListing.find("td:eq(6)").text().trim();
+// 				manage = $.map(currentListing
+// 								.find("td:eq(1)")
+// 								.find('input[type="submit"]'), function(value){
+// 									return value.value;});
+
+// 				//check if the post is repostable, and the ID has been reposted
+// 				log("readTable.1.01..check mangage[0]=='repost': ", manage[0], manage[0]=="repost");
+// 				log("readTable.1.02..check baseListing.postID == '': ", baseListing.postID, baseListing.postID == '');
+// 				log("readTable.1.03..check postID > baseListing.postID: ", postID, postID > baseListing.postID);
+// 				if (manage[0]=="repost" && (baseListing.postID == '' || postID > baseListing.postID)){
+					
+// 					form = currentListing
+// 								.find("td:eq(1)")
+// 								.find('form')
+
+// 					title = currentListing.find("td:eq(2)").text().trim(); 
+// 					postedDate = currentListing.find("td:eq(4)").text().trim();
+
+// 					log('readTable.1.04..currentListing fields are ', postID, status, manage, title, postedDate);
+// 					log('readTable.1.05..currentListng field Lengths are ', postID.length, status.length, manage.length, title.length, postedDate.length);
+// 					thisListing = new Listing(status, postID, manage, title, postedDate, 
+// 													"readTable", "backupListing");
+// 					//highlight the currentListing row in the Table
+// 					currentListing.addClass('currentRow');
+// 					//exit the for each loop
+// 					throw BreakException;
+
+// 				}
+// 			});
+
+// 			log("readTable.1.06.no repostabel listing found, return base listing: ", baseListing);
+// 			return baseListing;
+
+// 		} catch (e) {
+
+// 			if (e !== BreakException) throw e;
+			
+// 		} //end of Try block
+
+// 		log('readTable.1.0x..return the listing: ')
+// 		return thisListing
+// 	}
+// 	else{
+// 		log('readTable.2.0x..No Table found in the web page! ')
+// 	}//end of if
+
+
+// }
+
+//defind a readingListing function
+//read the repostable but not reposted post from the table
+//mode.0: read backupListing from background.js, use it as base Listing
+//mode.1: use currentListing listingInfo as base Listing
+//compare with the base Listing, read a new repostable listing
+// function getListing(mode,debug){
+
+// 	var _$ = (debug == 0)? console.log : function(){};
+
+// 	switch(mode) {
+
+// 		case 0:
+// 			//read backupListing
+// 			//readlisting first send message to background, fetch the backup listing
+// 			var msg = {from: 'readListing', subject: 'fetchBackupListing'};
+			
+// 			_$("readListing.1.0: read backuped listing ", msg);
+			
+// 			$(function(){
+
+// 				chrome.runtime.sendMessage(
+
+// 					msg,
+
+// 					function(response){
+				
+// 						backupListing = response;
+// 						_$("readListing.1.00: read backuped listing ", backupListing);
+
+// 						//cgTable = new Table('table');
+// 						listingInfo = cgTable.readListing(backupListing);
+// 						form = cgTable.form;
+// 						_$(cgTable.repostableListings());
+
+// 						//listingInfo = readTable('table', backupListing);
+						
+// 					}
+
+// 				);
+// 			});
+
+// 			break;
+// 		case 1:
+// 			//read Next Listing
+// 			_$('readListing.2.00..read Next listing: ', listingInfo);
+// 			listingInfo = cgTable.readListing(listingInfo);
+// 			form = cgTable.form;
+// 			//listingInfo = readTable('table', listingInfo);
+// 			_$('readListing.2.0x..result is: ', listingInfo);
+// 			break;
+// 		default:
+// 			break;
+
+// 	}
+
+// };
+
+//build two listing objects
+log("Start.0.0.build new object: ", backupListing, listingInfo);
+backupListing = new Listing();
+listingInfo = new Listing();
+//pn = new Paginator('#paginator');
+//pn.goToPage(2,0);
+
+//call readListing
+log("Start.0.00.call readlisting(): ");
+////getListing(0);
+
+//$("#account-homepage-form").append("<button id='#repost' onClick='repost'>repost</button>");
+//$("<button id='#repost'>repost</button>").insertAfter("#account-homepage-form");
+$("<input type='submit' id='repost' value='repost' />").insertAfter("#account-homepage-form");
+$("<input type='submit' id='newpost' value='newpost' />").insertAfter("#account-homepage-form");
+
+cgRepost = new Repost(0);
+log("established cgRepost: ", cgRepost);
+listingInfo = cgRepost.getRepostListing(0,0);
+
+// $("#repost").click(function repost(){
+
+// 	log("onMessage.3.0..get request to repost a listing: ");
+
+// 		log("onMessage.3.1..readListing.js is posting: ", listingInfo)
+
+// 		//send the reposted listing to background
+// 		listingInfo.from = "readListing",
+// 		listingInfo.subject = "backupListing";
+// 		chrome.runtime.sendMessage(
+
+// 			listingInfo,
+
+// 			function(response){
+// 				//send out the repost command
+// 				//form object was saved when read the listing
+// 				form.submit();
+// 			}
+
+// 		); 
+
+		
+// 		//send the feedback to popup.js
+// 		//inform the popup.js the next listing info
+// 		log('onMessage.3.2..read next Listing, send next Listing to popup: ')
+// 		getListing(1);
+// 		listingInfo.from = "readList";
+// 		listingInfo.subject = "reposted";
+// 		response(listingInfo);
+
+// });
+	
+
+//Listen for messages from the popup
+//Setup the listener for popup layer
+chrome.runtime.onMessage.addListener(function (msg, sender, response){
+
+	//First, validate the message's structure
+	log("onMessage.0.0..readinglist.js got a message:")
+
+	if ((msg.from === 'popup') && (msg.subject === 'listingInfo')) {
+
+		log('onMessage.1.0..popup request to read next listing:');
+
+		getListing(1);
+
+		response(listingInfo);
+
+	};
+
+	if ((msg.from === 'popup') && (msg.subject === 'currentListingInfo')) {
+
+		log('onMessage.2.0..popup request to read Current listing:');
+
+		response(listingInfo);
+
+	};
+
+	if ((msg.from === 'popup') && (msg.subject === 'currentTabTitle')) {
+
+		log('onMessage.2.0..popup request to read Current Tab Title:');
+
+		var tabTitle = document.title;
+
+		log('Current tab title is: ', tabTitle.trim());
+
+		response({tabTitle: tabTitle.trim() });
+
+	};
+
+	if ((msg.from === 'popup') && (msg.subject === 'repost')) {
+
+		log("onMessage.3.0..get request to repost a listing: ");
+
+		log("onMessage.3.1..readListing.js is posting: ", listingInfo)
+
+		//send the reposted listing to background
+		listingInfo.from = "readListing",
+		listingInfo.subject = "backupListing";
+		chrome.runtime.sendMessage(
+
+			listingInfo,
+
+			function(response){
+				//send out the repost command
+				//form object was saved when read the listing
+				form.submit();
+			}
+
+		); 
+
+		
+		//send the feedback to popup.js
+		//inform the popup.js the next listing info
+		log('onMessage.3.2..read next Listing, send next Listing to popup: ')
+		getListing(1);
+		listingInfo.from = "readList";
+		listingInfo.subject = "reposted";
+		response(listingInfo);
+	};
+})
+
+
+		

@@ -1,0 +1,85 @@
+{
+  "name": "MLSHelper",
+  "version": "0.0.1",
+  "manifest_version": 2,
+  "description": "MLS Helper",
+
+  "icons": {
+    "128": "./icons/icon128.png",
+    "48": "./icons/icon48.png",
+    "16": "./icons/icon16.png"
+  },
+  
+  "browser_action": {
+    "default_title": "MLS Helper",
+    "default_icon": "./icons/icon16.png"
+    //"default_popup": "popup.html"
+  },
+
+  "background": {
+    "scripts": ["./temp/scripts/EventPage.js"]
+    //"persistent": false
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["http://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/content-login.js"],
+      "css": ["./temp/content.css"]
+    },
+
+    {
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Default.mvc*"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/defaultpage.js"],
+      "css": ["./temp/content.css"]
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Home/Page.mvc"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-Data.js"],
+      "css": ["./temp/mls.css"],
+      "all_frames": true
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-FullRealtor.js"],
+      "all_frames": true
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Content/SearchWarningDisplays.html*"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/mls-warning.js"],
+      "css": ["./temp/mls.css"],
+      "all_frames": true
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Home/Page.mvc/LogoutConfirmation*"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/mls-logout.js"],
+      "css": ["./temp/mls.css"],
+      "all_frames": true
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Search/Results.mvc/ExportCSV*"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/mls-export.js"],
+      "css": ["./temp/mls.css"],
+      "all_frames": true
+    }
+    
+  ],
+
+  "permissions": [
+   
+    "tabs",
+    "webNavigation",
+    "*://*/*",
+    "storage"
+  ]
+}

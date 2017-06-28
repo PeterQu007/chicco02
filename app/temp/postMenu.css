@@ -1,0 +1,14 @@
+.currentRow {
+	
+	color: red !important;
+}
+
+.hideMenuContent {
+
+	display: none;
+}
+
+.showMenuContent {
+
+	display: block;
+}
