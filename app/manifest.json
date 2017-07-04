@@ -44,8 +44,37 @@
 
     {
       "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Search/Property.mvc/Index/2/?savedSearchID=*&searchID=tab3_1"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-SearchBypassCriteria.js"],
+      "all_frames": true
+    },
+
+    {
+      "run_at": "document_end",
       "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-FullRealtor.js"],
+      "all_frames": true
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1&searchID=tab1_1"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-Tax.js"],
+      "all_frames": true
+    },
+
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=False&viewID=1&page=1&usePDF=false&searchID=tab1_1_2&showStats=false&pagingData="],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxResult.js"],
+      "all_frames": true
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/TaxReport.mvc?listingIDs=*&screenWidth=*&uniqueIDs=*&viewID=*&classID=1&usePDF=false&ShowAds=true&searchID=tab1_1_2&listingMode=0"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxDetails.js"],
       "all_frames": true
     },
 

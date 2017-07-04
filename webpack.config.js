@@ -17,7 +17,11 @@ module.exports={
 		"MLS-Warning": "./app/content/mls-warning.js",
 		"MLS-Logout": "./app/content/mls-logout.js",
 		"MLS-Export": "./app/content/mls-logout.js",
-		"MLS-FullRealtor": "./app/content/mls-fullrealtor.js"
+		"MLS-FullRealtor": "./app/content/mls-fullrealtor.js",
+		"MLS-Tax": "./app/content/mls-tax.js",
+		"MLS-TaxResult": "./app/content/mls-taxresult.js",
+		"MLS-TaxDetails": "./app/content/mls-taxdetails.js",
+		"MLS-SearchBypassCriteria": "./app/content/mls-searchbypasscriteria.js"
 		
 
 	},

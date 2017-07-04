@@ -5,6 +5,8 @@
 
 	//console.log("Hello!-1");
 
+	chrome.storage.sync.set({landValue: 0, improvementValue: 0, totalValue: 0});
+
 	chrome.browserAction.onClicked.addListener(function (activeTab) {
 
 		//open a link
@@ -61,6 +63,17 @@
 				});
 
 				sendResponse("switchTab done!!!");
+	        }
+
+	        if(request.todo == "taxSearch"){
+
+	        	console.log("I got tax search command!");
+
+	        	chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+					chrome.tabs.sendMessage(tabs[0].id, {todo: "taxSearch"})
+				});
+
+				sendResponse("tax Search Command sent out!");
 	        }
 	});
 

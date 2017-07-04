@@ -1,6 +1,11 @@
 //works with Paragon's main window
 //the messages are passed between the defaultpage and iframes, all are the contect sripts
 
+//Open frequently used tabs:
+
+$('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]')[0].click();
+$('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]')[0].click();
+
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse){
 
     //get Warning message: the search results exceed the limit, ignore it

@@ -1,6 +1,6 @@
 // get strata plan number
 
-const strataPlanPrefix = ['EPS', 'BCS', 'LMS', 'BCP', 'LMP', 'PLAN', 'PL'];
+const strataPlanPrefix = ['EPS', 'BCS', 'LMS', 'BCP', 'LMP', 'NWS', 'EPP', 'PLAN', 'PL'];
 
 
 class LegalDescription {
@@ -8,7 +8,10 @@ class LegalDescription {
 	constructor(legal){
 
 		this.legal = legal.replace(/\./g, ' ');
-		this.strataPlan = '';
+		this.strataPlan1 = '';
+		this.strataPlan2 = '';
+		this.strataPlan3 = '';
+		this.strataPlan4 = '';
 		this.LotNumber = '';
 		this.blockNumber = '';
 		this.ldNumber = '';
@@ -33,13 +36,16 @@ class LegalDescription {
 					if(!isNaN(subPlan[i])) {plan += subPlan[i];}
 					else {break;}
 				}
-				this.strataPlan = strataPlanPrefix[j] + plan.trim();
+				this.strataPlan1 = strataPlanPrefix[j] + plan.trim();
+				this.strataPlan2 = strataPlanPrefix[j] + plan.trim() + ' ';
+				this.strataPlan3 = strataPlanPrefix[j] + ' ' + plan.trim();
+				this.strataPlan4 = strataPlanPrefix[j] + ' ' + plan.trim() + ' ';
 				return;
 			}
 
 		}
 
-		this.strataPlan = 'strata plan not found';
+		this.strataPlan1 = 'strata plan not found';
 
 	}
 
