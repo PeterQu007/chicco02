@@ -5,7 +5,7 @@
 
 	//console.log("Hello!-1");
 
-	chrome.storage.sync.set({landValue: 0, improvementValue: 0, totalValue: 0});
+	chrome.storage.sync.set({landValue: 0, improvementValue: 0, totalValue: 0, curTabID: null});
 
 	chrome.browserAction.onClicked.addListener(function (activeTab) {
 
@@ -74,6 +74,28 @@
 				});
 
 				sendResponse("tax Search Command sent out!");
+	        }
+
+	        if(request.todo == "updateTopLevelTabMenuItems"){
+
+	        	console.log("I got Update Top Level Tab Menu Items Command!");
+
+	        	chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+					chrome.tabs.sendMessage(tabs[0].id, {todo: "updateTopLevelTabMenuItems"})
+				});
+
+				sendResponse("Update Top Level Tab Menu Items Command sent out!");
+	        }
+
+	        if(request.todo == "readCurTabID"){
+
+	        	console.log("New Command: readCurTabID");
+
+	        	chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+					chrome.tabs.sendMessage(tabs[0].id, {todo: "readCurTabID"})
+				});
+
+				sendResponse("readCurTabID Command sent out!");
 	        }
 	});
 

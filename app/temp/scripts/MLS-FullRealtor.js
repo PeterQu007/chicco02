@@ -60,12 +60,22 @@
 	var divFinishedFloorArea = $('div[style="top:698px;left:120px;width:50px;height:16px;"]');
 	var divReport = $('div#divHtmlReport');
 	var divPID = $('div[style="top:194px;left:355px;width:82px;height:15px;"]');
+	var curTabID = null;
+
+	//get current Tab ID
+	chrome.storage.sync.set({ 'curTabID': null });
+
+	chrome.runtime.sendMessage({ todo: 'readCurTabID', from: 'mls-fullrealtor' }, function (response) {
+
+	  console.log('current Tab ID is: ', response);
+	});
 
 	var divTab3 = $('div#tab3', top.document);
 	var divTab1 = $('div#tab1', top.document);
 	console.log(divTab3);
-	divTab3.attr("style", "display: block!important");
-	divTab1.attr("style", "display: none!important");
+
+	//divTab3.attr("style","display: block!important");
+	//divTab1.attr("style","display: none!important");
 
 	console.log("In Listing Full Realtor View Page");
 
@@ -195,6 +205,12 @@
 	  var mlsDateLow = $("#f_33_Low__1-2-3-4");
 	  var mlsDateHigh = $("#f_33_High__1-2-3-4");
 
+	  var divTab = $('div' + curTabID, top.document);
+
+	  console.log(divTab);
+
+	  divTab.removeAttr("style");
+
 	  chrome.runtime.sendMessage({ from: 'ListingReport', todo: 'switchTab' }, function (response) {
 
 	    console.log('mls-fullrealtor got response', response);
@@ -230,6 +246,32 @@
 
 	      $('#changeValue').text("[ " + changeValue.toString() + " ]");
 	      $('#changeValuePercent').text("[ " + changeValuePercent.toFixed(0).toString() + '% ]');
+	    }
+	  }
+
+	  if (area == "sync" && "curTabID" in changes) {
+
+	    if (changes.curTabID.newValue) {
+
+	      if (changes.curTabID.oldValue) {
+	        //remove the old style of the div
+	        var oldTabID = changes.curTabID.oldValue;
+	        console.log("mls-fullrealtor: my old tab ID is: ", oldTabID);
+
+	        var oldDivTab = $('div' + oldTabID, top.document);
+
+	        oldDivTab.removeAttr("style");
+	      }
+
+	      curTabID = changes.curTabID.newValue;
+	      console.log("mls-fullrealtor: my tab ID is: ", curTabID);
+
+	      var divTab = $('div' + curTabID, top.document);
+	      var divTab1 = $('div#tab1', top.document);
+	      console.log(divTab);
+
+	      divTab.attr("style", "display: block!important");
+	      divTab1.attr("style", "display: none!important");
 	    }
 	  }
 	});

@@ -54,11 +54,11 @@
 
 	chrome.storage.sync.set({ landValue: landValue, improvementValue: improvementValue, totalValue: totalValue });
 
-	chrome.storage.sync.get(['landValue', 'improvementValue', 'totalValue'], function (result) {
+	chrome.storage.sync.get(['landValue', 'improvementValue', 'totalValue', 'curTabID'], function (result) {
 
 		console.log("bcAssessment is: ", result);
 
-		var reportLink = $('div#app_tab_switcher a[href="#tab3"]', top.document);
+		var reportLink = $('div#app_tab_switcher a[href="' + result.curTabID + '"]', top.document);
 		console.log("reportLink is: ", reportLink);
 		reportLink[0].click();
 	});
