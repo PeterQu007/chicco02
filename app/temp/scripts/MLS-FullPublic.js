@@ -117,7 +117,15 @@
 
 					this.cnStrataFee.text('月管理費：');
 					this.cnGrossTaxes.text('地稅金額：');
-					this.cnFinishedFloor.text('室内縂面積：');
+					var squareMeters = convertUnit(this.finishedFloorArea.text());
+					var totalSquareMeters = convertUnit(this.totalFinishedFloorArea.text());
+
+					this.cnFinishedFloor.text('室内面積：(' + squareMeters.toString() + ' M2)');
+					this.cnTotalFinishedFloor.text('縂面積：(' + totalSquareMeters.toString() + ' M2)');
+
+					this.cnFinishedFloor.addClass(this.finishedFloorArea.attr('class'));
+					this.cnTotalFinishedFloor.addClass(this.totalFinishedFloorArea.attr('class'));
+
 					this.cnRestrictedAge.text('年齡限制：');
 					this.cnForTaxYear.text('納稅年度：');
 					this.cnAge.text('樓齡: ');
@@ -132,6 +140,23 @@
 					this.cnMgmtName.text('管理公司名稱：');
 					this.cnMgmtPhone.text('管理公司電話：');
 					this.cnView.text('是否有風景：');
+
+					this.cnRooms.text('房間數:');
+					this.cnKitchens.text('厨房數:');
+					this.cnLevels.text('樓層數:');
+					this.cnCrawHeight.text('--------');
+					this.cnPets.text('寵物數:');
+					this.cnCats.text('貓:');
+					this.cnDogs.text('狗:');
+					this.cnBylawRestric.text('物管限制:');
+					this.cnRentalsAllowed.text('出租單位數量/比例:');
+					this.cnBasement.text('地下室: ');
+
+					this.cnMaintFeeInc.text('管理費包含：');
+					this.cnLegal.text('法編: ');
+					this.cnAmenities.text('附屬設施: ');
+					this.cnSiteInfluences.text('位置特點: ');
+					this.cnFeatures.text('室内設施: ');
 			},
 
 			events: function events() {
@@ -199,6 +224,7 @@
 			lpSuffix: $('div[style="top:129px;left:703px;width:23px;height:14px;"]'),
 			bcAssess: $('div[style="top:111px;left:578px;width:147px;height:16px;"]'),
 			finishedFloorArea: $('div[style="top:804px;left:120px;width:50px;height:16px;"]'),
+			totalFinishedFloorArea: $('div[style="top:840px;left:120px;width:50px;height:12px;"]'),
 			pid: $('div[style="top:283px;left:637px;width:82px;height:15px;"]'),
 			complex: $('div[style="top:341px;left:393px;width:369px;height:13px;"]'),
 			strataFee: $('div[style="top:267px;left:530px;width:67px;height:13px;"]'),
@@ -211,6 +237,7 @@
 			cnStrataFee: $('div[style="top:267px;left:451px;width:61px;height:14px;"]'),
 			cnGrossTaxes: $('div[style="top:235px;left:603px;width:71px;height:13px;"]'),
 			cnFinishedFloor: $('div[style="top:804px;left:3px;width:111px;height:16px;"]'),
+			cnTotalFinishedFloor: $('div[style="top:840px;left:3px;width:112px;height:12px;"]'),
 			cnRestrictedAge: $('div[style="top:780px;left:210px;width:74px;height:12px;"]'),
 			cnForTaxYear: $('div[style="top:251px;left:603px;width:81px;height:15px;"]'), //$('div[style=""]'),
 			cnAge: $('div[style="top:203px;left:603px;width:27px;height:14px;"]'),
@@ -224,8 +251,24 @@
 			cnComplex: $('div[style="top:341px;left:289px;width:93px;height:14px;"]'),
 			cnMgmtName: $('div[style="top:293px;left:289px;width:96px;height:17px;"]'),
 			cnMgmtPhone: $('div[style="top:309px;left:289px;width:95px;height:17px;"]'),
-			cnView: $('div[style="top:325px;left:289px;width:77px;height:13px;"]')
+			cnView: $('div[style="top:325px;left:289px;width:77px;height:13px;"]'),
 
+			cnRooms: $('div[style="top:756px;left:210px;width:60px;height:12px;"]'),
+			cnKitchens: $('div[style="top:756px;left:293px;width:66px;height:16px;"]'),
+			cnLevels: $('div[style="top:756px;left:386px;width:56px;height:12px;"]'),
+			cnPets: $('div[style="top:792px;left:210px;width:51px;height:14px;"]'),
+			cnCats: $('div[style="top:792px;left:299px;width:30px;height:13px;"]'),
+			cnDogs: $('div[style="top:792px;left:366px;width:42px;height:13px;"]'),
+			cnBylawRestric: $('div[style="top:816px;left:210px;width:65px;height:13px;"]'),
+			cnRentalsAllowed: $('div[style="top:804px;left:210px;width:125px;height:14px;"]'),
+			cnCrawHeight: $('div[style="top:768px;left:210px;width:92px;height:15px;"]'),
+			cnBasement: $('div[style="top:840px;left:210px;width:57px;height:14px;"]'),
+
+			cnMaintFeeInc: $('div[style="top:520px;left:3px;width:74px;height:14px;"]'),
+			cnLegal: $('div[style="top:532px;left:3px;width:33px;height:16px;"]'),
+			cnAmenities: $('div[style="top:556px;left:3px;width:53px;height:15px;"]'),
+			cnSiteInfluences: $('div[style="top:580px;left:3px;width:71px;height:14px;"]'),
+			cnFeatures: $('div[style="top:591px;left:3px;width:46px;height:12px;"]')
 	}; //custom full public report
 
 	function convertStringToDecimal(strNum) {
@@ -238,6 +281,8 @@
 			strNum = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
 			//remove the [] 
 			strNum = strNum.substring(0, strNum.indexOf('[') == -1 ? strNum.length : strNum.indexOf('['));
+			//remove the unit
+
 			for (var i = 0, len = strNum.length; i < len; ++i) {
 
 					if (!isNaN(strNum[i])) {
@@ -266,6 +311,13 @@
 
 			fullpublic.init();
 	});
+
+	function convertUnit(sf) {
+
+			sf = convertStringToDecimal(sf);
+			var result = parseInt(sf) / 10.76;
+			return result.toFixed(2);
+	}
 
 	//});
 
