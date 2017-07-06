@@ -6,10 +6,21 @@
 $('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]')[0].click();
 $('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]')[0].click();
 
+var tabsContainer = $('ul#tab-bg');
+var tabDivs ;
 var tabs = $('ul#tab-bg li');
+var tabLinks = $('ul#tab-bg li a');
 console.log("default home page read top level tabs: ", tabs);
 var curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
 var curTabID = curTabLink.attr('href');
+
+tabsContainer.click(function(){
+
+    tabDivs = $('div.ui-tabs-sub');
+    tabDivs.removeAttr('style');
+    console.log('get tabs container clicked');
+
+})
 
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse){
 
@@ -76,6 +87,8 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse){
 
         //read cur tabID
         tabs = $('ul#tab-bg li');
+
+
         console.log("default home page read top level tabs: ", tabs)
 
         var curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');

@@ -51,8 +51,15 @@
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*"],
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c65*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-FullRealtor.js"],
+      "all_frames": true
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c63*"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-FullPublic.js"],
       "all_frames": true
     },
 

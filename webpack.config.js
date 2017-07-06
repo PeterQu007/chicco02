@@ -18,12 +18,12 @@ module.exports={
 		"MLS-Logout": "./app/content/mls-logout.js",
 		"MLS-Export": "./app/content/mls-logout.js",
 		"MLS-FullRealtor": "./app/content/mls-fullrealtor.js",
+		"MLS-FullPublic": "./app/content/mls-fullpublic.js",
 		"MLS-Tax": "./app/content/mls-tax.js",
 		"MLS-TaxResult": "./app/content/mls-taxresult.js",
 		"MLS-TaxDetails": "./app/content/mls-taxdetails.js",
 		"MLS-SearchBypassCriteria": "./app/content/mls-searchbypasscriteria.js"
-		
-
+	
 	},
 
 	output: {
