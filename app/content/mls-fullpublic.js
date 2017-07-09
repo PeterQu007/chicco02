@@ -14,13 +14,13 @@ var fullpublic = {
 		this.events();
 
 		this.bcAssess.addClass(this.lp.attr('class'));
-		var divBC = $('<div style="top:111px;left:703px;width:23px;height:14px;">(BC)</div>');
+		var divBC = $('<div style="top:111px;left:703px;width:53px;height:14px;text-align: left;">(BC2016)</div>');
 		var banner = $('<div id="peterqu" style="z-index: 999; height:88px; position:absolute; top: 2px; padding-right:0px; padding-left:0px; padding-top:0px; padding-bottom:0px; left:0px; width: 766px"></div>');
 		divBC.addClass(this.lpSuffix.attr('class'));
 		divBC.insertAfter(this.bcAssess);
 		this.bcAssess.animate({left:'555px'});
 		this.addBanner(banner);
-		this.translate();
+		//this.translate();
 		this.calculateSFPrice();
 		this.searchTax();
 
@@ -44,6 +44,8 @@ var fullpublic = {
 	searchTax: function(){
 
 		var PID = this.pid.text();
+
+		if(!PID){return;};
 
 		chrome.storage.sync.set({'PID': PID});
 
@@ -79,13 +81,25 @@ var fullpublic = {
 		var squareMeters = convertUnit(this.finishedFloorArea.text());
 		var totalSquareMeters = convertUnit(this.totalFinishedFloorArea.text());
 
-		this.cnFinishedFloor.text('室内面積：(' + squareMeters.toString() + ' M2)');
-		this.cnTotalFinishedFloor.text('縂面積：(' + totalSquareMeters.toString() + ' M2)');
+		this.cnFinishedFloor.text('室内面積：(' + squareMeters.toString() + ' M2)').css("text-decoration: underline");
+		this.cnTotalFinishedFloor.text('縂面積：(' + totalSquareMeters.toString() + ' M2)').css("text-decoration: underline");
 
 		this.cnFinishedFloor.addClass(this.finishedFloorArea.attr('class'));
 		this.cnTotalFinishedFloor.addClass(this.totalFinishedFloorArea.attr('class'));
 
 		this.cnRestrictedAge.text('年齡限制：');
+		this.cnSoldDate.text('銷售日期:');
+		this.cnFrontageFeet.text('');
+		this.cnFrontageMeters.text('');
+		this.cnDepth.text('');
+		this.cnLotArea.text('宅地面積:');
+		this.cnFloodPlain.text('是否泄洪區:');
+		this.cnApprovalReq.text('是否審批:');
+		this.cnNewGST.text('');
+		this.cnTaxIncUtilities.text('地稅是否含水費:');
+		this.cnZoning.text('規劃碼:');
+		this.cnServiceConnected.text('公用服務:');
+		this.cnMeasType.text('測量單位:');
 		this.cnForTaxYear.text('納稅年度：');
 		this.cnAge.text('樓齡: ');
 		this.cnYearBuilt.text('建造年份：');
@@ -99,6 +113,11 @@ var fullpublic = {
 		this.cnMgmtName.text('管理公司名稱：');
 		this.cnMgmtPhone.text('管理公司電話：');
 		this.cnView.text('是否有風景：');
+
+		this.cnTotalParking.text('停車位:').css("text-decoration", "underline!important");
+		this.cnParking.text('停車場:').css("text-decoration: underline");
+		this.cnLocker.text('儲物間:').css("text-decoration: underline");
+		this.cnTitleToLand.text('物業產權:').css("text-decoration: underline");
 
 		this.cnRooms.text('房間數:');
 		this.cnKitchens.text('厨房數:');
@@ -204,6 +223,18 @@ var fullpublic = {
 	tax: $('div[style="top:235px;left:698px;width:65px;height:13px;"]'),
 	title: $('div[style="top:444px;left:440px;width:321px;height:13px;"]'),
 	
+	cnSoldDate:$('div[style="top:170px;left:289px;width:59px;height:16px;"]'),
+	cnFrontageFeet:$('div[style="top:171px;left:451px;width:87px;height:13px;"]'),
+	cnFrontageMeters:$('div[style="top:187px;left:451px;width:98px;height:16px;"]'),
+	cnDepth:$('div[style="top:199px;left:289px;width:89px;height:13px;"]'),
+	cnLotArea:$('div[style="top:214px;left:289px;width:88px;height:17px;"]'),
+	cnFloodPlain:$('div[style="top:230px;left:289px;width:79px;height:13px;"]'),
+	cnApprovalReq:$('div[style="top:246px;left:289px;width:77px;height:16px;"]'),
+	cnNewGST:$('div[style="top:277px;left:289px;width:110px;height:14px;"]'),
+	cnTaxIncUtilities:$('div[style="top:267px;left:603px;width:90px;height:14px;"]'),
+	cnZoning:$('div[style="top:219px;left:603px;width:43px;height:15px;"]'),
+	cnServiceConnected:$('div[style="top:357px;left:289px;width:105px;height:15px;"]'),
+	cnMeasType: $('div[style="top:184px;left:289px;width:76px;height:15px;"]'),
 	cnStrataFee: $('div[style="top:267px;left:451px;width:61px;height:14px;"]'),
 	cnGrossTaxes: $('div[style="top:235px;left:603px;width:71px;height:13px;"]'),
 	cnFinishedFloor: $('div[style="top:804px;left:3px;width:111px;height:16px;"]'),
@@ -222,6 +253,11 @@ var fullpublic = {
 	cnMgmtName: $('div[style="top:293px;left:289px;width:96px;height:17px;"]'),
 	cnMgmtPhone: $('div[style="top:309px;left:289px;width:95px;height:17px;"]'),
 	cnView: $('div[style="top:325px;left:289px;width:77px;height:13px;"]'),
+
+	cnTotalParking: $('div[style="top:384px;left:367px;width:73px;height:12px;"]'),
+	cnParking: $('div[style="top:396px;left:367px;width:43px;height:12px;"]'),
+	cnLocker: $('div[style="top:408px;left:565px;width:40px;height:12px;"]'),
+	cnTitleToLand: $('div[style="top:444px;left:367px;width:63px;height:12px;"]'),
 
 	cnRooms: $('div[style="top:756px;left:210px;width:60px;height:12px;"]'),
 	cnKitchens: $('div[style="top:756px;left:293px;width:66px;height:16px;"]'),
@@ -288,7 +324,7 @@ function convertUnit(sf){
 
 	sf = convertStringToDecimal(sf);
 	var result = parseInt(sf) / 10.76;
-	return result.toFixed(2);
+	return result.toFixed(1);
 }
 
 //});
