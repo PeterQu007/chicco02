@@ -46,7 +46,7 @@
 
 	'use strict';
 
-	var _LegalDescription = __webpack_require__(1);
+	var _LegalDescription = __webpack_require__(2);
 
 	var _LegalDescription2 = _interopRequireDefault(_LegalDescription);
 
@@ -69,7 +69,10 @@
 					divBC.insertAfter(this.bcAssess);
 					this.bcAssess.animate({ left: '555px' });
 					this.addBanner(banner);
-					//this.translate();
+					if (this.language.is(':checked')) {
+							this.translate();
+					};
+
 					this.calculateSFPrice();
 					this.searchTax();
 			},
@@ -115,69 +118,6 @@
 					var img = $('<img src="http://localhost/chromex/mlshelper/app/assets/images/banner4.jpg">');
 					img.appendTo(banner);
 					banner.appendTo($('div#divHtmlReport'));
-			},
-
-			translate: function translate() {
-
-					this.cnStrataFee.text('月管理費：');
-					this.cnGrossTaxes.text('地稅金額：');
-					var squareMeters = convertUnit(this.finishedFloorArea.text());
-					var totalSquareMeters = convertUnit(this.totalFinishedFloorArea.text());
-
-					this.cnFinishedFloor.text('室内面積：(' + squareMeters.toString() + ' M2)').css("text-decoration: underline");
-					this.cnTotalFinishedFloor.text('縂面積：(' + totalSquareMeters.toString() + ' M2)').css("text-decoration: underline");
-
-					this.cnFinishedFloor.addClass(this.finishedFloorArea.attr('class'));
-					this.cnTotalFinishedFloor.addClass(this.totalFinishedFloorArea.attr('class'));
-
-					this.cnRestrictedAge.text('年齡限制：');
-					this.cnSoldDate.text('銷售日期:');
-					this.cnFrontageFeet.text('');
-					this.cnFrontageMeters.text('');
-					this.cnDepth.text('');
-					this.cnLotArea.text('宅地面積:');
-					this.cnFloodPlain.text('是否泄洪區:');
-					this.cnApprovalReq.text('是否審批:');
-					this.cnNewGST.text('');
-					this.cnTaxIncUtilities.text('地稅是否含水費:');
-					this.cnZoning.text('規劃碼:');
-					this.cnServiceConnected.text('公用服務:');
-					this.cnMeasType.text('測量單位:');
-					this.cnForTaxYear.text('納稅年度：');
-					this.cnAge.text('樓齡: ');
-					this.cnYearBuilt.text('建造年份：');
-					this.cnOriginalPrice.text('挂牌價格：');
-					this.cnBedrooms.text('臥室數：');
-					this.cnBathrooms.text('衛生間：');
-					this.cnFullBaths.text('全衛：');
-					this.cnHalfBaths.text('半衛：');
-					this.cnExposure.text('朝向：');
-					this.cnComplex.text('小區名稱：');
-					this.cnMgmtName.text('管理公司名稱：');
-					this.cnMgmtPhone.text('管理公司電話：');
-					this.cnView.text('是否有風景：');
-
-					this.cnTotalParking.text('停車位:').css("text-decoration", "underline!important");
-					this.cnParking.text('停車場:').css("text-decoration: underline");
-					this.cnLocker.text('儲物間:').css("text-decoration: underline");
-					this.cnTitleToLand.text('物業產權:').css("text-decoration: underline");
-
-					this.cnRooms.text('房間數:');
-					this.cnKitchens.text('厨房數:');
-					this.cnLevels.text('樓層數:');
-					this.cnCrawHeight.text('--------');
-					this.cnPets.text('寵物數:');
-					this.cnCats.text('貓:');
-					this.cnDogs.text('狗:');
-					this.cnBylawRestric.text('物管限制:');
-					this.cnRentalsAllowed.text('出租單位數量/比例:');
-					this.cnBasement.text('地下室: ');
-
-					this.cnMaintFeeInc.text('管理費包含：');
-					this.cnLegal.text('法編: ');
-					this.cnAmenities.text('附屬設施: ');
-					this.cnSiteInfluences.text('位置特點: ');
-					this.cnFeatures.text('室内設施: ');
 			},
 
 			events: function events() {
@@ -254,6 +194,8 @@
 			year: $('div[style="top:187px;left:698px;width:39px;height:13px;"]'),
 			tax: $('div[style="top:235px;left:698px;width:65px;height:13px;"]'),
 			title: $('div[style="top:444px;left:440px;width:321px;height:13px;"]'),
+			keyword: $('div#app_banner_links_left input.select2-search__field', top.document),
+			language: $('div#reportlanguage input', top.document),
 
 			cnSoldDate: $('div[style="top:170px;left:289px;width:59px;height:16px;"]'),
 			cnFrontageFeet: $('div[style="top:171px;left:451px;width:87px;height:13px;"]'),
@@ -306,8 +248,80 @@
 			cnLegal: $('div[style="top:532px;left:3px;width:33px;height:16px;"]'),
 			cnAmenities: $('div[style="top:556px;left:3px;width:53px;height:15px;"]'),
 			cnSiteInfluences: $('div[style="top:580px;left:3px;width:71px;height:14px;"]'),
-			cnFeatures: $('div[style="top:591px;left:3px;width:46px;height:12px;"]')
-	}; //custom full public report
+			cnFeatures: $('div[style="top:591px;left:3px;width:46px;height:12px;"]'),
+
+			translate: function translate() {
+
+					this.cnStrataFee.text('月管理費：');
+					this.cnGrossTaxes.text('地稅金額：');
+					var squareMeters = convertUnit(this.finishedFloorArea.text());
+					var totalSquareMeters = convertUnit(this.totalFinishedFloorArea.text());
+
+					this.cnFinishedFloor.text('室内面積：(' + squareMeters.toString() + ' M2)').css("text-decoration: underline");
+					this.cnTotalFinishedFloor.text('縂面積：(' + totalSquareMeters.toString() + ' M2)').css("text-decoration: underline");
+
+					this.cnFinishedFloor.addClass(this.finishedFloorArea.attr('class'));
+					this.cnTotalFinishedFloor.addClass(this.totalFinishedFloorArea.attr('class'));
+
+					this.cnRestrictedAge.text('年齡限制：');
+					this.cnSoldDate.text('銷售日期:');
+					this.cnFrontageFeet.text('');
+					this.cnFrontageMeters.text('');
+					this.cnDepth.text('');
+					this.cnLotArea.text('宅地面積:');
+					this.cnFloodPlain.text('是否泄洪區:');
+					this.cnApprovalReq.text('是否審批:');
+					this.cnNewGST.text('');
+					this.cnTaxIncUtilities.text('地稅是否含水費:');
+					this.cnZoning.text('規劃碼:');
+					this.cnServiceConnected.text('公用服務:');
+					this.cnMeasType.text('測量單位:');
+					this.cnForTaxYear.text('納稅年度：');
+					this.cnAge.text('樓齡: ');
+					this.cnYearBuilt.text('建造年份：');
+					this.cnOriginalPrice.text('挂牌價格：');
+					this.cnBedrooms.text('臥室數：');
+					this.cnBathrooms.text('衛生間：');
+					this.cnFullBaths.text('全衛：');
+					this.cnHalfBaths.text('半衛：');
+					this.cnExposure.text('朝向：');
+					this.cnComplex.text('小區名稱：');
+					this.cnMgmtName.text('管理公司名稱：');
+					this.cnMgmtPhone.text('管理公司電話：');
+					this.cnView.text('是否有風景：');
+
+					this.cnTotalParking.text('停車位:').css("text-decoration", "underline!important");
+					this.cnParking.text('停車場:').css("text-decoration: underline");
+					this.cnLocker.text('儲物間:').css("text-decoration: underline");
+					this.cnTitleToLand.text('物業產權:').css("text-decoration: underline");
+
+					this.cnRooms.text('房間數:');
+					this.cnKitchens.text('厨房數:');
+					this.cnLevels.text('樓層數:');
+					this.cnCrawHeight.text('--------');
+					this.cnPets.text('寵物數:');
+					this.cnCats.text('貓:');
+					this.cnDogs.text('狗:');
+					this.cnBylawRestric.text('物管限制:');
+					this.cnRentalsAllowed.text('出租單位數量/比例:');
+					this.cnBasement.text('地下室: ');
+
+					this.cnMaintFeeInc.text('管理費包含：');
+					this.cnLegal.text('法編: ');
+					this.cnAmenities.text('附屬設施: ');
+					this.cnSiteInfluences.text('位置特點: ');
+					this.cnFeatures.text('室内設施: ');
+			}
+	};
+
+	//fullpublic startpoint
+	//document.addEventListener("DOMContentLoaded", function(){
+	//custom full public report
+
+	$(function () {
+
+			fullpublic.init();
+	});
 
 	function convertStringToDecimal(strNum) {
 
@@ -343,13 +357,6 @@
 			return result;
 	}
 
-	//fullpublic startpoint
-	//document.addEventListener("DOMContentLoaded", function(){
-	$(function () {
-
-			fullpublic.init();
-	});
-
 	function convertUnit(sf) {
 
 			sf = convertStringToDecimal(sf);
@@ -360,7 +367,8 @@
 	//});
 
 /***/ }),
-/* 1 */
+/* 1 */,
+/* 2 */
 /***/ (function(module, exports) {
 
 	'use strict';

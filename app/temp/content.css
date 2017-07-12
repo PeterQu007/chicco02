@@ -1,0 +1,24 @@
+.highlight {
+    font-weight: bold;
+    color: red;
+}
+
+#reportlanguage{
+	width: 25px;
+	height: 25px;
+	
+}
+
+.languagebox{
+	width: 50px;
+	height: 25px;
+	display: inline-block;
+	position: relative;
+	vertical-align: middle;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}

@@ -1,5 +1,8 @@
 //background script, event mode
 //message passed between background - defaultpage - iframes
+import database from '../assets/scripts/modules/Database';
+
+var db = new database();
 
 (function(){
 
@@ -66,14 +69,57 @@
 	        }
 
 	        if(request.todo == "taxSearch"){
+	        	//get request to search tax info of Property with PID saved to storage
+	        	console.log(">>>I got tax search command!");
 
-	        	console.log("I got tax search command!");
+	        	chrome.storage.sync.get('PID', function(result){
+	        		//check database, if assess exist, send it back
+	        		console.log(">>>PID is: ", result.PID);
+	        		db.read(result.PID, function(assess){
 
-	        	chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-					chrome.tabs.sendMessage(tabs[0].id, {todo: "taxSearch"})
-				});
+	        			console.log(">>>read from db, assess is: ", assess)
+		        		if(assess){
 
-				sendResponse("tax Search Command sent out!");
+		        			
+		        			
+		        		}else{
+		        			//other wise , send out tax research command:
+		        			chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+								chrome.tabs.sendMessage(tabs[0].id, {todo: "taxSearch"})
+							});
+
+							
+			        	}
+	        		});
+	        		
+
+	        	});
+
+	        	sendResponse(">>>tax search has been processed in evenpage: ");
+	
+	        }
+
+	        if(request.todo == "saveTax"){
+
+	        	console.log(">>>I got save tax info: ");
+
+	        	// var assess = {
+
+	        	// 	"_id": request._id,
+	        	// 	"landValue": request.landValue,
+	        	// 	"improvementValue": request.improvementValue,
+	        	// 	"totalValue": request.totalValue,
+	        	// 	"changeValue": request.valueChange,
+	        	// 	"changeValuePercent": request.valueChangePercent
+
+	        	// }
+
+	        	var assess = request.taxData;
+
+	        	db.write(assess);
+
+	        	sendResponse(assess);
+
 	        }
 
 	        if(request.todo == "updateTopLevelTabMenuItems"){

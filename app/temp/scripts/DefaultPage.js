@@ -51,103 +51,231 @@
 
 	//Open frequently used tabs:
 
-	$('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]')[0].click();
-	$('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]')[0].click();
+	var DefaultPage = {
 
-	var tabsContainer = $('ul#tab-bg');
-	var tabDivs;
-	var tabs = $('ul#tab-bg li');
-	var tabLinks = $('ul#tab-bg li a');
-	console.log("default home page read top level tabs: ", tabs);
-	var curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-	var curTabID = curTabLink.attr('href');
+	            init: function init() {
 
-	tabsContainer.click(function () {
+	                        this.curTabID = this.curTabLink.attr('href');
+	                        this.language.appendTo(this.leftBanner);
+	                        this.taxSearch[0].click();
+	                        this.savedSearch[0].click();
+	                        this.tabsContainerClickEvent();
+	                        this.messageEvents();
+	            },
 
-	    tabDivs = $('div.ui-tabs-sub');
-	    tabDivs.removeAttr('style');
-	    console.log('get tabs container clicked');
+	            taxSearch: $('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]'),
+	            savedSearch: $('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]'),
+	            tabsContainer: $('ul#tab-bg'),
+	            tabDivs: null,
+	            tabs: $('ul#tab-bg li'),
+	            tabLinks: $('ul#tab-bg li a'),
+	            curTabLink: $('ul#tab-bg li.ui-tabs-selected.ui-state-active a'),
+	            curTabID: null,
+	            leftBanner: $('#app_banner_links_left'),
+	            language: $('<div class="languagebox clearfix"><div id="reportlanguage"><lable><input type="checkbox" name="checkbox" sytle="width: 25px!important">Chinese</lable></div></div>'),
+
+	            tabsContainerClickEvent: function tabsContainerClickEvent() {
+
+	                        this.tabsContainer.click(function () {
+
+	                                    this.tabDivs = $('div.ui-tabs-sub');
+	                                    this.tabDivs.removeAttr('style');
+	                                    console.log('get tabs container clicked');
+	                        });
+	            },
+
+	            messageEvents: function messageEvents() {
+
+	                        chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
+
+	                                    //get Warning message: the search results exceed the limit, ignore it
+	                                    if (request.todo == "ignoreWarning") {
+	                                                var checkCount = function checkCount() {
+	                                                            //#OK button, "Continue", belongs to default page
+	                                                            if (document.querySelector("#OK")) {
+
+	                                                                        clearInterval(countTimer);
+	                                                                        var btnOK = $('#OK');
+	                                                                        console.log("OK", btnOK);
+	                                                                        btnOK.click();
+	                                                            }
+	                                                };
+
+	                                                //Warning Form is a special page, the buttons are in the div, 
+	                                                //the iframe is separate with the buttons
+	                                                //this message sent from mls-warning.js
+	                                                console.log("Main Home ignore warning message!");
+	                                                console.log($('#OK'));
+
+	                                                var countTimer = setInterval(checkCount, 100);
+
+	                                                ;
+	                                    };
+
+	                                    //Logout MLS Windows shows an annoying confirm box, pass it
+	                                    //The message sent from logout iframe , the buttons are inside the iframe
+	                                    if (request.todo == "logoutMLS") {
+	                                                var _checkCount = function _checkCount() {
+	                                                            //the button is inside the iframe, this iframe belongs to default page
+	                                                            if (document.querySelector("#confirm")) {
+
+	                                                                        clearInterval(countTimer);
+	                                                                        var btnYes = $('#confirm');
+	                                                                        console.log("confirm", btnYes);
+	                                                                        btnYes.click();
+	                                                            }
+	                                                };
+
+	                                                console.log("Main Home got logout message!");
+	                                                console.log($('#confirm'));
+
+	                                                var countTimer = setInterval(_checkCount, 100);
+
+	                                                ;
+	                                    };
+
+	                                    if (request.todo == "updateTopLevelTabMenuItems") {
+
+	                                                //update tabs
+	                                                this.tabs = $('ul#tab-bg li');
+	                                                console.log("default home page update top level tabs: ", tabs);
+
+	                                                this.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+	                                                this.curTabID = curTabLink.attr('href');
+
+	                                                chrome.storage.sync.set({ curTabID: this.curTabID });
+	                                    }
+
+	                                    if (request.todo == "readCurTabID") {
+
+	                                                //read cur tabID
+	                                                this.tabs = $('ul#tab-bg li');
+
+	                                                console.log("default home page read top level tabs: ", tabs);
+
+	                                                this.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+	                                                this.curTabID = curTabLink.attr('href');
+
+	                                                console.log("current Tab ID is: ", this.curTabID);
+
+	                                                //save the curTabID
+	                                                chrome.storage.sync.set({ curTabID: this.curTabID }, function () {
+
+	                                                            console.log('curTabID has been save to storage.');
+	                                                });
+	                                    }
+	                        });
+	            }
+
+	            //Start point
+
+	};$(function () {
+
+	            DefaultPage.init();
 	});
 
-	chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
+	// $('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]')[0].click();
+	// $('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]')[0].click();
 
-	    //get Warning message: the search results exceed the limit, ignore it
-	    if (request.todo == "ignoreWarning") {
-	        var checkCount = function checkCount() {
-	            //#OK button, "Continue", belongs to default page
-	            if (document.querySelector("#OK")) {
+	// var tabsContainer = $('ul#tab-bg');
+	// var tabDivs ;
+	// var tabs = $('ul#tab-bg li');
+	// var tabLinks = $('ul#tab-bg li a');
+	// console.log("default home page read top level tabs: ", tabs);
+	// var curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+	// var curTabID = curTabLink.attr('href');
 
-	                clearInterval(countTimer);
-	                var btnOK = $('#OK');
-	                console.log("OK", btnOK);
-	                btnOK.click();
-	            }
-	        };
+	// tabsContainer.click(function(){
 
-	        //Warning Form is a special page, the buttons are in the div, 
-	        //the iframe is separate with the buttons
-	        //this message sent from mls-warning.js
-	        console.log("Main Home ignore warning message!");
-	        console.log($('#OK'));
+	//     tabDivs = $('div.ui-tabs-sub');
+	//     tabDivs.removeAttr('style');
+	//     console.log('get tabs container clicked');
 
-	        var countTimer = setInterval(checkCount, 100);
+	// })
 
-	        ;
-	    };
+	// chrome.extension.onMessage.addListener(function(request, sender, sendResponse){
 
-	    //Logout MLS Windows shows an annoying confirm box, pass it
-	    //The message sent from logout iframe , the buttons are inside the iframe
-	    if (request.todo == "logoutMLS") {
-	        var _checkCount = function _checkCount() {
-	            //the button is inside the iframe, this iframe belongs to default page
-	            if (document.querySelector("#confirm")) {
+	//     //get Warning message: the search results exceed the limit, ignore it
+	//     if(request.todo == "ignoreWarning"){
 
-	                clearInterval(countTimer);
-	                var btnYes = $('#confirm');
-	                console.log("confirm", btnYes);
-	                btnYes.click();
-	            }
-	        };
+	//         //Warning Form is a special page, the buttons are in the div, 
+	//         //the iframe is separate with the buttons
+	//         //this message sent from mls-warning.js
+	//         console.log("Main Home ignore warning message!");
+	//         console.log($('#OK'));
 
-	        console.log("Main Home got logout message!");
-	        console.log($('#confirm'));
+	//         var countTimer = setInterval (checkCount, 100);
 
-	        var countTimer = setInterval(_checkCount, 100);
+	//         function checkCount() {
+	//             //#OK button, "Continue", belongs to default page
+	//             if(document.querySelector ("#OK")){
 
-	        ;
-	    };
+	//                 clearInterval (countTimer);
+	//                 var btnOK = $('#OK');
+	//                 console.log("OK",btnOK);
+	//                 btnOK.click();
+	//             }
+	//         };
 
-	    if (request.todo == "updateTopLevelTabMenuItems") {
+	//     };
 
-	        //update tabs
-	        tabs = $('ul#tab-bg li');
-	        console.log("default home page update top level tabs: ", tabs);
+	//     //Logout MLS Windows shows an annoying confirm box, pass it
+	//     //The message sent from logout iframe , the buttons are inside the iframe
+	//     if(request.todo == "logoutMLS"){
 
-	        var curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-	        var curTabID = curTabLink.attr('href');
+	//         console.log("Main Home got logout message!");
+	//         console.log($('#confirm'));
 
-	        chrome.storage.sync.set({ curTabID: curTabID });
-	    }
+	//         var countTimer = setInterval (checkCount, 100);
 
-	    if (request.todo == "readCurTabID") {
+	//         function checkCount() {
+	//             //the button is inside the iframe, this iframe belongs to default page
+	//             if(document.querySelector ("#confirm")){
 
-	        //read cur tabID
-	        tabs = $('ul#tab-bg li');
+	//                 clearInterval (countTimer);
+	//                 var btnYes = $('#confirm');
+	//                 console.log("confirm",btnYes);
+	//                 btnYes.click();
+	//             }
+	//         };
 
-	        console.log("default home page read top level tabs: ", tabs);
+	//     };
 
-	        var curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-	        var curTabID = curTabLink.attr('href');
+	//     if(request.todo == "updateTopLevelTabMenuItems"){
 
-	        console.log("current Tab ID is: ", curTabID);
+	//         //update tabs
+	//         tabs = $('ul#tab-bg li');
+	//         console.log("default home page update top level tabs: ", tabs)
 
-	        //save the curTabID
-	        chrome.storage.sync.set({ curTabID: curTabID }, function () {
+	//         var curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+	//         var curTabID = curTabLink.attr('href');
 
-	            console.log('curTabID has been save to storage.');
-	        });
-	    }
-	});
+	//         chrome.storage.sync.set({curTabID : curTabID});
+
+	//     }
+
+	//     if(request.todo == "readCurTabID"){
+
+	//         //read cur tabID
+	//         tabs = $('ul#tab-bg li');
+
+
+	//         console.log("default home page read top level tabs: ", tabs)
+
+	//         var curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+	//         var curTabID = curTabLink.attr('href');
+
+	//         console.log("current Tab ID is: ", curTabID);
+
+	//         //save the curTabID
+	//         chrome.storage.sync.set({curTabID : curTabID}, function(){
+
+	//             console.log('curTabID has been save to storage.');
+	//         });
+
+	//     }
+
+	// });
 
 /***/ })
 /******/ ]);

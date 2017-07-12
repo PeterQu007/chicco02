@@ -17,7 +17,7 @@
   },
 
   "background": {
-    "scripts": ["./temp/scripts/EventPage.js"]
+    "scripts": ["./assets/lib/pouchdb/dist/pouchdb.js","./temp/scripts/EventPage.js"]
     //"persistent": false
   },
 
@@ -53,6 +53,7 @@
       "run_at": "document_end",
       "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c65*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-FullRealtor.js"],
+      "css": ["./temp/content.css"],
       "all_frames": true
     },
 
