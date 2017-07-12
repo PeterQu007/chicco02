@@ -4,9 +4,9 @@
 }
 
 #reportlanguage{
-	width: 25px;
+	width: 48px;
 	height: 25px;
-	
+	padding-top: 5px;
 }
 
 .languagebox{
@@ -15,6 +15,7 @@
 	display: inline-block;
 	position: relative;
 	vertical-align: middle;
+	float: left;
 }
 
 .clearfix::after {

@@ -67,7 +67,7 @@
 					var banner = $('<div id="peterqu" style="z-index: 999; height:88px; position:absolute; top: 2px; padding-right:0px; padding-left:0px; padding-top:0px; padding-bottom:0px; left:0px; width: 766px"></div>');
 					divBC.addClass(this.lpSuffix.attr('class'));
 					divBC.insertAfter(this.bcAssess);
-					this.bcAssess.animate({ left: '555px' });
+					this.bcAssess.animate({ left: '525px', width: '177px' }).css("text-align", "left");
 					this.addBanner(banner);
 					if (this.language.is(':checked')) {
 							this.translate();
@@ -86,9 +86,11 @@
 					var sfPriceList = listPrice / FinishedFloorArea;
 					var sfPriceSold = soldPrice / FinishedFloorArea;
 
-					this.lp.text(this.lp.text() + ' [$' + sfPriceList.toFixed(0) + '/sf]');
+					this.lp.animate({ left: '525px', width: '177px' }).css("text-align", "left");;
+					this.lp.text("挂牌價格:" + this.lp.text() + ' [$' + sfPriceList.toFixed(0) + '/sf]');
 					if (sfPriceSold > 0) {
-							this.sp.text(this.sp.text() + ' [$' + sfPriceSold.toFixed(0) + '/sf]');
+							this.sp.animate({ left: '525px', width: '177px' }).css("text-align", "left");;
+							this.sp.text("成交價格:" + this.sp.text() + ' [$' + sfPriceSold.toFixed(0) + '/sf]');
 					}
 			},
 
@@ -148,7 +150,7 @@
 													var changeValuePercent = changeValue / intTotalValue * 100;
 											}
 
-											self.bcAssess.text(removeDecimalFraction(self.bcAssess.text()) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
+											self.bcAssess.text("政府估價:" + removeDecimalFraction(self.bcAssess.text()) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
 									}
 
 									if (area == "sync" && "curTabID" in changes) {
@@ -230,8 +232,18 @@
 
 			cnTotalParking: $('div[style="top:384px;left:367px;width:73px;height:12px;"]'),
 			cnParking: $('div[style="top:396px;left:367px;width:43px;height:12px;"]'),
+			cnCoveredParking: $('div[style="top:384px;left:458px;width:82px;height:16px;"]'),
+			cnParkingAccess: $('div[style="top:384px;left:565px;width:76px;height:15px;"]'),
+			cnDistToPublicTransit: $('div[style="top:420px;left:367px;width:99px;height:12px;"]'),
+			cnDistToSchoolBus: $('div[style="top:420px;left:565px;width:89px;height:14px;"]'),
+			cnUnitInDevelopment: $('div[style="top:432px;left:367px;width:101px;height:15px;"]'),
+			cnTotalUnitsInStrata: $('div[style="top:432px;left:565px;width:96px;height:15px;"]'),
 			cnLocker: $('div[style="top:408px;left:565px;width:40px;height:12px;"]'),
 			cnTitleToLand: $('div[style="top:444px;left:367px;width:63px;height:12px;"]'),
+			cnPropertyDisc: $('div[style="top:468px;left:367px;width:72px;height:14px;"]'),
+			cnFixturesLeased: $('div[style="top:480px;left:367px;width:74px;height:15px;"]'),
+			cnFixturesRmvd: $('div[style="top:492px;left:367px;width:72px;height:13px;"]'),
+			cnFloorFinish: $('div[style="top:504px;left:367px;width:61px;height:14px;"]'),
 
 			cnRooms: $('div[style="top:756px;left:210px;width:60px;height:12px;"]'),
 			cnKitchens: $('div[style="top:756px;left:293px;width:66px;height:16px;"]'),
@@ -250,10 +262,46 @@
 			cnSiteInfluences: $('div[style="top:580px;left:3px;width:71px;height:14px;"]'),
 			cnFeatures: $('div[style="top:591px;left:3px;width:46px;height:12px;"]'),
 
+			cnStyleOfHome: $('div[style="top:384px;left:3px;width:69px;height:13px;"]'),
+			cnConstruction: $('div[style="top:396px;left:3px;width:62px;height:12px;"]'),
+			cnExterior: $('div[style="top:408px;left:3px;width:43px;height:12px;"]'),
+			cnFoundation: $('div[style="top:420px;left:3px;width:64px;height:14px;"]'),
+			cnRainScreen: $('div[style="top:432px;left:3px;width:59px;height:12px;"]'),
+			cnRenovation: $('div[style="top:444px;left:3px;width:60px;height:12px;"]'),
+			cnWaterSupply: $('div[style="top:456px;left:3px;width:72px;height:14px;"]'),
+			cnFirePlaceFuel: $('div[style="top:468px;left:3px;width:69px;height:13px;"]'),
+			cnFuelHeating: $('div[style="top:480px;left:3px;width:61px;height:12px;"]'),
+			cnOutdoorArea: $('div[style="top:492px;left:3px;width:70px;height:13px;"]'),
+			cnTypeOfRoof: $('div[style="top:504px;left:3px;width:64px;height:12px;"]'),
+			cnRenoYear: $('div[style="top:420px;left:259px;width:60px;height:12px;"]'),
+			cnRIPlumbing: $('div[style="top:432px;left:259px;width:65px;height:12px;"]'),
+			cnRIFireplaces: $('div[style="top:444px;left:259px;width:71px;height:12px;"]'),
+			cnNumOfFirePlaces: $('div[style="top:456px;left:259px;width:70px;height:13px;"]'),
+
+			cnFloor: $('div[style="top:616px;left:3px;width:28px;height:15px;"]'),
+			cnType: $('div[style="top:616px;left:65px;width:32px;height:15px;"]'),
+			cnDimensions: $('div[style="top:616px;left:182px;width:58px;height:16px;"]'),
+			cnFloor2: $('div[style="top:616px;left:250px;width:39px;height:15px;"]'),
+			cnType2: $('div[style="top:616px;left:328px;width:28px;height:15px;"]'),
+			cnDimensions2: $('div[style="top:616px;left:435px;width:64px;height:17px;"]'),
+			cnFloor3: $('div[style="top:616px;left:510px;width:37px;height:16px;"]'),
+			cnType3: $('div[style="top:616px;left:577px;width:40px;height:19px;"]'),
+			cnDimensions3: $('div[style="top:616px;left:695px;width:58px;height:17px;"]'),
+			cnBath: $('div[style="top:754px;left:470px;width:30px;height:15px;"]'),
+			cnFloor4: $('div[style="top:754px;left:509px;width:25px;height:15px;"]'),
+			cnNumOfPieces: $('div[style="top:754px;left:543px;width:54px;height:13px;"]'),
+			cnEnsuite: $('div[style="top:754px;left:603px;width:40px;height:16px;"]'),
+			cnFinishedFloorMain: $('div[style="top:756px;left:3px;width:105px;height:14px;"]'),
+			cnFinishedFloorAbove: $('div[style="top:768px;left:3px;width:115px;height:13px;"]'),
+			cnFinishedFloorBelow: $('div[style="top:780px;left:3px;width:112px;height:16px;"]'),
+			cnFinishedFloorBasement: $('div[style="top:792px;left:3px;width:125px;height:15px;"]'),
+			cnUnfinishedFloor: $('div[style="top:828px;left:3px;width:109px;height:14px;"]'),
+			//$('div[style=""]'),
+
 			translate: function translate() {
 
-					this.cnStrataFee.text('月管理費：');
-					this.cnGrossTaxes.text('地稅金額：');
+					this.cnStrataFee.css("text-decoration", "underline").text('月管理費：');
+					this.cnGrossTaxes.css("text-decoration", "underline").text('地稅金額：');
 					var squareMeters = convertUnit(this.finishedFloorArea.text());
 					var totalSquareMeters = convertUnit(this.totalFinishedFloorArea.text());
 
@@ -263,7 +311,7 @@
 					this.cnFinishedFloor.addClass(this.finishedFloorArea.attr('class'));
 					this.cnTotalFinishedFloor.addClass(this.totalFinishedFloorArea.attr('class'));
 
-					this.cnRestrictedAge.text('年齡限制：');
+					this.cnRestrictedAge.css("text-decoration", "underline").text('年齡限制：');
 					this.cnSoldDate.text('銷售日期:');
 					this.cnFrontageFeet.text('');
 					this.cnFrontageMeters.text('');
@@ -271,29 +319,39 @@
 					this.cnLotArea.text('宅地面積:');
 					this.cnFloodPlain.text('是否泄洪區:');
 					this.cnApprovalReq.text('是否審批:');
-					this.cnNewGST.text('');
+					this.cnNewGST.text('是否含稅:');
 					this.cnTaxIncUtilities.text('地稅是否含水費:');
 					this.cnZoning.text('規劃碼:');
 					this.cnServiceConnected.text('公用服務:');
 					this.cnMeasType.text('測量單位:');
 					this.cnForTaxYear.text('納稅年度：');
-					this.cnAge.text('樓齡: ');
+					this.cnAge.css("text-decoration", "underline").text('樓齡: ');
 					this.cnYearBuilt.text('建造年份：');
 					this.cnOriginalPrice.text('挂牌價格：');
-					this.cnBedrooms.text('臥室數：');
+					this.cnBedrooms.css("text-decoration", "underline").text('臥室數：');
 					this.cnBathrooms.text('衛生間：');
-					this.cnFullBaths.text('全衛：');
+					this.cnFullBaths.css("text-decoration", "underline").text('全衛：');
 					this.cnHalfBaths.text('半衛：');
-					this.cnExposure.text('朝向：');
+					this.cnExposure.css("text-decoration", "underline").text('朝向：');
 					this.cnComplex.text('小區名稱：');
 					this.cnMgmtName.text('管理公司名稱：');
 					this.cnMgmtPhone.text('管理公司電話：');
 					this.cnView.text('是否有風景：');
 
-					this.cnTotalParking.text('停車位:').css("text-decoration", "underline!important");
+					this.cnTotalParking.css("text-decoration", "underline").text('停車位:').css("text-decoration", "underline!important");
 					this.cnParking.text('停車場:').css("text-decoration: underline");
+					this.cnCoveredParking.css("text-decoration", "underline").text('室内停車位:');
+					this.cnParkingAccess.text('停車場入口:');
+					this.cnDistToPublicTransit.text('公交距離:');
+					this.cnDistToSchoolBus.text('校車距離:');
+					this.cnUnitInDevelopment.text('本期開發數量:');
+					this.cnTotalUnitsInStrata.text('小區單位數量:');
+					this.cnPropertyDisc.text('物業披露書:');
+					this.cnFixturesLeased.text('租賃設備:');
+					this.cnFixturesRmvd.text('拆卸設備:');
+					this.cnFloorFinish.text('地板材料:');
 					this.cnLocker.text('儲物間:').css("text-decoration: underline");
-					this.cnTitleToLand.text('物業產權:').css("text-decoration: underline");
+					this.cnTitleToLand.css("text-decoration", "underline").text('物業產權:').css("text-decoration: underline");
 
 					this.cnRooms.text('房間數:');
 					this.cnKitchens.text('厨房數:');
@@ -311,6 +369,42 @@
 					this.cnAmenities.text('附屬設施: ');
 					this.cnSiteInfluences.text('位置特點: ');
 					this.cnFeatures.text('室内設施: ');
+
+					this.cnStyleOfHome.text('建築風格:');
+					this.cnConstruction.text('建築結構:');
+					this.cnExterior.text('外墻: ');
+					this.cnFoundation.text('基礎: ');
+					this.cnRainScreen.text('隔雨層:');
+					this.cnRenovation.text('新裝修項目:');
+					this.cnWaterSupply.text('供水系統:');
+					this.cnFirePlaceFuel.text('壁爐熱源:');
+					this.cnFuelHeating.text('供暖系統:');
+					this.cnOutdoorArea.text('室外區域:');
+					this.cnTypeOfRoof.text('屋頂材料:');
+					this.cnRenoYear.text('裝修年份:');
+					this.cnRIFireplaces.text('壁爐預設:');
+					this.cnRIPlumbing.text('管道預設:');
+					this.cnNumOfFirePlaces.text('壁爐數量:');
+
+					this.cnFloor.text('樓層');
+					this.cnFloor2.text('樓層');
+					this.cnFloor3.text('樓層');
+					this.cnFloor4.text('樓層');
+					this.cnType.animate({ width: '60px' }).text('房間類別');
+					this.cnType2.animate({ width: '60px' }).text('房間類別');
+					this.cnType3.animate({ width: '60px' }).text('房間類別');
+					this.cnDimensions.text('房間大小');
+					this.cnDimensions2.text('房間大小');
+					this.cnDimensions3.text('房間大小');
+					this.cnBath.text('衛生間');
+					this.cnNumOfPieces.text('套件數');
+					this.cnEnsuite.text('套房？');
+
+					this.cnFinishedFloorMain.text('裝修面積（主層）: ');
+					this.cnFinishedFloorAbove.text('裝修面積（二樓）:');
+					this.cnFinishedFloorBelow.text('裝修面積（一樓）:');
+					this.cnFinishedFloorBasement.text('裝修面積（地下室）:');
+					this.cnUnfinishedFloor.text('未裝修面積: ');
 			}
 	};
 

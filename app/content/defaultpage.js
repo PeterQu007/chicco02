@@ -8,7 +8,7 @@ var DefaultPage = {
     init: function(){
 
         this.curTabID = this.curTabLink.attr('href');
-        this.language.appendTo(this.leftBanner);
+        this.language.insertAfter(this.leftBanner);
         this.taxSearch[0].click();
         this.savedSearch[0].click();
         this.tabsContainerClickEvent();
@@ -24,7 +24,7 @@ var DefaultPage = {
     curTabLink: $('ul#tab-bg li.ui-tabs-selected.ui-state-active a'),
     curTabID: null,
     leftBanner: $('#app_banner_links_left'),
-    language: $('<div class="languagebox clearfix"><div id="reportlanguage"><lable><input type="checkbox" name="checkbox" sytle="width: 25px!important">Chinese</lable></div></div>'),
+    language: $('<div class="languagebox"><div id="reportlanguage"><lable><input type="checkbox" name="checkbox" sytle="width: 25px!important">cn</lable></div></div>'),
 
     tabsContainerClickEvent: function(){
 
