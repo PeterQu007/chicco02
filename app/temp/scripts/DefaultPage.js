@@ -46,132 +46,139 @@
 
 	'use strict';
 
-	//works with Paragon's main window
-	//the messages are passed between the defaultpage and iframes, all are the contect sripts
+	// works with Paragon's main window
+	// the messages are passed between the defaultpage and iframes, all are the contect sripts
 
-	//Open frequently used tabs:
+	// Open frequently used tabs:
 
 	var DefaultPage = {
 
-	            init: function init() {
+	                    init: function init() {
 
-	                        this.curTabID = this.curTabLink.attr('href');
-	                        this.language.insertAfter(this.leftBanner);
-	                        this.taxSearch[0].click();
-	                        this.savedSearch[0].click();
-	                        this.tabsContainerClickEvent();
-	                        this.messageEvents();
-	            },
+	                                        this.curTabID = this.curTabLink.attr('href');
+	                                        this.language.insertAfter(this.leftBanner);
+	                                        this.taxSearch[0].click();
+	                                        this.savedSearch[0].click();
+	                                        this.tabsContainerClickEvent();
+	                                        this.messageEvents();
+	                    },
 
-	            taxSearch: $('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]'),
-	            savedSearch: $('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]'),
-	            tabsContainer: $('ul#tab-bg'),
-	            tabDivs: null,
-	            tabs: $('ul#tab-bg li'),
-	            tabLinks: $('ul#tab-bg li a'),
-	            curTabLink: $('ul#tab-bg li.ui-tabs-selected.ui-state-active a'),
-	            curTabID: null,
-	            leftBanner: $('#app_banner_links_left'),
-	            language: $('<div class="languagebox"><div id="reportlanguage"><lable><input type="checkbox" name="checkbox" sytle="width: 25px!important">cn</lable></div></div>'),
+	                    taxSearch: $('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]'),
+	                    savedSearch: $('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]'),
+	                    tabsContainer: $('ul#tab-bg'),
+	                    tabDivs: null,
+	                    tabs: $('ul#tab-bg li'),
+	                    tabLinks: $('ul#tab-bg li a'),
+	                    curTabLink: $('ul#tab-bg li.ui-tabs-selected.ui-state-active a'),
+	                    curTabID: null,
+	                    leftBanner: $('#app_banner_links_left'),
+	                    language: $('<div class="languagebox"><div id="reportlanguage"><lable><input type="checkbox" name="checkbox" sytle="width: 25px!important">cn</lable></div></div>'),
 
-	            tabsContainerClickEvent: function tabsContainerClickEvent() {
+	                    tabsContainerClickEvent: function tabsContainerClickEvent() {
 
-	                        this.tabsContainer.click(function () {
+	                                        var self = this;
 
-	                                    this.tabDivs = $('div.ui-tabs-sub');
-	                                    this.tabDivs.removeAttr('style');
-	                                    console.log('get tabs container clicked');
-	                        });
-	            },
+	                                        this.tabsContainer.click(function () {
 
-	            messageEvents: function messageEvents() {
+	                                                            self.tabDivs = $('div.ui-tabs-sub');
+	                                                            self.tabDivs.removeAttr('style');
+	                                                            console.log('get tabs container clicked');
+	                                        });
+	                    },
 
-	                        chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
+	                    messageEvents: function messageEvents() {
 
-	                                    //get Warning message: the search results exceed the limit, ignore it
-	                                    if (request.todo == "ignoreWarning") {
-	                                                var checkCount = function checkCount() {
-	                                                            //#OK button, "Continue", belongs to default page
-	                                                            if (document.querySelector("#OK")) {
+	                                        (function (self) {
 
-	                                                                        clearInterval(countTimer);
-	                                                                        var btnOK = $('#OK');
-	                                                                        console.log("OK", btnOK);
-	                                                                        btnOK.click();
-	                                                            }
-	                                                };
+	                                                            chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
 
-	                                                //Warning Form is a special page, the buttons are in the div, 
-	                                                //the iframe is separate with the buttons
-	                                                //this message sent from mls-warning.js
-	                                                console.log("Main Home ignore warning message!");
-	                                                console.log($('#OK'));
+	                                                                                // get Warning message: the search results exceed the limit, ignore it
+	                                                                                if (request.todo == 'ignoreWarning') {
+	                                                                                                    var checkCount = function checkCount() {
+	                                                                                                                        // #OK button, "Continue", belongs to default page
+	                                                                                                                        if (document.querySelector('#OK')) {
 
-	                                                var countTimer = setInterval(checkCount, 100);
+	                                                                                                                                            clearInterval(countTimer);
+	                                                                                                                                            var btnOK = $('#OK');
+	                                                                                                                                            console.log('OK', btnOK);
+	                                                                                                                                            btnOK.click();
+	                                                                                                                        }
+	                                                                                                    };
 
-	                                                ;
-	                                    };
+	                                                                                                    // Warning Form is a special page, the buttons are in the div, 
+	                                                                                                    // the iframe is separate with the buttons
+	                                                                                                    // this message sent from mls-warning.js
+	                                                                                                    console.log('Main Home ignore warning message!');
+	                                                                                                    console.log($('#OK'));
 
-	                                    //Logout MLS Windows shows an annoying confirm box, pass it
-	                                    //The message sent from logout iframe , the buttons are inside the iframe
-	                                    if (request.todo == "logoutMLS") {
-	                                                var _checkCount = function _checkCount() {
-	                                                            //the button is inside the iframe, this iframe belongs to default page
-	                                                            if (document.querySelector("#confirm")) {
+	                                                                                                    var countTimer = setInterval(checkCount, 100);
 
-	                                                                        clearInterval(countTimer);
-	                                                                        var btnYes = $('#confirm');
-	                                                                        console.log("confirm", btnYes);
-	                                                                        btnYes.click();
-	                                                            }
-	                                                };
+	                                                                                                    ;
+	                                                                                };
 
-	                                                console.log("Main Home got logout message!");
-	                                                console.log($('#confirm'));
+	                                                                                // Logout MLS Windows shows an annoying confirm box, pass it
+	                                                                                // The message sent from logout iframe , the buttons are inside the iframe
+	                                                                                if (request.todo == 'logoutMLS') {
+	                                                                                                    var _checkCount = function _checkCount() {
+	                                                                                                                        // the button is inside the iframe, this iframe belongs to default page
+	                                                                                                                        if (document.querySelector('#confirm')) {
 
-	                                                var countTimer = setInterval(_checkCount, 100);
+	                                                                                                                                            clearInterval(countTimer);
+	                                                                                                                                            var btnYes = $('#confirm');
+	                                                                                                                                            console.log('confirm', btnYes);
+	                                                                                                                                            btnYes.click();
+	                                                                                                                        }
+	                                                                                                    };
 
-	                                                ;
-	                                    };
+	                                                                                                    console.log('Main Home got logout message!');
+	                                                                                                    console.log($('#confirm'));
 
-	                                    if (request.todo == "updateTopLevelTabMenuItems") {
+	                                                                                                    var countTimer = setInterval(_checkCount, 100);
 
-	                                                //update tabs
-	                                                this.tabs = $('ul#tab-bg li');
-	                                                console.log("default home page update top level tabs: ", tabs);
+	                                                                                                    ;
+	                                                                                };
 
-	                                                this.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-	                                                this.curTabID = curTabLink.attr('href');
+	                                                                                if (request.todo == 'updateTopLevelTabMenuItems') {
 
-	                                                chrome.storage.sync.set({ curTabID: this.curTabID });
-	                                    }
+	                                                                                                    // update tabs
+	                                                                                                    self.tabs = $('ul#tab-bg li');
+	                                                                                                    console.log('default home page update top level tabs: ', tabs);
 
-	                                    if (request.todo == "readCurTabID") {
+	                                                                                                    self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+	                                                                                                    self.curTabID = curTabLink.attr('href');
 
-	                                                //read cur tabID
-	                                                this.tabs = $('ul#tab-bg li');
+	                                                                                                    chrome.storage.sync.set({ curTabID: self.curTabID });
+	                                                                                }
 
-	                                                console.log("default home page read top level tabs: ", tabs);
+	                                                                                if (request.todo == 'readCurTabID') {
 
-	                                                this.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-	                                                this.curTabID = curTabLink.attr('href');
+	                                                                                                    // read cur tabID
+	                                                                                                    self.tabs = $('ul#tab-bg li');
 
-	                                                console.log("current Tab ID is: ", this.curTabID);
+	                                                                                                    console.log('default home page read top level tabs: ', self.tabs);
 
-	                                                //save the curTabID
-	                                                chrome.storage.sync.set({ curTabID: this.curTabID }, function () {
+	                                                                                                    self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+	                                                                                                    self.curTabID = self.curTabLink.attr('href');
 
-	                                                            console.log('curTabID has been save to storage.');
-	                                                });
-	                                    }
-	                        });
-	            }
+	                                                                                                    console.log('current Tab ID is: ', self.curTabID);
 
-	            //Start point
+	                                                                                                    // save the curTabID
+	                                                                                                    chrome.storage.sync.set({ curTabID: self.curTabID }, function () {
 
-	};$(function () {
+	                                                                                                                        console.log('curTabID has been save to storage.');
+	                                                                                                    });
+	                                                                                }
+	                                                            });
+	                                        })(this);
+	                    }
 
-	            DefaultPage.init();
+	};
+
+	// Start point
+
+	$(function () {
+
+	                    DefaultPage.init();
 	});
 
 	// $('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]')[0].click();

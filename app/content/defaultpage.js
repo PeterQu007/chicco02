@@ -1,11 +1,11 @@
-//works with Paragon's main window
-//the messages are passed between the defaultpage and iframes, all are the contect sripts
+// works with Paragon's main window
+// the messages are passed between the defaultpage and iframes, all are the contect sripts
 
-//Open frequently used tabs:
+// Open frequently used tabs:
 
-var DefaultPage = {
+let DefaultPage = {
 
-    init: function(){
+    init: function () {
 
         this.curTabID = this.curTabLink.attr('href');
         this.language.insertAfter(this.leftBanner);
@@ -26,115 +26,121 @@ var DefaultPage = {
     leftBanner: $('#app_banner_links_left'),
     language: $('<div class="languagebox"><div id="reportlanguage"><lable><input type="checkbox" name="checkbox" sytle="width: 25px!important">cn</lable></div></div>'),
 
-    tabsContainerClickEvent: function(){
+    tabsContainerClickEvent: function () {
 
-        this.tabsContainer.click(function(){
+        var self = this;
 
-            this.tabDivs = $('div.ui-tabs-sub');
-            this.tabDivs.removeAttr('style');
+        this.tabsContainer.click(function () {
+
+            self.tabDivs = $('div.ui-tabs-sub');
+            self.tabDivs.removeAttr('style');
             console.log('get tabs container clicked');
 
-        })
+        });
 
     },
 
-    messageEvents: function(){
+    messageEvents: function () {
 
-        chrome.extension.onMessage.addListener(function(request, sender, sendResponse){
+        (function (self) {
 
-        //get Warning message: the search results exceed the limit, ignore it
-        if(request.todo == "ignoreWarning"){
-            
-            //Warning Form is a special page, the buttons are in the div, 
-            //the iframe is separate with the buttons
-            //this message sent from mls-warning.js
-            console.log("Main Home ignore warning message!");
-            console.log($('#OK'));
+            chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
 
-            var countTimer = setInterval (checkCount, 100);
+                // get Warning message: the search results exceed the limit, ignore it
+                if (request.todo == 'ignoreWarning') {
 
-            function checkCount() {
-                //#OK button, "Continue", belongs to default page
-                if(document.querySelector ("#OK")){
+                    // Warning Form is a special page, the buttons are in the div, 
+                    // the iframe is separate with the buttons
+                    // this message sent from mls-warning.js
+                    console.log('Main Home ignore warning message!');
+                    console.log($('#OK'));
 
-                    clearInterval (countTimer);
-                    var btnOK = $('#OK');
-                    console.log("OK",btnOK);
-                    btnOK.click();
+                    var countTimer = setInterval(checkCount, 100);
+
+                    function checkCount() {
+                        // #OK button, "Continue", belongs to default page
+                        if (document.querySelector('#OK')) {
+
+                            clearInterval(countTimer);
+                            let btnOK = $('#OK');
+                            console.log('OK', btnOK);
+                            btnOK.click();
+                        }
+                    };
+
+                };
+
+                // Logout MLS Windows shows an annoying confirm box, pass it
+                // The message sent from logout iframe , the buttons are inside the iframe
+                if (request.todo == 'logoutMLS') {
+
+                    console.log('Main Home got logout message!');
+                    console.log($('#confirm'));
+
+                    var countTimer = setInterval(checkCount, 100);
+
+                    function checkCount() {
+                        // the button is inside the iframe, this iframe belongs to default page
+                        if (document.querySelector('#confirm')) {
+
+                            clearInterval(countTimer);
+                            let btnYes = $('#confirm');
+                            console.log('confirm', btnYes);
+                            btnYes.click();
+                        }
+                    };
+
+                };
+
+                if (request.todo == 'updateTopLevelTabMenuItems') {
+
+                    // update tabs
+                    self.tabs = $('ul#tab-bg li');
+                    console.log('default home page update top level tabs: ', tabs);
+
+                    self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+                    self.curTabID = curTabLink.attr('href');
+
+                    chrome.storage.sync.set({ curTabID: self.curTabID });
+
                 }
-            };
 
-        };
+                if (request.todo == 'readCurTabID') {
 
-        //Logout MLS Windows shows an annoying confirm box, pass it
-        //The message sent from logout iframe , the buttons are inside the iframe
-        if(request.todo == "logoutMLS"){
+                    // read cur tabID
+                    self.tabs = $('ul#tab-bg li');
 
-            console.log("Main Home got logout message!");
-            console.log($('#confirm'));
-     
-            var countTimer = setInterval (checkCount, 100);
 
-            function checkCount() {
-                //the button is inside the iframe, this iframe belongs to default page
-                if(document.querySelector ("#confirm")){
+                    console.log('default home page read top level tabs: ', self.tabs);
 
-                    clearInterval (countTimer);
-                    var btnYes = $('#confirm');
-                    console.log("confirm",btnYes);
-                    btnYes.click();
+                    self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+                    self.curTabID = self.curTabLink.attr('href');
+
+                    console.log('current Tab ID is: ', self.curTabID);
+
+                    // save the curTabID
+                    chrome.storage.sync.set({ curTabID: self.curTabID }, function () {
+
+                        console.log('curTabID has been save to storage.');
+                    });
+
                 }
-            };
 
-        };
-
-        if(request.todo == "updateTopLevelTabMenuItems"){
-
-            //update tabs
-            this.tabs = $('ul#tab-bg li');
-            console.log("default home page update top level tabs: ", tabs)
-
-            this.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-            this.curTabID = curTabLink.attr('href');
-
-            chrome.storage.sync.set({curTabID : this.curTabID});
-
-        }
-
-        if(request.todo == "readCurTabID"){
-
-            //read cur tabID
-            this.tabs = $('ul#tab-bg li');
-
-
-            console.log("default home page read top level tabs: ", tabs)
-
-            this.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-            this.curTabID = curTabLink.attr('href');
-
-            console.log("current Tab ID is: ", this.curTabID);
-
-            //save the curTabID
-            chrome.storage.sync.set({curTabID : this.curTabID}, function(){
-
-                console.log('curTabID has been save to storage.');
             });
 
-        }
+        }(this));
 
-    });
+    },
 
-    }
+};
 
-}
+// Start point
 
-//Start point
-
-$(function(){
+$(function () {
 
     DefaultPage.init();
 
-})
+});
 
 // $('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]')[0].click();
 // $('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]')[0].click();
@@ -159,7 +165,7 @@ $(function(){
 
 //     //get Warning message: the search results exceed the limit, ignore it
 //     if(request.todo == "ignoreWarning"){
-        
+
 //         //Warning Form is a special page, the buttons are in the div, 
 //         //the iframe is separate with the buttons
 //         //this message sent from mls-warning.js
@@ -187,7 +193,7 @@ $(function(){
 
 //         console.log("Main Home got logout message!");
 //         console.log($('#confirm'));
- 
+
 //         var countTimer = setInterval (checkCount, 100);
 
 //         function checkCount() {

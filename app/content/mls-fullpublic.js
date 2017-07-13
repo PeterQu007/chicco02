@@ -7,7 +7,7 @@ import legalDescription from '../assets/scripts/modules/LegalDescription';
 
 var fullpublic = {
 
-	init: function(){
+	init: function () {
 		console.log("full public script loaded!");
 		console.log(this.lp, this.sp);
 
@@ -18,133 +18,136 @@ var fullpublic = {
 		var banner = $('<div id="peterqu" style="z-index: 999; height:88px; position:absolute; top: 2px; padding-right:0px; padding-left:0px; padding-top:0px; padding-bottom:0px; left:0px; width: 766px"></div>');
 		divBC.addClass(this.lpSuffix.attr('class'));
 		divBC.insertAfter(this.bcAssess);
-		this.bcAssess.animate({left:'525px', width: '177px'}).css("text-align", "left");
+		this.bcAssess.animate({ left: '575px', width: '127px' }).css("text-align", "left");
 		this.addBanner(banner);
-		if (this.language.is(':checked')){
+		if (this.language.is(':checked')) {
 			this.translate();
 		};
-		
+
 		this.calculateSFPrice();
 		this.searchTax();
 
 	},
 
-	calculateSFPrice: function(){
+	calculateSFPrice: function () {
 
 		console.log(this.lp.text(), this.sp.text(), this.finishedFloorArea.text());
 		var listPrice = convertStringToDecimal(this.lp.text());
 		var soldPrice = convertStringToDecimal(this.sp.text());
 		var FinishedFloorArea = convertStringToDecimal(this.finishedFloorArea.text());
-		var sfPriceList = listPrice / FinishedFloorArea ;
-		var sfPriceSold = soldPrice / FinishedFloorArea ;
+		var sfPriceList = listPrice / FinishedFloorArea;
+		var sfPriceSold = soldPrice / FinishedFloorArea;
 
-		this.lp.animate({left: '525px', width: '177px'}).css("text-align", "left");;
-		this.lp.text("挂牌價格:"+this.lp.text() + ' [$'+ sfPriceList.toFixed(0) +'/sf]');
+		this.lp.animate({ left: '575px', width: '127px' }).css("text-align", "left");;
+		this.lp.text( this.lp.text() + ' [$' + sfPriceList.toFixed(0) + '/sf]');
 		if (sfPriceSold > 0) {
-			this.sp.animate({left: '525px', width: '177px'}).css("text-align", "left");;
-			this.sp.text("成交價格:" + this.sp.text() + ' [$'+ sfPriceSold.toFixed(0) +'/sf]');
+			this.sp.animate({ left: '575px', width: '127px' }).css("text-align", "left");;
+			this.sp.text( this.sp.text() + ' [$' + sfPriceSold.toFixed(0) + '/sf]');
 		}
 	},
 
-	searchTax: function(){
+	searchTax: function () {
 
 		var PID = this.pid.text();
 
-		if(!PID){return;};
+		if (!PID) { return; };
 
-		chrome.storage.sync.set({'PID': PID});
+		chrome.storage.sync.set({ 'PID': PID });
 
-		chrome.storage.sync.get('PID', function(result){
+		chrome.storage.sync.get('PID', function (result) {
 
 			console.log(result.PID);
 
 			chrome.runtime.sendMessage(
 
-		   		{from: 'ListingReport', todo: 'taxSearch'},
+				{ from: 'ListingReport', todo: 'taxSearch' },
 
-		   		function(response){
+				function (response) {
 
-		   			console.log('mls-fullpublic got response:', response);
+					console.log('mls-fullpublic got response:', response);
 
-		   		}
-		   	)
+				}
+			)
 		});
 
 	},
 
-	addBanner: function(banner){
+	addBanner: function (banner) {
 
 		var img = $('<img src="http://localhost/chromex/mlshelper/app/assets/images/banner4.jpg">');
 		img.appendTo(banner);
 		banner.appendTo($('div#divHtmlReport'));
 	},
 
-	events: function(){
+	events: function () {
 
-		(function onEvents(self){
+		(function onEvents(self) {
 
-			chrome.storage.onChanged.addListener(function(changes, area) {
-		    if (area == "sync" && "totalValue" in changes && "improvementValue" in changes && "landValue" in changes) {
-		        console.log("this:", self);
-		    	var listPrice = convertStringToDecimal(self.lp.text());
-				var soldPrice = convertStringToDecimal(self.sp.text());
+			chrome.storage.onChanged.addListener(function (changes, area) {
+				if (area == "sync" && "_id" in changes) {
+					console.log("this:", self);
+					var listPrice = convertStringToDecimal(self.lp.text());
+					var soldPrice = convertStringToDecimal(self.sp.text());
 
-		        var totalValue  = changes.totalValue.newValue;
-		        var improvementValue = changes.improvementValue.newValue;
-		        var landValue = changes.landValue.newValue;
-		        console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue);
+					chrome.storage.sync.get(['totalValue','improvementValue','landValue'], function (result) {
+						var totalValue = result.totalValue;
+						var improvementValue = result.improvementValue;
+						var landValue = result.landValue;
+						console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue);
 
-		        self.bcAssess.text(totalValue);
-		        
-		        if(soldPrice>0 && totalValue != 0){
+						self.bcAssess.text(totalValue);
 
-		        	var intTotalValue = convertStringToDecimal(totalValue);
-			        var changeValue = soldPrice - intTotalValue ;
-			        var changeValuePercent = changeValue / intTotalValue * 100;
+						if (soldPrice > 0 && totalValue != 0) {
 
-		        }else if(totalValue != 0 )
-		        {
-		        	var intTotalValue = convertStringToDecimal(totalValue);
-			        var changeValue = listPrice - intTotalValue ;
-			        var changeValuePercent = changeValue / intTotalValue * 100;
+							var intTotalValue = convertStringToDecimal(totalValue);
+							var changeValue = soldPrice - intTotalValue;
+							var changeValuePercent = changeValue / intTotalValue * 100;
 
-		        }
+						} else if (totalValue != 0) {
+							var intTotalValue = convertStringToDecimal(totalValue);
+							var changeValue = listPrice - intTotalValue;
+							var changeValuePercent = changeValue / intTotalValue * 100;
 
-		        self.bcAssess.text("政府估價:"+removeDecimalFraction(self.bcAssess.text()) + " [ "+ changeValuePercent.toFixed(0).toString() + '% ]   ');
-		       
-		    }
+						}
 
-		    if(area == "sync" && "curTabID" in changes){
+						self.bcAssess.text(removeDecimalFraction(self.bcAssess.text()) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
 
-		    	if(changes.curTabID.newValue){
 
-		    		if(changes.curTabID.oldValue){
-		    			//remove the old style of the div
-		    			var oldTabID = changes.curTabID.oldValue;
-			    		console.log("mls-fullrealtor: my old tab ID is: ", oldTabID);
+					})
 
-			    		var oldDivTab = $('div' + oldTabID, top.document);
-						
-						oldDivTab.removeAttr("style");
-						
-		    		}
+				}
 
-		    		curTabID = changes.curTabID.newValue;
-		    		console.log("mls-fullrealtor: my tab ID is: ", curTabID);
+				if (area == "sync" && "curTabID" in changes) {
 
-		    		var divTab = $('div' + curTabID, top.document);
-					var divTab1 = $('div#tab1', top.document);
-					console.log(divTab);
+					if (changes.curTabID.newValue) {
 
-					divTab.attr("style","display: block!important");
-					divTab1.attr("style","display: none!important");
+						if (changes.curTabID.oldValue) {
+							//remove the old style of the div
+							var oldTabID = changes.curTabID.oldValue;
+							console.log("mls-fullrealtor: my old tab ID is: ", oldTabID);
 
-		    	}
-		    }
+							var oldDivTab = $('div' + oldTabID, top.document);
+
+							oldDivTab.removeAttr("style");
+
+						}
+
+						curTabID = changes.curTabID.newValue;
+						console.log("mls-fullrealtor: my tab ID is: ", curTabID);
+
+						var divTab = $('div' + curTabID, top.document);
+						var divTab1 = $('div#tab1', top.document);
+						console.log(divTab);
+
+						divTab.attr("style", "display: block!important");
+						divTab1.attr("style", "display: none!important");
+
+					}
+				}
 			});
 
 		})(this);
-	
+
 
 	},
 
@@ -164,18 +167,18 @@ var fullpublic = {
 	title: $('div[style="top:444px;left:440px;width:321px;height:13px;"]'),
 	keyword: $('div#app_banner_links_left input.select2-search__field', top.document),
 	language: $('div#reportlanguage input', top.document),
-	
-	cnSoldDate:$('div[style="top:170px;left:289px;width:59px;height:16px;"]'),
-	cnFrontageFeet:$('div[style="top:171px;left:451px;width:87px;height:13px;"]'),
-	cnFrontageMeters:$('div[style="top:187px;left:451px;width:98px;height:16px;"]'),
-	cnDepth:$('div[style="top:199px;left:289px;width:89px;height:13px;"]'),
-	cnLotArea:$('div[style="top:214px;left:289px;width:88px;height:17px;"]'),
-	cnFloodPlain:$('div[style="top:230px;left:289px;width:79px;height:13px;"]'),
-	cnApprovalReq:$('div[style="top:246px;left:289px;width:77px;height:16px;"]'),
-	cnNewGST:$('div[style="top:277px;left:289px;width:110px;height:14px;"]'),
-	cnTaxIncUtilities:$('div[style="top:267px;left:603px;width:90px;height:14px;"]'),
-	cnZoning:$('div[style="top:219px;left:603px;width:43px;height:15px;"]'),
-	cnServiceConnected:$('div[style="top:357px;left:289px;width:105px;height:15px;"]'),
+
+	cnSoldDate: $('div[style="top:170px;left:289px;width:59px;height:16px;"]'),
+	cnFrontageFeet: $('div[style="top:171px;left:451px;width:87px;height:13px;"]'),
+	cnFrontageMeters: $('div[style="top:187px;left:451px;width:98px;height:16px;"]'),
+	cnDepth: $('div[style="top:199px;left:289px;width:89px;height:13px;"]'),
+	cnLotArea: $('div[style="top:214px;left:289px;width:88px;height:17px;"]'),
+	cnFloodPlain: $('div[style="top:230px;left:289px;width:79px;height:13px;"]'),
+	cnApprovalReq: $('div[style="top:246px;left:289px;width:77px;height:16px;"]'),
+	cnNewGST: $('div[style="top:277px;left:289px;width:110px;height:14px;"]'),
+	cnTaxIncUtilities: $('div[style="top:267px;left:603px;width:90px;height:14px;"]'),
+	cnZoning: $('div[style="top:219px;left:603px;width:43px;height:15px;"]'),
+	cnServiceConnected: $('div[style="top:357px;left:289px;width:105px;height:15px;"]'),
 	cnMeasType: $('div[style="top:184px;left:289px;width:76px;height:15px;"]'),
 	cnStrataFee: $('div[style="top:267px;left:451px;width:61px;height:14px;"]'),
 	cnGrossTaxes: $('div[style="top:235px;left:603px;width:71px;height:13px;"]'),
@@ -263,11 +266,14 @@ var fullpublic = {
 	cnFinishedFloorBasement: $('div[style="top:792px;left:3px;width:125px;height:15px;"]'),
 	cnUnfinishedFloor: $('div[style="top:828px;left:3px;width:109px;height:14px;"]'),
 	//$('div[style=""]'),
+	cnBCAssess: $('<div id="lblBCAssess" style="top: 111px; left: 525px; width: 50px; height: 16px; text-align: left;">政府估價:</div>'),
+	cnListingPrice: $('<div id="lblBCAssess" style="top: 129px; left: 525px; width: 50px; height: 16px; text-align: left;">挂牌價格:</div>'),
+	cnSoldPrice: $('<div id="lblBCAssess" style="top: 147px; left: 525px; width: 50px; height: 16px; text-align: left;">成交價格:</div>'),
 
-	translate: function(){
+	translate: function () {
 
-		this.cnStrataFee.css("text-decoration","underline").text('月管理費：');
-		this.cnGrossTaxes.css("text-decoration","underline").text('地稅金額：');
+		this.cnStrataFee.css("text-decoration", "underline").text('月管理費：');
+		this.cnGrossTaxes.css("text-decoration", "underline").text('地稅金額：');
 		var squareMeters = convertUnit(this.finishedFloorArea.text());
 		var totalSquareMeters = convertUnit(this.totalFinishedFloorArea.text());
 
@@ -277,7 +283,7 @@ var fullpublic = {
 		this.cnFinishedFloor.addClass(this.finishedFloorArea.attr('class'));
 		this.cnTotalFinishedFloor.addClass(this.totalFinishedFloorArea.attr('class'));
 
-		this.cnRestrictedAge.css("text-decoration","underline").text('年齡限制：');
+		this.cnRestrictedAge.css("text-decoration", "underline").text('年齡限制：');
 		this.cnSoldDate.text('銷售日期:');
 		this.cnFrontageFeet.text('');
 		this.cnFrontageMeters.text('');
@@ -291,22 +297,22 @@ var fullpublic = {
 		this.cnServiceConnected.text('公用服務:');
 		this.cnMeasType.text('測量單位:');
 		this.cnForTaxYear.text('納稅年度：');
-		this.cnAge.css("text-decoration","underline").text('樓齡: ');
+		this.cnAge.css("text-decoration", "underline").text('樓齡: ');
 		this.cnYearBuilt.text('建造年份：');
 		this.cnOriginalPrice.text('挂牌價格：');
-		this.cnBedrooms.css("text-decoration","underline").text('臥室數：');
+		this.cnBedrooms.css("text-decoration", "underline").text('臥室數：');
 		this.cnBathrooms.text('衛生間：');
-		this.cnFullBaths.css("text-decoration","underline").text('全衛：');
+		this.cnFullBaths.css("text-decoration", "underline").text('全衛：');
 		this.cnHalfBaths.text('半衛：');
-		this.cnExposure.css("text-decoration","underline").text('朝向：');
+		this.cnExposure.css("text-decoration", "underline").text('朝向：');
 		this.cnComplex.text('小區名稱：');
 		this.cnMgmtName.text('管理公司名稱：');
 		this.cnMgmtPhone.text('管理公司電話：');
 		this.cnView.text('是否有風景：');
 
-		this.cnTotalParking.css("text-decoration","underline").text('停車位:').css("text-decoration", "underline!important");
+		this.cnTotalParking.css("text-decoration", "underline").text('停車位:').css("text-decoration", "underline!important");
 		this.cnParking.text('停車場:').css("text-decoration: underline");
-		this.cnCoveredParking.css("text-decoration","underline").text('室内停車位:');
+		this.cnCoveredParking.css("text-decoration", "underline").text('室内停車位:');
 		this.cnParkingAccess.text('停車場入口:');
 		this.cnDistToPublicTransit.text('公交距離:');
 		this.cnDistToSchoolBus.text('校車距離:');
@@ -317,7 +323,7 @@ var fullpublic = {
 		this.cnFixturesRmvd.text('拆卸設備:');
 		this.cnFloorFinish.text('地板材料:');
 		this.cnLocker.text('儲物間:').css("text-decoration: underline");
-		this.cnTitleToLand.css("text-decoration","underline").text('物業產權:').css("text-decoration: underline");
+		this.cnTitleToLand.css("text-decoration", "underline").text('物業產權:').css("text-decoration: underline");
 
 		this.cnRooms.text('房間數:');
 		this.cnKitchens.text('厨房數:');
@@ -356,9 +362,9 @@ var fullpublic = {
 		this.cnFloor2.text('樓層');
 		this.cnFloor3.text('樓層');
 		this.cnFloor4.text('樓層');
-		this.cnType.animate({width: '60px'}).text('房間類別');
-		this.cnType2.animate({width: '60px'}).text('房間類別');
-		this.cnType3.animate({width: '60px'}).text('房間類別');
+		this.cnType.animate({ width: '60px' }).text('房間類別');
+		this.cnType2.animate({ width: '60px' }).text('房間類別');
+		this.cnType3.animate({ width: '60px' }).text('房間類別');
 		this.cnDimensions.text('房間大小');
 		this.cnDimensions2.text('房間大小');
 		this.cnDimensions3.text('房間大小');
@@ -370,54 +376,57 @@ var fullpublic = {
 		this.cnFinishedFloorAbove.text('裝修面積（二樓）:');
 		this.cnFinishedFloorBelow.text('裝修面積（一樓）:');
 		this.cnFinishedFloorBasement.text('裝修面積（地下室）:');
-		this.cnUnfinishedFloor.text('未裝修面積: ')
+		this.cnUnfinishedFloor.text('未裝修面積: ');
 
+		this.cnBCAssess.addClass(this.bcAssess.attr('class')).insertBefore(this.bcAssess);
+		this.cnListingPrice.addClass(this.lp.attr('class')).insertBefore(this.lp);
+		this.cnSoldPrice.addClass(this.sp.attr('class')).insertBefore(this.sp);
 	}
-}; 
+};
 
 //fullpublic startpoint
 //document.addEventListener("DOMContentLoaded", function(){
-$(function(){
+$(function () {
 
 	fullpublic.init();
 
-})	
+})
 
-function convertStringToDecimal(strNum){
+function convertStringToDecimal(strNum) {
 
-		var result = 0,
-	    numbers='';
+	var result = 0,
+		numbers = '';
 
-	    strNum = strNum.replace(/,/g, '');
-	    //remove the fraction
-	    strNum = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
-	    //remove the [] 
-	    strNum = strNum.substring(0, strNum.indexOf('[') == -1 ? strNum.length : strNum.indexOf('['));
-	    //remove the unit
+	strNum = strNum.replace(/,/g, '');
+	//remove the fraction
+	strNum = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
+	//remove the [] 
+	strNum = strNum.substring(0, strNum.indexOf('[') == -1 ? strNum.length : strNum.indexOf('['));
+	//remove the unit
 
-		for (var i = 0, len = strNum.length; i < len; ++i) {
-		  
-		  if (!isNaN(strNum[i])) {
-		    numbers += strNum[i];
-		  }
+	for (var i = 0, len = strNum.length; i < len; ++i) {
+
+		if (!isNaN(strNum[i])) {
+			numbers += strNum[i];
 		}
-
-		result = Number(numbers);
-		return result.toFixed(0);
 	}
 
-function removeDecimalFraction(strNum){
+	result = Number(numbers);
+	return result.toFixed(0);
+}
 
-		var result = 0,
-	   
-	    //remove the fraction
-	    result = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
-	    
-		return result;
-	}
+function removeDecimalFraction(strNum) {
+
+	var result = 0,
+
+		//remove the fraction
+		result = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
+
+	return result;
+}
 
 
-function convertUnit(sf){
+function convertUnit(sf) {
 
 	sf = convertStringToDecimal(sf);
 	var result = parseInt(sf) / 10.76;

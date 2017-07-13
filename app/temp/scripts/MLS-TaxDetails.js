@@ -46,72 +46,75 @@
 
 	'use strict';
 
-	//read tax details report, save the data
+	// read tax details report, save the data
 
 	var taxDetails = {
 
-			pid: $('div[style="top:113px;left:150px;width:221px;height:14px;"]').text(),
-			landValue: $('div[style="top:643px;left:0px;width:246px;height:14px;"]').text(),
-			improvementValue: $('div[style="top:643px;left:250px;width:246px;height:14px;"]').text(),
-			totalValue: $('div[style="top:643px;left:500px;width:246px;height:14px;"]').text(),
-			taxYear: $('div[style="top:176px;left:150px;width:221px;height:14px;"]').text(),
-			taxRollNumber: $('div[style="top:162px;left:150px;width:221px;height:14px;"]').text(),
-			grossTaxes: $('div[style="top:162px;left:525px;width:221px;height:14px;"]').text(),
-			planNum: $('div[style="top:356px;left:0px;width:79px;height:14px;"]').text(),
-			reportLink: null,
+		pid: $('div[style="top:113px;left:150px;width:221px;height:14px;"]').text(),
+		landValue: $('div[style="top:643px;left:0px;width:246px;height:14px;"]').text(),
+		improvementValue: $('div[style="top:643px;left:250px;width:246px;height:14px;"]').text(),
+		totalValue: $('div[style="top:643px;left:500px;width:246px;height:14px;"]').text(),
+		taxYear: $('div[style="top:176px;left:150px;width:221px;height:14px;"]').text(),
+		taxRollNumber: $('div[style="top:162px;left:150px;width:221px;height:14px;"]').text(),
+		grossTaxes: $('div[style="top:162px;left:525px;width:221px;height:14px;"]').text(),
+		planNum: $('div[style="top:356px;left:0px;width:79px;height:14px;"]').text(),
+		reportLink: null,
 
-			init: function init() {
+		init: function init() {
 
-					var self = this;
+			var self = this;
 
-					var assess = {
+			var assess = {
 
-							_id: this.pid,
-							landValue: this.landValue,
-							improvementValue: this.improvementValue,
-							totalValue: this.totalValue,
-							taxYear: this.taxYear,
-							taxRollNumber: this.taxRollNumber,
-							grossTaxes: this.grossTaxes,
-							planNum: this.planNum
-					};
+				_id: this.pid,
+				landValue: this.landValue,
+				improvementValue: this.improvementValue,
+				totalValue: this.totalValue,
+				taxYear: this.taxYear,
+				taxRollNumber: this.taxRollNumber,
+				grossTaxes: this.grossTaxes,
+				planNum: this.planNum,
+				from: 'assess' + Math.random().toFixed(8)
+			};
 
-					chrome.storage.sync.set(assess, function () {
+			chrome.storage.sync.set(assess, function () {
 
-							console.log("TaxDetails.bcAssessment is...", assess);
-							self.getReportLink(function () {
+				console.log('TaxDetails.bcAssessment is...', assess);
+				self.getReportLink(function () {
 
-									self.reportLink[0].click();
-							});
-					});
+					self.reportLink[0].click();
+				});
+			});
 
-					chrome.runtime.sendMessage({ todo: 'saveTax',
-							taxData: assess }, function (response) {
+			chrome.runtime.sendMessage({
+				todo: 'saveTax',
+				taxData: assess
+			}, function (response) {
 
-							console.log("tax Data has been save to the database!");
-					});
-			},
+				console.log('tax Data has been save to the database!');
+			});
+		},
 
-			getReportLink: function getReportLink(callback) {
+		getReportLink: function getReportLink(callback) {
 
-					var self = this;
+			var self = this;
 
-					chrome.storage.sync.get('curTabID', function (result) {
+			chrome.storage.sync.get('curTabID', function (result) {
 
-							self.reportLink = $('div#app_tab_switcher a[href="' + result.curTabID + '"]', top.document);
-							callback();
-					});
-			}
+				self.reportLink = $('div#app_tab_switcher a[href="' + result.curTabID + '"]', top.document);
+				callback();
+			});
+		}
 
 	};
 
-	//start point:
+	// start point:
 
 	$(function () {
 
-			console.log("mls-taxdetails iFrame: ");
+		console.log('mls-taxdetails iFrame: ');
 
-			taxDetails.init();
+		taxDetails.init();
 	});
 
 	// var landValue=$('div[style="top:643px;left:0px;width:246px;height:14px;"]').text();

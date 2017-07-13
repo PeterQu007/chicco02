@@ -1,0 +1,45 @@
+ Search Complex Workflow:
+ 
+ fullRealtor Report -- start point
+
+    add strataPlan div and Link
+    add complex Name div 
+    prepare the data for search complex
+
+    send searchComplex Command to eventPage
+
+    listen the search result form chrome.storage.changes
+
+ eventPage 
+ 
+    listen to the message
+
+    search database complex 
+
+ Database.js 
+ 
+    do the search database complex
+
+    if found result, update the chrome.storage, fullRealtor will listen the changes
+
+    send back the result
+
+eventPage got the result
+
+    if result is empty, eventPage send out searchComplex command to mls-data.js
+
+mls-data.js 
+
+    do search complex
+
+    send the search result to Quick Search Page
+
+    save the search result to database Complex
+
+Quick Search Page 
+
+    collect the summary of the complex
+
+    update the chrome.storage
+
+    submit storage.change event for fullRealtor

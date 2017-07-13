@@ -30,6 +30,8 @@
     "bower": "^1.7.9",
     "browser-sync": "^2.18.2",
     "del": "^2.2.2",
+    "eslint": "^4.2.0",
+    "eslint-config-google": "^0.9.1",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-cssnano": "^2.1.2",
@@ -48,6 +50,5 @@
     "postcss-simple-vars": "^3.0.0",
     "vinyl-paths": "^2.1.0",
     "webpack": "^1.13.1"
-   
   }
 }

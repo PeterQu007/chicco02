@@ -44,7 +44,7 @@
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var _Database = __webpack_require__(1);
 
@@ -55,6 +55,24 @@
 	var db = new _Database2.default(); //background script, event mode
 	//message passed between background - defaultpage - iframes
 
+
+	function getToday() {
+		var today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth() + 1; //January is 0!
+		var yyyy = today.getFullYear();
+
+		if (dd < 10) {
+			dd = '0' + dd;
+		}
+
+		if (mm < 10) {
+			mm = '0' + mm;
+		}
+
+		today = yyyy + mm + dd;
+		return today;
+	};
 
 	(function () {
 
@@ -68,10 +86,6 @@
 			var newURL = "http://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword";
 			//var newURL = "http://stackoverflow.com/"
 			chrome.tabs.create({ url: newURL });
-
-			//console.log("Hello!");
-
-			//alert("hello");
 		});
 
 		chrome.webNavigation.onCompleted.addListener(function (details) {
@@ -111,7 +125,7 @@
 				console.log("I got switch Tab message!");
 				//pass the message to defaultpage(Main Home Page)
 				chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-					chrome.tabs.sendMessage(tabs[0].id, { todo: "switchTab" });
+					chrome.tabs.sendMessage(tabs[0].id, { todo: "switchTab", showResult: request.showResult, saveResult: request.saveResult });
 				});
 
 				sendResponse("switchTab done!!!");
@@ -124,10 +138,9 @@
 				chrome.storage.sync.get('PID', function (result) {
 					//check database, if assess exist, send it back
 					console.log(">>>PID is: ", result.PID);
-					db.read(result.PID, function (assess) {
-
-						console.log(">>>read from db, assess is: ", assess);
-						if (assess) {} else {
+					db.readAssess(result.PID, function (assess) {
+						console.log(">>>read from , assess is: ", assess);
+						if (!assess) {
 							//other wise , send out tax research command:
 							chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 								chrome.tabs.sendMessage(tabs[0].id, { todo: "taxSearch" });
@@ -135,30 +148,53 @@
 						}
 					});
 				});
+				sendResponse(">>>tax search has been processed in eventpage: ");
+			}
 
-				sendResponse(">>>tax search has been processed in evenpage: ");
+			if (request.todo == "searchComplex") {
+				//get request to search tax info of Property with PID saved to storage
+				console.log(">>>I got search Complex command!");
+
+				chrome.storage.sync.get(['strataPlan', 'complexName'], function (result) {
+					//check database, if assess exist, send it back
+					console.log(">>>strataPlan is: ", result.strataPlan);
+					var strataPlan = result.strataPlan;
+					var complexName = result.complexName;
+					if (!strataPlan || strataPlan == 'PLAN' || strataPlan == 'PL') {
+						return;
+					};
+					var today = getToday();
+					db.readComplex(strataPlan + '-' + today, function (complexToday) {
+						console.log(">>>read from , complex is: ", complexToday);
+						if (!complexToday) {
+							//other wise , send out tax research command:
+							chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+								chrome.tabs.sendMessage(tabs[0].id, {
+									todo: "searchComplex",
+									showResult: true, saveResult: true,
+									strataPlan: strataPlan, complexName: complexName
+								});
+							});
+						}
+					});
+				});
+				sendResponse(">>>complex search has been processed in eventpage: ");
 			}
 
 			if (request.todo == "saveTax") {
 
 				console.log(">>>I got save tax info: ");
-
-				// var assess = {
-
-				// 	"_id": request._id,
-				// 	"landValue": request.landValue,
-				// 	"improvementValue": request.improvementValue,
-				// 	"totalValue": request.totalValue,
-				// 	"changeValue": request.valueChange,
-				// 	"changeValuePercent": request.valueChangePercent
-
-				// }
-
 				var assess = request.taxData;
-
-				db.write(assess);
-
+				db.writeAssess(assess);
 				sendResponse(assess);
+			}
+
+			if (request.todo == "saveComplex") {
+
+				console.log(">>>I got save Complex info: ");
+				var complex = request.complexData;
+				db.writeComplex(complex);
+				sendResponse(complex);
 			}
 
 			if (request.todo == "updateTopLevelTabMenuItems") {
@@ -191,7 +227,7 @@
 /* 1 */
 /***/ (function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
@@ -207,65 +243,111 @@
 		function Database() {
 			_classCallCheck(this, Database);
 
-			this.db = new PouchDB('http://localhost:5984/bcassessment');
-			this.db.info().then(function (info) {
+			this.dbAssess = new PouchDB('http://localhost:5984/bcassessment');
+			this.dbComplex = new PouchDB('http://localhost:5984/complex');
+			this.dbAssess.info().then(function (info) {
+				console.log(info);
+			});
+			this.dbComplex.info().then(function (info) {
 				console.log(info);
 			});
 			this.assess = null;
+			this.complex = null;
 		}
 
 		_createClass(Database, [{
-			key: "read",
-			value: function read(PID, callback) {
+			key: 'readAssess',
+			value: function readAssess(PID, callback) {
 
-				console.log(">>>this in Database is: ", this);
+				console.log(">>>this in Database Assess is: ", this);
 				var self = this;
 
-				self.db.get(PID).then(function (doc) {
+				self.dbAssess.get(PID).then(function (doc) {
 
 					self.assess = doc;
 					console.log(">>>read the tax info in database is: ", self.assess);
 
-					chrome.storage.sync.set({ landValue: doc.landValue,
+					chrome.storage.sync.set({
+						landValue: doc.landValue,
 						improvementValue: doc.improvementValue,
-						totalValue: doc.totalValue
+						totalValue: doc.totalValue,
+						_id: doc._id,
+						from: 'assess' + Math.random().toFixed(8)
 					});
 					callback(self.assess);
 				}).catch(function (err) {
 					console.log(">>>read database error: ", err);
-
-					// chrome.runtime.sendMessage(
-
-					//    		{from: 'ListingReport', todo: 'taxSearch'},
-
-					//    		function(response){
-
-					//    			console.log('>>>mls-fullpublic got response:', response);
-
-					//    		}
-					// )
 
 					self.assess = null;
 					callback(self.assess);
 				});
 			}
 		}, {
-			key: "write",
-			value: function write(assess) {
+			key: 'writeAssess',
+			value: function writeAssess(assess) {
 
 				var PID = assess._id;
 				var self = this;
 
-				self.db.put(assess).then(function () {
-					return self.db.get(PID);
+				self.dbAssess.put(assess).then(function () {
+					return self.dbAssess.get(PID);
 				}).then(function (doc) {
 					console.log(">>>bc assessment has been saved to db: ", doc);
 				}).catch(function (err) {
 					console.log(">>>save bc assessment error: ", err);
-					self.db.get(PID).then(function (doc) {
-						return self.db.remove(doc);
+					self.dbAssess.get(PID).then(function (doc) {
+						return self.dbAssess.remove(doc);
 					}).catch(function (err) {
 						console.log(">>>remove bc assess error: ", err);
+					});
+				});
+			}
+		}, {
+			key: 'readComplex',
+			value: function readComplex(strataPlan, callback) {
+
+				console.log(">>>this in Database is: ", this);
+				var self = this;
+
+				self.dbComplex.get(strataPlan).then(function (doc) {
+
+					self.complex = doc;
+					console.log(">>>read the Complex info in database is: ", self.complex);
+
+					chrome.storage.sync.set({
+						active: doc.active,
+						sold: doc.sold,
+						count: doc.count,
+						searchDate: doc.searchDate,
+						complex: doc.complex,
+						strataPlan: doc._id,
+						from: 'complex' + Math.random().toFixed(8)
+					});
+					callback(self.complex);
+				}).catch(function (err) {
+					console.log(">>>read database Complex error: ", err);
+
+					self.complex = null;
+					callback(self.complex);
+				});
+			}
+		}, {
+			key: 'writeComplex',
+			value: function writeComplex(complex) {
+
+				var strataPlan = complex._id;
+				var self = this;
+
+				self.dbComplex.put(complex).then(function () {
+					return self.dbComplex.get(strataPlan);
+				}).then(function (doc) {
+					console.log(">>>StrataPlan / Complex has been saved to dbComplex: ", doc);
+				}).catch(function (err) {
+					console.log(">>>save StrataPlan / Complex error: ", err);
+					self.dbComplex.get(strataPlan).then(function (doc) {
+						return self.dbComplex.remove(doc);
+					}).catch(function (err) {
+						console.log(">>>remove StrataPlan / Complex error: ", err);
 					});
 				});
 			}

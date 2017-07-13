@@ -46,9 +46,9 @@
 
 	'use strict';
 
-	//mls-data.js : try to read the MLS data day by day
-	//download limit: <1500 records / time
-	//quick search feature is a iframe page
+	// mls-data.js : try to read the MLS data day by day
+	// download limit: <1500 records / time
+	// quick search feature is a iframe page
 
 	$(function () {
 
@@ -60,72 +60,101 @@
 	    div.textContent = 'MLS List!';
 	    document.body.appendChild(div);
 
-	    //iframe loaded, trigger search event
+	    var strataPlanNumber, complexName, countResult;
 
-	    window.addEventListener("load", myMain, false);
+	    // iframe loaded, trigger search event
+
+	    window.addEventListener('load', myMain, false);
 
 	    function myMain(evt) {
 	        var jsInitChecktimer = setInterval(checkForJS_Finish, 100);
 
 	        function checkForJS_Finish() {
-	            if (document.querySelector("#CountResult")) {
+	            if (document.querySelector('#CountResult')) {
 
 	                clearInterval(jsInitChecktimer);
 
 	                // DO YOUR STUFF HERE.
 	                $(function () {
 
-	                    var mlsDateLow = $("#f_33_Low__1-2-3-4");
-	                    var mlsDateHigh = $("#f_33_High__1-2-3-4");
+	                    var mlsDateLow = $('#f_33_Low__1-2-3-4');
+	                    var mlsDateHigh = $('#f_33_High__1-2-3-4');
 
-	                    //function .blur() is used to trigger PARAGON to split the mls#s
-	                    mlsDateLow.focus().val("05/01/2017").blur();
-	                    mlsDateHigh.focus().val("05/02/2017").blur();
+	                    // function .blur() is used to trigger PARAGON to split the mls#s
+	                    mlsDateLow.focus().val('05/01/2017').blur();
+	                    mlsDateHigh.focus().val('05/02/2017').blur();
 
-	                    //btn.click();
+	                    // btn.click();
 	                });
 
-	                getCountResult(false);
+	                getCountResult(false, false);
 	            }
 	        };
 	    };
 
-	    //waiting the search result from Quick Search box
-	    function getCountResult(doSearch) {
+	    // waiting the search result from Quick Search box
+	    function getCountResult(showResult, saveResult) {
 
 	        var countTimer = setInterval(checkCount, 100);
 
 	        function checkCount() {
-	            //result is a text with commas, remove the commas
-	            var mlsCountResult = $("#CountResult").val().replace(',', '');
+	            // result is a text with commas, remove the commas
+	            var mlsCountResult = $('#CountResult').val().replace(',', '');
 
 	            if (isInt(mlsCountResult)) {
 
 	                clearInterval(countTimer);
 
-	                var btn = $("#Search");
+	                countResult = mlsCountResult;
+	                var btn = $('#Search');
 
-	                console.log("mls Date Search!");
+	                console.log('mls Date Search!');
 	                console.log(mlsCountResult);
-	                console.log($("#CountResult").val());
+	                console.log($('#CountResult').val());
+
+	                if (saveResult) {
+	                    saveCountResult();
+	                }
+
 	                // jump to detailed page view of the search results
-	                if (doSearch) {
+	                if (showResult) {
 	                    btn.click();
 	                }
+	            } else {
+	                console.log('mls date searching ...', countTimer);
 	            }
 	        }
 	    };
 
-	    //validate the Integer value
+	    //save count result
+	    function saveCountResult() {
+
+	        var complex = {
+	            _id: strataPlanNumber + '-' + getToday(),
+	            strataPlan: strataPlanNumber,
+	            name: complexName,
+	            searchDate: getToday(),
+	            count: countResult,
+	            active: 'todo',
+	            sold: 'todo',
+	            from: 'complex' + Math.random().toFixed(8)
+	        };
+
+	        chrome.storage.sync.set(complex);
+	        console.log('mls-data wrap up the complex data: ', complex);
+	        chrome.runtime.sendMessage({ 'todo': 'saveComplex', 'complexData': complex });
+	    }
+
+	    // validate the Integer value
 	    function isInt(value) {
-	        //value = value.trim();
+	        // value = value.trim();
 	        return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10));
 	    };
 
 	    function formatDate(date) {
 
 	        var dd = date.getDate();
-	        var mm = date.getMonth() + 1; //January is 0!
+	        var mm = date.getMonth() + 1; // January is 0!
 
 	        var yyyy = date.getFullYear();
 	        if (dd < 10) {
@@ -138,41 +167,61 @@
 	        return date;
 	    };
 
+	    function getToday() {
+	        var today = new Date();
+	        var dd = today.getDate();
+	        var mm = today.getMonth() + 1; //January is 0!
+	        var yyyy = today.getFullYear();
+
+	        if (dd < 10) {
+	            dd = '0' + dd;
+	        }
+
+	        if (mm < 10) {
+	            mm = '0' + mm;
+	        }
+
+	        today = yyyy + mm + dd;
+	        return today;
+	    };
+
 	    chrome.runtime.onMessage.addListener(function (msg, sender, response) {
 
-	        console.log("mls-data got message: ", msg);
+	        console.log('mls-data got message: ', msg);
 
-	        if (msg.todo != 'switchTab') {
+	        if (msg.todo != 'switchTab' && msg.todo != 'searchComplex') {
 	            return;
 	        };
 
-	        console.log("I am in mls-data.js");
-	        console.log("mls-data got msg: ", msg);
-	        response("mls-data got a message");
+	        console.log('I am in mls-data.js');
+	        console.log('mls-data got msg: ', msg);
+	        response('mls-data got a message');
 
-	        var mlsDateLow = $("#f_33_Low__1-2-3-4");
-	        var mlsDateHigh = $("#f_33_High__1-2-3-4");
-	        var strataPlan = $("#f_41__1-2-3-4");
-	        var strataPlanHidden = $("#hdnf_41__1-2-3-4");
+	        var mlsDateLow = $('#f_33_Low__1-2-3-4');
+	        var mlsDateHigh = $('#f_33_High__1-2-3-4');
+	        var strataPlan = $('#f_41__1-2-3-4');
+	        var strataPlanHidden = $('#hdnf_41__1-2-3-4');
 	        var liStrataPlan = $('div[rel="f_41__1-2-3-4"] ul li.acfb-data');
 	        var today = new Date();
 	        var day60 = new Date();
 	        day60.setDate(today.getDate() - 60);
 
-	        //function .blur() is used to trigger PARAGON to split the mls#s
+	        // function .blur() is used to trigger PARAGON to split the mls#s
 	        liStrataPlan.remove();
 	        strataPlanHidden.val('');
-	        mlsDateLow.focus().val("").blur();
-	        mlsDateHigh.focus().val("").blur();
-	        strataPlan.focus().val("").blur();
+	        mlsDateLow.focus().val('').blur();
+	        mlsDateHigh.focus().val('').blur();
+	        strataPlan.focus().val('').blur();
 
-	        chrome.storage.sync.get(['strataPlan1', 'strataPlan2', 'strataPlan3', 'strataPlan4'], function (listing) {
+	        chrome.storage.sync.get(['strataPlan1', 'strataPlan2', 'strataPlan3', 'strataPlan4', 'complexName'], function (listing) {
 
 	            mlsDateLow.focus().val(formatDate(day60)).blur();
 	            mlsDateHigh.focus().val(formatDate(today)).blur();
 	            var strataPlans = listing.strataPlan1 + ',' + listing.strataPlan2 + ',' + listing.strataPlan3 + ',' + listing.strataPlan4 + ',';
 	            strataPlan.focus().val(strataPlans).blur();
-	            getCountResult(false);
+	            strataPlanNumber = listing.strataPlan1;
+	            complexName = listing.complexName;
+	            getCountResult(msg.showResult, msg.saveResult);
 	        });
 	    });
 	});

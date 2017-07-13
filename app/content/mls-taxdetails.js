@@ -1,6 +1,6 @@
-//read tax details report, save the data
+// read tax details report, save the data
 
-var taxDetails = {
+let taxDetails = {
 
 	pid: $('div[style="top:113px;left:150px;width:221px;height:14px;"]').text(),
 	landValue: $('div[style="top:643px;left:0px;width:246px;height:14px;"]').text(),
@@ -12,11 +12,11 @@ var taxDetails = {
 	planNum: $('div[style="top:356px;left:0px;width:79px;height:14px;"]').text(),
 	reportLink: null,
 
-	init: function(){
+	init: function() {
 
-		var self = this;
+		let self = this;
 
-		var assess = {
+		let assess = {
 
 			_id: this.pid,
 			landValue: this.landValue,
@@ -25,59 +25,62 @@ var taxDetails = {
 			taxYear: this.taxYear,
 			taxRollNumber: this.taxRollNumber,
 			grossTaxes: this.grossTaxes,
-			planNum: this.planNum
-		}
+			planNum: this.planNum,
+			from: 'assess' + Math.random().toFixed(8)
+		};
 
-		chrome.storage.sync.set(assess, function(){
+		chrome.storage.sync.set(assess, function() {
 
-			console.log("TaxDetails.bcAssessment is...", assess);
-			self.getReportLink(function(){
+			console.log('TaxDetails.bcAssessment is...', assess);
+			self.getReportLink(function() {
 
 				self.reportLink[0].click();
 
 			});
-			
+
 
 		});
 
 		chrome.runtime.sendMessage(
 
-			{todo: 'saveTax',
-			 taxData: assess	},
+			{
+				todo: 'saveTax',
+				taxData: assess,
+			},
 
-			 function(response){
+			function(response) {
 
-			 	console.log("tax Data has been save to the database!");
-			 }
+				console.log('tax Data has been save to the database!');
+			}
 
-			)
+		);
 
-		
+
 	},
 
-	getReportLink: function(callback){
+	getReportLink: function(callback) {
 
-		var self = this;
+		let self = this;
 
-		chrome.storage.sync.get('curTabID', function(result){
+		chrome.storage.sync.get('curTabID', function(result) {
 
-			self.reportLink = $('div#app_tab_switcher a[href="'+ result.curTabID +'"]', top.document);
+			self.reportLink = $('div#app_tab_switcher a[href="' + result.curTabID + '"]', top.document);
 			callback();
 
-		})
-	}
+		});
+	},
 
 };
 
-//start point:
+// start point:
 
-$(function(){
+$(function() {
 
-	console.log("mls-taxdetails iFrame: "); 
+	console.log('mls-taxdetails iFrame: ');
 
 	taxDetails.init();
 
-})
+});
 
 // var landValue=$('div[style="top:643px;left:0px;width:246px;height:14px;"]').text();
 // var improvementValue=$('div[style="top:643px;left:250px;width:246px;height:14px;"]').text();

@@ -44,17 +44,17 @@
 /* 0 */
 /***/ (function(module, exports) {
 
-	"use strict";
+	'use strict';
 
-	//iframe sent message to background
-	//background will send the message back to main content page: defaultpage
+	// iframe sent message to background
+	// background will send the message back to main content page: defaultpage
 
 	$(function () {
 
-	    console.log("Send out message...");
+	    console.log('Send out message...');
 
-	    //the message will send to background
-	    chrome.runtime.sendMessage({ todo: "warningMessage" });
+	    // the message will send to background
+	    chrome.runtime.sendMessage({ todo: 'warningMessage' });
 	});
 
 /***/ })
