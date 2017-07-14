@@ -38,7 +38,7 @@ var fullrealtor = {
 		this.searchTax();
 
 		this.addStrataEvents();
-		this.searchComplex();
+		this.searchStrataPlanSummary();
 	},
 
 	//elements on the page
@@ -206,20 +206,20 @@ var fullrealtor = {
 
 	},
 
-	searchComplex: function () {
+	searchStrataPlanSummary: function () {
 
-		console.log('mls-fullrealtor.search complex listings: ');
+		console.log('mls-fullrealtor.search strataPlanSummary listings: ');
 		var strataPlan = this.legalDesc.strataPlan1;
 		var complexName = this.complex.text();
 		chrome.storage.sync.set({ 'strataPlan': strataPlan, 'complexName': complexName }, function (e) {
 			console.log('mls-fullrealtor.searchComplex.callback parameters: ', e);
 			chrome.runtime.sendMessage(
 
-				{ from: 'ListingReport', todo: 'searchComplex', showResult: true, saveResult: true },
+				{ from: 'ListingReport', todo: 'searchStrataPlanSummary', showResult: true, saveResult: true },
 
 				function (response) {
 
-					console.log('mls-fullrealtor got search Complex response: ', response);
+					console.log('mls-fullrealtor got search strataPlanSummary response: ', response);
 
 				}
 			)
@@ -274,7 +274,7 @@ var fullrealtor = {
 						self.UpdateAssess();
 					};
 
-					if (changes.from.newValue.indexOf('complex') > -1) {
+					if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
 						self.UpdateComplex(changes);
 					}
 					console.log("this: ", self);

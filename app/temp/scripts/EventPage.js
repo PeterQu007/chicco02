@@ -151,9 +151,9 @@
 				sendResponse(">>>tax search has been processed in eventpage: ");
 			}
 
-			if (request.todo == "searchComplex") {
+			if (request.todo == "searchStrataPlanSummary") {
 				//get request to search tax info of Property with PID saved to storage
-				console.log(">>>I got search Complex command!");
+				console.log(">>>I got search StrataPlanSummary command!");
 
 				chrome.storage.sync.get(['strataPlan', 'complexName'], function (result) {
 					//check database, if assess exist, send it back
@@ -164,9 +164,9 @@
 						return;
 					};
 					var today = getToday();
-					db.readComplex(strataPlan + '-' + today, function (complexToday) {
-						console.log(">>>read from , complex is: ", complexToday);
-						if (!complexToday) {
+					db.readStrataPlanSummary(strataPlan + '-' + today, function (strataPlanSummaryToday) {
+						console.log(">>>read from , complex is: ", strataPlanSummaryToday);
+						if (!strataPlanSummaryToday) {
 							//other wise , send out tax research command:
 							chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 								chrome.tabs.sendMessage(tabs[0].id, {
@@ -189,12 +189,12 @@
 				sendResponse(assess);
 			}
 
-			if (request.todo == "saveComplex") {
+			if (request.todo == "saveStrataPlanSummary") {
 
 				console.log(">>>I got save Complex info: ");
-				var complex = request.complexData;
-				db.writeComplex(complex);
-				sendResponse(complex);
+				var spSummary = request.spSummaryData;
+				db.writeStrataPlanSummary(spSummary);
+				sendResponse(spSummary);
 			}
 
 			if (request.todo == "updateTopLevelTabMenuItems") {
@@ -245,14 +245,19 @@
 
 			this.dbAssess = new PouchDB('http://localhost:5984/bcassessment');
 			this.dbComplex = new PouchDB('http://localhost:5984/complex');
+			this.dbStrataPlanSummary = new PouchDB('http://localhost:5984/strataplansummary');
 			this.dbAssess.info().then(function (info) {
 				console.log(info);
 			});
 			this.dbComplex.info().then(function (info) {
 				console.log(info);
 			});
+			this.dbStrataPlanSummary.info().then(function (info) {
+				console.log(info);
+			});
 			this.assess = null;
 			this.complex = null;
+			this.strataPlan = null;
 		}
 
 		_createClass(Database, [{
@@ -303,16 +308,16 @@
 				});
 			}
 		}, {
-			key: 'readComplex',
-			value: function readComplex(strataPlan, callback) {
+			key: 'readStrataPlanSummary',
+			value: function readStrataPlanSummary(strataPlan, callback) {
 
 				console.log(">>>this in Database is: ", this);
 				var self = this;
 
-				self.dbComplex.get(strataPlan).then(function (doc) {
+				self.dbStrataPlanSummary.get(strataPlan).then(function (doc) {
 
-					self.complex = doc;
-					console.log(">>>read the Complex info in database is: ", self.complex);
+					self.strataPlan = doc;
+					console.log(">>>read the Complex info in database is: ", self.strataPlan);
 
 					chrome.storage.sync.set({
 						active: doc.active,
@@ -321,33 +326,33 @@
 						searchDate: doc.searchDate,
 						complex: doc.complex,
 						strataPlan: doc._id,
-						from: 'complex' + Math.random().toFixed(8)
+						from: 'strataPlanSummary' + Math.random().toFixed(8)
 					});
-					callback(self.complex);
+					callback(self.strataPlan);
 				}).catch(function (err) {
 					console.log(">>>read database Complex error: ", err);
 
-					self.complex = null;
-					callback(self.complex);
+					self.strataPlan = null;
+					callback(self.strataPlan);
 				});
 			}
 		}, {
-			key: 'writeComplex',
-			value: function writeComplex(complex) {
+			key: 'writeStrataPlanSummary',
+			value: function writeStrataPlanSummary(strataplan) {
 
-				var strataPlan = complex._id;
+				var strataPlan = strataplan._id;
 				var self = this;
 
-				self.dbComplex.put(complex).then(function () {
-					return self.dbComplex.get(strataPlan);
+				self.dbStrataPlanSummary.put(strataplan).then(function () {
+					return self.dbStrataPlanSummary.get(strataPlan);
 				}).then(function (doc) {
-					console.log(">>>StrataPlan / Complex has been saved to dbComplex: ", doc);
+					console.log(">>>StrataPlan Summary has been saved to dbComplex: ", doc);
 				}).catch(function (err) {
-					console.log(">>>save StrataPlan / Complex error: ", err);
-					self.dbComplex.get(strataPlan).then(function (doc) {
-						return self.dbComplex.remove(doc);
+					console.log(">>>save StrataPlan Summary error: ", err);
+					self.dbStrataPlanSummary.get(strataPlan).then(function (doc) {
+						return self.dbStrataPlanSummary.remove(doc);
 					}).catch(function (err) {
-						console.log(">>>remove StrataPlan / Complex error: ", err);
+						console.log(">>>remove StrataPlan Summary error: ", err);
 					});
 				});
 			}

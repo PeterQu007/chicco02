@@ -129,7 +129,7 @@
 	    //save count result
 	    function saveCountResult() {
 
-	        var complex = {
+	        var spSummary = {
 	            _id: strataPlanNumber + '-' + getToday(),
 	            strataPlan: strataPlanNumber,
 	            name: complexName,
@@ -137,12 +137,12 @@
 	            count: countResult,
 	            active: 'todo',
 	            sold: 'todo',
-	            from: 'complex' + Math.random().toFixed(8)
+	            from: 'strataPlanSummary' + Math.random().toFixed(8)
 	        };
 
-	        chrome.storage.sync.set(complex);
-	        console.log('mls-data wrap up the complex data: ', complex);
-	        chrome.runtime.sendMessage({ 'todo': 'saveComplex', 'complexData': complex });
+	        chrome.storage.sync.set(spSummary);
+	        console.log('mls-data wrap up the complex data: ', spSummary);
+	        chrome.runtime.sendMessage({ 'todo': 'saveStrataPlanSummary', 'spSummaryData': spSummary });
 	    }
 
 	    // validate the Integer value

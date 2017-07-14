@@ -101,9 +101,9 @@ function getToday() {
 			sendResponse(">>>tax search has been processed in eventpage: ");
 		}
 
-		if (request.todo == "searchComplex") {
+		if (request.todo == "searchStrataPlanSummary") {
 			//get request to search tax info of Property with PID saved to storage
-			console.log(">>>I got search Complex command!");
+			console.log(">>>I got search StrataPlanSummary command!");
 
 			chrome.storage.sync.get(['strataPlan', 'complexName'], function (result) {
 				//check database, if assess exist, send it back
@@ -112,9 +112,9 @@ function getToday() {
 				var complexName = result.complexName;
 				if (!strataPlan || strataPlan == 'PLAN' || strataPlan == 'PL') { return; };
 				var today = getToday();
-				db.readComplex(strataPlan + '-' + today, function (complexToday) {
-					console.log(">>>read from , complex is: ", complexToday)
-					if (!complexToday) {
+				db.readStrataPlanSummary(strataPlan + '-' + today, function (strataPlanSummaryToday) {
+					console.log(">>>read from , complex is: ", strataPlanSummaryToday)
+					if (!strataPlanSummaryToday) {
 						//other wise , send out tax research command:
 						chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 							chrome.tabs.sendMessage(tabs[0].id, {
@@ -138,12 +138,12 @@ function getToday() {
 
 		}
 
-		if (request.todo == "saveComplex") {
+		if (request.todo == "saveStrataPlanSummary") {
 
 			console.log(">>>I got save Complex info: ");
-			var complex = request.complexData;
-			db.writeComplex(complex);
-			sendResponse(complex);
+			var spSummary = request.spSummaryData;
+			db.writeStrataPlanSummary(spSummary);
+			sendResponse(spSummary);
 
 		}
 
