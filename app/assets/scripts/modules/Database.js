@@ -10,10 +10,10 @@ class Database {
 		this.dbAssess.info().then(function (info) {
 			console.log(info);
 		});
-		this.dbComplex.info().then(function(info){
+		this.dbComplex.info().then(function (info) {
 			console.log(info);
 		});
-		this.dbStrataPlanSummary.info().then(function(info){
+		this.dbStrataPlanSummary.info().then(function (info) {
 			console.log(info);
 		});
 		this.assess = null;
@@ -36,7 +36,7 @@ class Database {
 				improvementValue: doc.improvementValue,
 				totalValue: doc.totalValue,
 				_id: doc._id,
-				from: 'assess'+ Math.random().toFixed(8)
+				from: 'assess' + Math.random().toFixed(8)
 			});
 			callback(self.assess);
 
@@ -79,7 +79,7 @@ class Database {
 		self.dbStrataPlanSummary.get(strataPlan).then(function (doc) {
 
 			self.strataPlan = doc;
-			console.log(">>>read the Complex info in database is: ", self.strataPlan);
+			console.log(">>>read the strataPlanSummary in database is: ", self.strataPlan);
 
 			chrome.storage.sync.set({
 				active: doc.active,
@@ -88,12 +88,12 @@ class Database {
 				searchDate: doc.searchDate,
 				complex: doc.complex,
 				strataPlan: doc._id,
-				from: 'strataPlanSummary'+ Math.random().toFixed(8)
+				from: 'strataPlanSummary' + Math.random().toFixed(8)
 			});
 			callback(self.strataPlan);
 
 		}).catch(function (err) {
-			console.log(">>>read database Complex error: ", err);
+			console.log(">>>read database strataPlanSummary error: ", err);
 
 			self.strataPlan = null;
 			callback(self.strataPlan);
@@ -121,6 +121,64 @@ class Database {
 			})
 		});
 
+	}
+
+	readComplex(complexID, callback) {
+
+		console.log(">>>this in Database is: ", this);
+		var self = this;
+
+		self.dbComplex.get(complexID).then(function (doc) {
+
+			self.complex = doc;
+			console.log(">>>read the Complex info in database is: ", self.complex);
+
+			chrome.storage.sync.set({
+				complexID: doc._id,
+				complexName: doc.name+'*',
+				strataPlan: doc.strataPlan,
+				addDate: doc.addDate,
+				subArea: doc.subArea,
+				neighborhood: doc.neighborhood,
+				postcode: doc.postcode,
+				streetName: doc.streetName,
+				streetNumber: doc.streetNumber,
+				dwellingType: doc.dwellingType,
+				totalUnits: doc.totalUnits,
+				devUnits: doc.devUnits,
+				from: 'complex' + Math.random().toFixed(8)
+			});
+			callback(self.complex);
+
+		}).catch(function (err) {
+			console.log(">>>read database Complex error: ", err);
+
+			self.complex = null;
+			callback(self.complex);
+
+		})
+
+
+	}
+
+	writeComplex(complex) {
+
+		var complexID = complex._id;
+		var self = this;
+
+		self.dbComplex.get(complexID).then(function (doc) {
+			console.log('writeComplex...the complex has been already in the database');
+		}).catch(function (err) {
+
+			self.dbComplex.put(complex).then(function () {
+				console.log('SAVED the complex info to database:', complex.name);
+				return self.dbComplex.get(complexID);
+			}).then(function (doc) {
+				console.log(">>>Complex Info has been saved to dbComplex: ", doc);
+			}).catch(function (err) {
+				console.log(">>>save Complex info error: ", err);
+			});
+		})
 	}
 }
 

@@ -165,7 +165,7 @@
 					};
 					var today = getToday();
 					db.readStrataPlanSummary(strataPlan + '-' + today, function (strataPlanSummaryToday) {
-						console.log(">>>read from , complex is: ", strataPlanSummaryToday);
+						console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday);
 						if (!strataPlanSummaryToday) {
 							//other wise , send out tax research command:
 							chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -179,6 +179,23 @@
 					});
 				});
 				sendResponse(">>>complex search has been processed in eventpage: ");
+			}
+
+			if (request.todo == 'searchComplex') {
+				var complexID = request._id;
+				db.readComplex(complexID, function (complexInfo) {
+					console.log('>>>read the complex info from database:', complexInfo);
+					if (!complexInfo && complexInfo.complexName.length > 0) {
+						chrome.storage.sync.set(complexInfo, function () {
+							console.log('complexInfo has been updated to storage for report listeners');
+						});
+					}
+				});
+			}
+
+			if (request.todo == 'saveComplex') {
+				var complexID = request._id;
+				db.writeComplex(request);
 			}
 
 			if (request.todo == "saveTax") {
@@ -317,7 +334,7 @@
 				self.dbStrataPlanSummary.get(strataPlan).then(function (doc) {
 
 					self.strataPlan = doc;
-					console.log(">>>read the Complex info in database is: ", self.strataPlan);
+					console.log(">>>read the strataPlanSummary in database is: ", self.strataPlan);
 
 					chrome.storage.sync.set({
 						active: doc.active,
@@ -330,7 +347,7 @@
 					});
 					callback(self.strataPlan);
 				}).catch(function (err) {
-					console.log(">>>read database Complex error: ", err);
+					console.log(">>>read database strataPlanSummary error: ", err);
 
 					self.strataPlan = null;
 					callback(self.strataPlan);
@@ -353,6 +370,62 @@
 						return self.dbStrataPlanSummary.remove(doc);
 					}).catch(function (err) {
 						console.log(">>>remove StrataPlan Summary error: ", err);
+					});
+				});
+			}
+		}, {
+			key: 'readComplex',
+			value: function readComplex(complexID, callback) {
+
+				console.log(">>>this in Database is: ", this);
+				var self = this;
+
+				self.dbComplex.get(complexID).then(function (doc) {
+
+					self.complex = doc;
+					console.log(">>>read the Complex info in database is: ", self.complex);
+
+					chrome.storage.sync.set({
+						complexID: doc._id,
+						complexName: doc.name + '*',
+						strataPlan: doc.strataPlan,
+						addDate: doc.addDate,
+						subArea: doc.subArea,
+						neighborhood: doc.neighborhood,
+						postcode: doc.postcode,
+						streetName: doc.streetName,
+						streetNumber: doc.streetNumber,
+						dwellingType: doc.dwellingType,
+						totalUnits: doc.totalUnits,
+						devUnits: doc.devUnits,
+						from: 'complex' + Math.random().toFixed(8)
+					});
+					callback(self.complex);
+				}).catch(function (err) {
+					console.log(">>>read database Complex error: ", err);
+
+					self.complex = null;
+					callback(self.complex);
+				});
+			}
+		}, {
+			key: 'writeComplex',
+			value: function writeComplex(complex) {
+
+				var complexID = complex._id;
+				var self = this;
+
+				self.dbComplex.get(complexID).then(function (doc) {
+					console.log('writeComplex...the complex has been already in the database');
+				}).catch(function (err) {
+
+					self.dbComplex.put(complex).then(function () {
+						console.log('SAVED the complex info to database:', complex.name);
+						return self.dbComplex.get(complexID);
+					}).then(function (doc) {
+						console.log(">>>Complex Info has been saved to dbComplex: ", doc);
+					}).catch(function (err) {
+						console.log(">>>save Complex info error: ", err);
 					});
 				});
 			}

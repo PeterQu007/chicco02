@@ -113,7 +113,7 @@ function getToday() {
 				if (!strataPlan || strataPlan == 'PLAN' || strataPlan == 'PL') { return; };
 				var today = getToday();
 				db.readStrataPlanSummary(strataPlan + '-' + today, function (strataPlanSummaryToday) {
-					console.log(">>>read from , complex is: ", strataPlanSummaryToday)
+					console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday)
 					if (!strataPlanSummaryToday) {
 						//other wise , send out tax research command:
 						chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -127,6 +127,23 @@ function getToday() {
 				});
 			});
 			sendResponse(">>>complex search has been processed in eventpage: ");
+		}
+
+		if(request.todo == 'searchComplex'){
+			var complexID = request._id;
+			db.readComplex(complexID, function(complexInfo){
+				console.log('>>>read the complex info from database:', complexInfo);
+				if(!complexInfo && complexInfo.complexName.length>0){
+					chrome.storage.sync.set(complexInfo, function(){
+						console.log('complexInfo has been updated to storage for report listeners');
+					})
+				}
+			})
+		}
+
+		if(request.todo == 'saveComplex'){
+			var complexID = request._id;
+			db.writeComplex(request);
 		}
 
 		if (request.todo == "saveTax") {

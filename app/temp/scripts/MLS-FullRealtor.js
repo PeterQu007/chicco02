@@ -50,6 +50,10 @@
 
 	var _LegalDescription2 = _interopRequireDefault(_LegalDescription);
 
+	var _AddressInfo = __webpack_require__(3);
+
+	var _AddressInfo2 = _interopRequireDefault(_AddressInfo);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var curTabID = null;
@@ -66,6 +70,24 @@
 		});
 	};
 
+	var getToday = function getToday() {
+		var today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth() + 1; //January is 0!
+		var yyyy = today.getFullYear();
+
+		if (dd < 10) {
+			dd = '0' + dd;
+		}
+
+		if (mm < 10) {
+			mm = '0' + mm;
+		}
+
+		today = yyyy + mm + dd;
+		return today;
+	};
+
 	var fullrealtor = {
 
 		init: function init() {
@@ -79,6 +101,7 @@
 			this.addRemarks();
 			this.addDataEvents();
 			this.searchTax();
+			this.addComplexInfo();
 
 			this.addStrataEvents();
 			this.searchStrataPlanSummary();
@@ -99,6 +122,15 @@
 		publicRemarks: $('div[style="top:897px;left:4px;width:758px;height:75px;"]'),
 		keyword: $('div#app_banner_links_left input.select2-search__field', top.document),
 
+		//complex info:
+		address: $('div[style="top:4px;left:134px;width:481px;height:17px;"]'),
+		subArea: $('div[style="top:20px;left:134px;width:480px;height:13px;"]'),
+		neighborhood: $('div[style="top:33px;left:134px;width:479px;height:13px;"]'),
+		postcode: $('div[style="top:46px;left:306px;width:130px;height:13px;"]'),
+		dwellingType: $('div[style="top:46px;left:4px;width:137px;height:15px;"]'),
+		totalUnits: $('div[style="top:326px;left:659px;width:101px;height:16px;"'),
+		devUnits: $('div[style="top:326px;left:470px;width:95px;height:15px;"'),
+
 		averagePrice: $('<div style="top:7px;left:471px;width:147px;height:13px;" id="averagePrice" class="mls18"></div>'),
 		legalDesc: null,
 		strataPlan: null, //new strataPlan field, to be added
@@ -109,6 +141,8 @@
 		bcImprovement: null,
 		valueChange: null,
 		valueChangePercent: null,
+		street: null,
+		streetNumber: null,
 		curTabID: null,
 
 		calculateSFPrice: function calculateSFPrice() {
@@ -152,6 +186,7 @@
 				complexSummary.text(complexName + ": ");
 			}
 			topPosition += 26 + 1;
+			this.strataPlan = legalDesc.strataPlan1;
 			strPlanLink.text(legalDesc.strataPlan1);
 			strPlanLink.appendTo(newDivStrPlan);
 			newDivStrPlan.appendTo(this.report);
@@ -167,6 +202,47 @@
 				strataPlan2: legalDesc.strataPlan2,
 				strataPlan3: legalDesc.strataPlan3,
 				strataPlan4: legalDesc.strataPlan4
+			});
+		},
+
+		addComplexInfo: function addComplexInfo() {
+			var self = this;
+			var subArea = self.subArea.text();
+			var neighborhood = self.neighborhood.text();
+			var postcode = self.postcode.text();
+			var dwellingType = self.dwellingType.text();
+			var complexName = self.complex.text().trim();
+			var address = new _AddressInfo2.default(self.address.text()); //todo list...
+			var strataPlan = self.strataPlan;
+			var totalUnits = self.totalUnits.text();
+			var devUnits = self.devUnits.text();
+
+			var complexInfo = {
+
+				_id: strataPlan + '-' + address.streetNumber + '-' + address.streetName + '-' + address.streetType,
+				name: complexName,
+				strataPlan: strataPlan,
+				addDate: getToday(),
+				subArea: subArea,
+				neighborhood: neighborhood,
+				postcode: postcode,
+				streetNumber: address.streetNumber,
+				streetName: address.streetName + address.streetType,
+				dwellingType: dwellingType,
+				totalUnits: totalUnits,
+				devUnits: devUnits,
+				todo: 'searchComplex'
+
+			};
+			if (complexName.length > 0) {
+				complexInfo.todo = 'saveComplex';
+				chrome.runtime.send;
+			};
+			chrome.runtime.sendMessage(complexInfo, function (response) {
+				if (response) {
+					self.complex.text(response);
+					self.complexSummary.text(response);
+				}
 			});
 		},
 
@@ -291,43 +367,17 @@
 					if (area == "sync" && "from" in changes) {
 
 						if (changes.from.newValue.indexOf('assess') > -1) {
-							self.UpdateAssess();
+							self.updateAssess();
 						};
 
 						if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
-							self.UpdateComplex(changes);
+							self.updateStrataPlanSummary(changes);
+						}
+
+						if (changes.from.newValue.indexOf('complex') > -1) {
+							self.updateComplexInfo();
 						}
 						console.log("this: ", self);
-						// var listPrice = convertStringToDecimal(self.lp.text());
-						// var soldPrice = convertStringToDecimal(self.sp.text());
-
-						// chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue'], function (result) {
-						// 	var totalValue = result.totalValue;
-						// 	var improvementValue = result.improvementValue;
-						// 	var landValue = result.landValue;
-						// 	console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue);
-
-						// 	if (totalValue != 0) {
-
-						// 		if (soldPrice > 0) {
-
-						// 			var intTotalValue = convertStringToDecimal(totalValue);
-						// 			var changeValue = soldPrice - intTotalValue;
-						// 			var changeValuePercent = changeValue / intTotalValue * 100;
-
-						// 		} else {
-						// 			var intTotalValue = convertStringToDecimal(totalValue);
-						// 			var changeValue = listPrice - intTotalValue;
-						// 			var changeValuePercent = changeValue / intTotalValue * 100;
-
-						// 		}
-						// 	}
-						// 	self.bcAssess.text(removeDecimalFraction(totalValue));
-						// 	self.bcLand.text(removeDecimalFraction(landValue));
-						// 	self.bcImprovement.text(removeDecimalFraction(improvementValue));
-						// 	self.valueChange.text("$" + numberWithCommas(changeValue.toFixed(0)) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
-
-						// })
 					}
 
 					if (area == "sync" && "curTabID" in changes) {
@@ -359,7 +409,7 @@
 			})(this);
 		},
 
-		UpdateAssess: function UpdateAssess() {
+		updateAssess: function updateAssess() {
 
 			var self = this;
 			var listPrice = convertStringToDecimal(self.lp.text());
@@ -391,13 +441,22 @@
 			});
 		},
 
-		UpdateComplex: function UpdateComplex(changes) {
+		updateStrataPlanSummary: function updateStrataPlanSummary(changes) {
 			var self = this;
-			console.log("update Complex: todo...");
+			console.log("update strataPlanSummary:");
 			chrome.storage.sync.get('count', function (result) {
 				var complexName = self.complex.text().length > 0 ? self.complex.text() : 'Complex';
 				var summary = self.complex.text() + ': [ ' + result.count + ' ]';
 				self.complexSummary.text(summary);
+			});
+		},
+
+		updateComplexInfo: function updateComplexInfo() {
+			var self = this;
+			console.log('update Complex info:');
+			chrome.storage.sync.get('complexName', function (result) {
+				self.complex.text(result.complexName);
+				self.complexSummary.text(result.complexName);
 			});
 		}
 
@@ -564,6 +623,63 @@
 	}();
 
 	exports.default = LegalDescription;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	// Analyse the address information
+
+	var AddressInfo = function () {
+	    function AddressInfo(address) {
+	        _classCallCheck(this, AddressInfo);
+
+	        this.streetNumber = this.getStreetNumber(address);
+	        this.streetName = this.getStreetName(address);
+	        this.streetType = this.getStreetType(address);
+	    }
+
+	    _createClass(AddressInfo, [{
+	        key: 'getStreetNumber',
+	        value: function getStreetNumber(address) {
+	            //split the address
+	            var addressParts = address.split(' ');
+	            return addressParts[1].trim();
+	        }
+	    }, {
+	        key: 'getStreetName',
+	        value: function getStreetName(address) {
+	            var addressParts = address.split(' ');
+	            return addressParts[2].trim();
+	        }
+	    }, {
+	        key: 'getStreetType',
+	        value: function getStreetType(address) {
+	            var addressParts = address.split(' ');
+	            var addressType = '';
+	            for (var i = 3; i < addressParts.length; i++) {
+	                addressType += addressParts[i].trim();
+	            }
+	            return addressType;
+	        }
+	    }]);
+
+	    return AddressInfo;
+	}();
+
+	;
+
+	exports.default = AddressInfo;
 
 /***/ })
 /******/ ]);
