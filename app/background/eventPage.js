@@ -133,7 +133,7 @@ function getToday() {
 			var complexID = request._id;
 			db.readComplex(complexID, function(complexInfo){
 				console.log('>>>read the complex info from database:', complexInfo);
-				if(!complexInfo && complexInfo.complexName.length>0){
+				if(complexInfo && complexInfo.complexName.length>0){
 					chrome.storage.sync.set(complexInfo, function(){
 						console.log('complexInfo has been updated to storage for report listeners');
 					})

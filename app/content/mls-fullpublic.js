@@ -27,11 +27,10 @@ var fullpublic = {
 	init: function () {
 		console.log("full public script loaded!");
 		console.log(this.lp, this.sp);
-
 		this.events();
-
+		this.getMorePropertyInfo();
 		this.bcAssess.addClass(this.lp.attr('class'));
-		var divBC = $('<div style="top:111px;left:703px;width:53px;height:14px;text-align: left;">(BC2016)</div>');
+		var divBC = $('<div style="top:111px;left:703px;width:53px;height:14px;text-align: left;">(BCA\'16)</div>');
 		var banner = $('<div id="peterqu" style="z-index: 999; height:88px; position:absolute; top: 2px; padding-right:0px; padding-left:0px; padding-top:0px; padding-bottom:0px; left:0px; width: 766px"></div>');
 		divBC.addClass(this.lpSuffix.attr('class'));
 		divBC.insertAfter(this.bcAssess);
@@ -40,11 +39,9 @@ var fullpublic = {
 		if (this.language.is(':checked')) {
 			this.translate();
 		};
-
 		this.calculateSFPrice();
 		this.addComplexInfo();
 		this.searchTax();
-
 	},
 
 	calculateSFPrice: function () {
@@ -57,10 +54,72 @@ var fullpublic = {
 		var sfPriceSold = soldPrice / FinishedFloorArea;
 
 		this.lp.animate({ left: '575px', width: '127px' }).css("text-align", "left");;
-		this.lp.text( this.lp.text() + ' [$' + sfPriceList.toFixed(0) + '/sf]');
+		this.lp.text(this.lp.text() + ' [$' + sfPriceList.toFixed(0) + '/sf]');
 		if (sfPriceSold > 0) {
 			this.sp.animate({ left: '575px', width: '127px' }).css("text-align", "left");;
-			this.sp.text( this.sp.text() + ' [$' + sfPriceSold.toFixed(0) + '/sf]');
+			this.sp.text(this.sp.text() + ' [$' + sfPriceSold.toFixed(0) + '/sf]');
+		}
+	},
+
+	getMorePropertyInfo: function () {
+		var self = this;
+		var listingHouseType = self.listingHouseType = self.houseType.text().replace(' ', '');
+		switch (listingHouseType) {
+			case 'ResidentialAttached':
+				self.pid = $('div[style="top:283px;left:637px;width:82px;height:15px;"]');
+				self.lotArea = $('div[style="top:214px;left:376px;width:67px;height:13px;"]');
+				self.complex = $('div[style="top:341px;left:393px;width:369px;height:13px;"]');
+				self.devUnits = $('div[style="top:432px;left:470px;width:76px;height:14px;"]');
+				self.totalUnits = $('div[style="top:432px;left:658px;width:103px;height:15px;"]');
+				break;
+			case 'ResidentialDetached':
+				self.pid = $('div[style="top:283px;left:636px;width:82px;height:15px;"]');
+				self.lotArea = $('div[style="top:219px;left:376px;width:79px;height:14px;"]');
+				self.complex = $('div[style="top:335px;left:393px;width:369px;height:13px;"]');
+				self.devUnits = $('<div>1</div>');
+				self.totalUnits = $('<div>1</div>');
+				self.cnSoldDate = $('div[style="top:171px;left:290px;width:57px;height:15px;"]');
+				self.cnMeasType = $('div[style="top:187px;left:290px;width:73px;height:15px;"]');
+				self.cnLotArea = $('div[style="top:219px;left:290px;width:88px;height:17px;"]');
+				self.cnDepth = $('div[style="top:203px;left:290px;width:89px;height:13px;"]');
+				self.cnFloodPlain = $('div[style="top:235px;left:290px;width:79px;height:13px;"]');
+				self.cnExposure = $('div[style="top:251px;left:290px;width:79px;height:15px;"]');
+				self.cnApprovalReq = $('div[style="top:267px;left:290px;width:80px;height:16px;"]');
+				self.cnNewGST = $('div[style="top:283px;left:290px;width:110px;height:17px;"]');
+				self.cnView = $('div[style="top:319px;left:290px;width:77px;height:13px;"]');
+				self.cnComplex = $('div[style="top:335px;left:289px;width:93px;height:14px;"]');
+				self.cnServiceConnected = $('div[style="top:352px;left:289px;width:100px;height:15px;"]');
+				self.cnFrontageFeet =$('div[style="top:171px;left:459px;width:87px;height:13px;"]');
+				self.cnBedrooms = $('div[style="top:187px;left:459px;width:91px;height:15px;"]');
+				self.cnBathrooms =$('div[style="top:203px;left:459px;width:87px;height:15px;"]');
+				self.cnFullBaths =$('div[style="top:219px;left:459px;width:55px;height:15px;"]');
+				self.cnHalfBaths = $('div[style="top:235px;left:459px;width:55px;height:13px;"]');
+				self.cnOriginalPrice = $('div[style="top:171px;left:603px;width:75px;height:14px;"]');
+				self.cnYearBuilt =$('div[style="top:187px;left:603px;width:101px;height:14px;"]');
+				self.cnGrossTaxes = $('div[style="top:235px;left:603px;width:68px;height:13px;"]');
+				self.cnRenoYear =$('div[style="top:432px;left:220px;width:60px;height:12px;"]');
+				self.cnRIPlumbing = $('div[style="top:444px;left:220px;width:65px;height:12px;"]');
+				self.cnRIFireplaces =$('div[style="top:456px;left:220px;width:71px;height:13px;"]');
+				self.cnWaterSupply = $('div[style="top:480px;left:3px;width:72px;height:14px;"]');
+				self.cnNumOfFirePlaces = $('div[style="top:456px;left:3px;width:73px;height:13px;"]');
+				self.cnFuelHeating =$('div[style="top:492px;left:3px;width:61px;height:12px;"]');
+				self.cnOutdoorArea = $('div[style="top:504px;left:3px;width:70px;height:13px;"]');
+				self.cnTypeOfRoof = $('div[style="top:516px;left:3px;width:64px;height:12px;"]');
+				self.cnTitleToLand = $('div[style="top:432px;left:367px;width:63px;height:12px;"]');
+				self.cnPropertyDisc = $('div[style="top:456px;left:367px;width:70px;height:15px;"]');
+				self.cnFixturesRmvd = $('div[style="top:492px;left:367px;width:70px;height:15px;"]');
+				self.cnPADRental = $('div[style="top:468px;left:367px;width:62px;height:16px;"]');
+				self.cnFeatures = $('div[style="top:592px;left:3px;width:46px;height:12px;"]');
+				self.cnKitchens = $('div[style="top:768px;left:210px;width:66px;height:16px;"]');
+				self.cnLevels = $('div[style="top:780px;left:210px;width:56px;height:12px;"]');
+				self.cnCrawlHeight = $('div[style="top:804px;left:210px;width:92px;height:15px;"]');
+				self.cnSuite = $('div[style="top:792px;left:210px;width:60px;height:14px;"]');
+				self.cnBasement = $('div[style="top:828px;left:210px;width:52px;height:13px;"]');
+				self.cnBedsInBasement = $('div[style="top:816px;left:210px;width:87px;height:14px;"]');
+				self.cnBedNotInBasement = $('div[style="top:816px;left:330px;width:102px;height:13px;"]');
+				self.cnDimensions = $('div[style="top:616px;left:182px;width:60px;height:15px;"]');
+				self.cnDimensions3 = $('div[style="top:616px;left:695px;width:59px;height:14px;"]');
+				break;
 		}
 	},
 
@@ -157,49 +216,12 @@ var fullpublic = {
 						self.updateAssess();
 					};
 
-					// if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
-					// 	//self.updateStrataPlanSummary(changes);
-					// }
-
-					if (changes.from.newValue.indexOf('complex') > -1){
+					if (changes.from.newValue.indexOf('complex') > -1) {
 						self.updateComplexInfo();
 					}
 					console.log("this: ", self);
 
 				};
-
-				// if (area == "sync" && "_id" in changes) {
-				// 	console.log("this:", self);
-				// 	var listPrice = convertStringToDecimal(self.lp.text());
-				// 	var soldPrice = convertStringToDecimal(self.sp.text());
-
-				// 	chrome.storage.sync.get(['totalValue','improvementValue','landValue'], function (result) {
-				// 		var totalValue = result.totalValue;
-				// 		var improvementValue = result.improvementValue;
-				// 		var landValue = result.landValue;
-				// 		console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue);
-
-				// 		self.bcAssess.text(totalValue);
-
-				// 		if (soldPrice > 0 && totalValue != 0) {
-
-				// 			var intTotalValue = convertStringToDecimal(totalValue);
-				// 			var changeValue = soldPrice - intTotalValue;
-				// 			var changeValuePercent = changeValue / intTotalValue * 100;
-
-				// 		} else if (totalValue != 0) {
-				// 			var intTotalValue = convertStringToDecimal(totalValue);
-				// 			var changeValue = listPrice - intTotalValue;
-				// 			var changeValuePercent = changeValue / intTotalValue * 100;
-
-				// 		}
-
-				// 		self.bcAssess.text(removeDecimalFraction(self.bcAssess.text()) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
-
-
-				// 	})
-
-				// }
 
 				if (area == "sync" && "curTabID" in changes) {
 
@@ -241,10 +263,11 @@ var fullpublic = {
 		var listPrice = convertStringToDecimal(self.lp.text());
 		var soldPrice = convertStringToDecimal(self.sp.text());
 
-		chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue'], function (result) {
+		chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize'], function (result) {
 			var totalValue = result.totalValue;
 			var improvementValue = result.improvementValue;
 			var landValue = result.landValue;
+			var lotArea = result.lotSize;
 			console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue);
 			self.bcAssess.text(totalValue);
 			if (totalValue != 0) {
@@ -263,26 +286,31 @@ var fullpublic = {
 				}
 			}
 			self.bcAssess.text(removeDecimalFraction(self.bcAssess.text()) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
+			self.lotArea.text(numberWithCommas(convertStringToDecimal(lotArea)));
 		})
 	},
 
-	updateComplexInfo: function(){
+	updateComplexInfo: function () {
 		var self = this;
 		console.log('update Complex info:');
-		chrome.storage.sync.get('complexName', function(result){
-			self.complex.text(result.complexName);
-			self.complexSummary.text(result.complexName);
+		chrome.storage.sync.get(['complexName', 'count'], function (result) {
+			self.complex.text(result.complexName + '[ ' + result.count.toString() + ' ]');
 		})
 	},
 
+	houseType: $('div[style="top:111px;left:578px;width:147px;height:16px;"]'),
+	listingHouseType: null,
 	lp: $('div[style="top:129px;left:555px;width:147px;height:13px;"]'),
 	sp: $('div[style="top:147px;left:555px;width:147px;height:15px;"]'),
 	lpSuffix: $('div[style="top:129px;left:703px;width:23px;height:14px;"]'),
 	bcAssess: $('div[style="top:111px;left:578px;width:147px;height:16px;"]'),
 	finishedFloorArea: $('div[style="top:804px;left:120px;width:50px;height:16px;"]'),
 	totalFinishedFloorArea: $('div[style="top:840px;left:120px;width:50px;height:12px;"]'),
-	pid: $('div[style="top:283px;left:637px;width:82px;height:15px;"]'),
-	complex: $('div[style="top:341px;left:393px;width:369px;height:13px;"]'),
+	pid: null,
+	complex: null,
+	lotArea: null,
+	devUnits: null,
+	totalUnits: null,
 	strataFee: $('div[style="top:267px;left:530px;width:67px;height:13px;"]'),
 	exposure: $('div[style="top:261px;left:376px;width:68px;height:13px;"]'),
 	age: $('div[style="top:203px;left:698px;width:65px;height:13px;"]'),
@@ -299,7 +327,7 @@ var fullpublic = {
 	neighborhood: $('div[style="top:139px;left:134px;width:479px;height:13px;"]'),
 	postcode: $('div[style="top:152px;left:132px;width:484px;height:13px;"]'),
 	dwellingType: $('div[style="top:151px;left:4px;width:137px;height:15px;"]'),
-	totalUnits:$('div[style="top:432px;left:658px;width:103px;height:15px;"'),
+	totalUnits: $('div[style="top:432px;left:658px;width:103px;height:15px;"'),
 	devUnits: $('div[style="top:432px;left:470px;width:76px;height:14px;"'),
 
 	cnSoldDate: $('div[style="top:170px;left:289px;width:59px;height:16px;"]'),
@@ -356,7 +384,7 @@ var fullpublic = {
 	cnDogs: $('div[style="top:792px;left:366px;width:42px;height:13px;"]'),
 	cnBylawRestric: $('div[style="top:816px;left:210px;width:65px;height:13px;"]'),
 	cnRentalsAllowed: $('div[style="top:804px;left:210px;width:125px;height:14px;"]'),
-	cnCrawHeight: $('div[style="top:768px;left:210px;width:92px;height:15px;"]'),
+	cnCrawlHeight: $('div[style="top:768px;left:210px;width:92px;height:15px;"]'),
 	cnBasement: $('div[style="top:840px;left:210px;width:57px;height:14px;"]'),
 
 	cnMaintFeeInc: $('div[style="top:520px;left:3px;width:74px;height:14px;"]'),
@@ -419,9 +447,9 @@ var fullpublic = {
 
 		this.cnRestrictedAge.css("text-decoration", "underline").text('年齡限制：');
 		this.cnSoldDate.text('銷售日期:');
-		this.cnFrontageFeet.text('');
-		this.cnFrontageMeters.text('');
-		this.cnDepth.text('');
+		this.cnFrontageFeet.text('面寬(尺):');
+		this.cnFrontageMeters.text('面寬(米):');
+		this.cnDepth.text('進深:');
 		this.cnLotArea.text('宅地面積:');
 		this.cnFloodPlain.text('是否泄洪區:');
 		this.cnApprovalReq.text('是否審批:');
@@ -462,7 +490,7 @@ var fullpublic = {
 		this.cnRooms.text('房間數:');
 		this.cnKitchens.text('厨房數:');
 		this.cnLevels.text('樓層數:');
-		this.cnCrawHeight.text('--------');
+		this.cnCrawlHeight.text('地下室高度:');
 		this.cnPets.text('寵物數:');
 		this.cnCats.text('貓:');
 		this.cnDogs.text('狗:');
@@ -512,6 +540,12 @@ var fullpublic = {
 		this.cnFinishedFloorBasement.text('裝修面積（地下室）:');
 		this.cnUnfinishedFloor.text('未裝修面積: ');
 
+		if(this.listingHouseType == 'ResidentialDetached'){
+			this.cnSuite.text('套間:');
+			this.cnBedNotInBasement.text('主層臥室數:');
+			this.cnBedsInBasement.text('地下室臥室數:');
+		}
+
 		this.cnBCAssess.addClass(this.bcAssess.attr('class')).insertBefore(this.bcAssess);
 		this.cnListingPrice.addClass(this.lp.attr('class')).insertBefore(this.lp);
 		this.cnSoldPrice.addClass(this.sp.attr('class')).insertBefore(this.sp);
@@ -521,9 +555,7 @@ var fullpublic = {
 //fullpublic startpoint
 //document.addEventListener("DOMContentLoaded", function(){
 $(function () {
-
 	fullpublic.init();
-
 })
 
 function convertStringToDecimal(strNum) {
@@ -537,7 +569,7 @@ function convertStringToDecimal(strNum) {
 	//remove the [] 
 	strNum = strNum.substring(0, strNum.indexOf('[') == -1 ? strNum.length : strNum.indexOf('['));
 	//remove the unit
-
+	strNum = strNum.substring(0, strNum.indexOf(' ') == -1 ? strNum.length : strNum.indexOf(' '));
 	for (var i = 0, len = strNum.length; i < len; ++i) {
 
 		if (!isNaN(strNum[i])) {
@@ -565,6 +597,10 @@ function convertUnit(sf) {
 	sf = convertStringToDecimal(sf);
 	var result = parseInt(sf) / 10.76;
 	return result.toFixed(1);
+}
+
+function numberWithCommas(x) {
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 //});
