@@ -1,6 +1,6 @@
 // get strata plan number
 
-const strataPlanPrefix = ['EPS', 'BCS', 'LMS', 'BCP', 'LMP', 'NWS', 'NW', 'EPP', 'PLAN', 'PL'];
+const strataPlanPrefix = ['EPS', 'BCS', 'LMS', 'BCP', 'LMP', 'NWS', 'EPP', 'PLAN', 'PL', 'NW'];
 
 
 class LegalDescription {

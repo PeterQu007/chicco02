@@ -42,6 +42,7 @@ var fullrealtor = {
 
 	init: function () {
 		getCurrentTab();
+		this.clearAssess();
 		this.houseListingType = this.houseType.text().replace(',', '').replace(' ', '');
 		setHouseType(this.houseListingType);
 		this.getMorePropertyInfo(); //get pid, complex, lotArea, etc.
@@ -98,6 +99,7 @@ var fullrealtor = {
 	bcLand2ImprovementRatio: null,
 	valueChange: null,
 	valueChangePercent: null,
+	oldTimerLotValuePerSF: null,
 	street: null,
 	streetNumber: null,
 	curTabID: null,
@@ -148,7 +150,6 @@ var fullrealtor = {
 	},
 
 	addStrataPlan: function () {
-
 		var stylePosition = function (top, left, width, height) {
 			var result = 'position: absolute;';
 			result += 'top: ' + top.toString().trim() + 'px; ';
@@ -261,14 +262,16 @@ var fullrealtor = {
 
 		var newDivValueChange = $('<div id="changeValue" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
 		topPosition += 13 + 1;
+		var newOldTimerLotValuePerSF = $('<div id="oldtimerlotvaluepersf" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
+		topPosition += 13 + 1;
 		var newDivValueChangePercent = $('<div id="changeValuePercent" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
 		topPosition += 13 + 1;
-
 		newDivLandValue.appendTo(this.report);
 		newDivImprovementValue.appendTo(this.report);
 		newDivL2IRatio.appendTo(this.report);
 		newDivTotalValue.appendTo(this.report);
 		newDivValueChange.appendTo(this.report);
+		newOldTimerLotValuePerSF.appendTo(this.report);
 		newDivValueChangePercent.appendTo(this.report);
 
 		this.bcAssess = $("#totalValue");
@@ -277,7 +280,7 @@ var fullrealtor = {
 		this.bcLand2ImprovementRatio = $('#land2improvementratio');
 		this.valueChange = $("#changeValue");
 		this.valueChangePercent = $("#changeValuePercent");
-
+		this.oldTimerLotValuePerSF = $('#oldtimerlotvaluepersf');
 	},
 
 	addRemarks: function () {
@@ -309,7 +312,7 @@ var fullrealtor = {
 			result += 'left: ' + left.toString().trim() + 'px; ';
 			result += 'width: ' + width.toString().trim() + 'px; ';
 			result += 'height: ' + height.toString().trim() + 'px;';
-			topPosition += height + 1;
+			topPosition += height + 13;
 			return result;
 		};
 
@@ -496,8 +499,12 @@ var fullrealtor = {
 			var intTotalValue = convertStringToDecimal(totalValue);
 			var intImprovementValue = convertStringToDecimal(improvementValue);
 			var intLandValue = convertStringToDecimal(landValue);
+			var land2TotalRatio = (intLandValue / intTotalValue * 100).toFixed(1).toString() + '%L2T ';
+			var house2TotalRatio = (intImprovementValue / intTotalValue * 100).toFixed(1).toString() + '%H2T ';
+			var land2HouseRatio = (intLandValue / intImprovementValue).toFixed(1).toString() + 'L2H';
 			var landValuePerSF = '';
 			var houseValuePerSF = '';
+			var olderTimerLotValuePerSF = '';
 			var houseType = self.houseListingType;
 			console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
 
@@ -511,16 +518,42 @@ var fullrealtor = {
 				}
 			}
 			if (houseType == 'Detached') {
-				landValuePerSF = '[ $' + (intTotalValue / lotArea).toFixed(0).toString() + '/sf ]';
+				var lotAreaInSquareFeet = (lotArea<100? (lotArea * 43560).toFixed(0) : lotArea);
+				landValuePerSF = '[ $' + (intLandValue / lotAreaInSquareFeet).toFixed(0).toString() + '/sf ]';
+				console.log('landValue / lotArea', intLandValue, lotAreaInSquareFeet);
 				houseValuePerSF = '[ $' + (intImprovementValue / finishedFloorArea).toFixed(0).toString() + '/sf ]';
+				console.log('houseValue / finishedArea', intImprovementValue, finishedFloorArea);
+				if(soldPrice > 0){
+					var soldOldTimerPerSF = (soldPrice / lotAreaInSquareFeet).toFixed(0).toString();
+					olderTimerLotValuePerSF = 'OT Lot/SF sold$'+ soldOldTimerPerSF + ' /bca$' + (intTotalValue / lotAreaInSquareFeet).toFixed(0).toString();
+				}else{
+					var listOldTimerPerSF = (listPrice / lotAreaInSquareFeet).toFixed(0).toString();
+					olderTimerLotValuePerSF = 'OT Lot/SF list$'+ listOldTimerPerSF + ' /bca$' + (intTotalValue / lotAreaInSquareFeet).toFixed(0).toString();
+				}
+				
 			}
 			self.bcAssess.text('total:  ' + removeDecimalFraction(totalValue));
 			self.bcLand.text('land:  ' + removeDecimalFraction(landValue) + landValuePerSF);
 			self.bcImprovement.text('house:' + removeDecimalFraction(improvementValue) + houseValuePerSF);
-			self.bcLand2ImprovementRatio.text('lnd/hs:' + (intLandValue / intImprovementValue).toFixed(1).toString());
+			self.bcLand2ImprovementRatio.text(land2TotalRatio + house2TotalRatio + land2HouseRatio);
 			self.valueChange.text("$" + numberWithCommas(changeValue.toFixed(0)) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
-			self.lotArea.text(numberWithCommas(convertStringToDecimal(lotSize)));
+			self.oldTimerLotValuePerSF.text(olderTimerLotValuePerSF);
+			self.lotArea.text(numberWithCommas(convertStringToDecimal(lotSize, true)));
 			self.formalAddress.text(formalAddress);
+		})
+	},
+
+	clearAssess: function () {
+		var self = this;
+		chrome.storage.sync.set({
+			'totalValue': '',
+			'improvementValue': '',
+			'landValue': '',
+			'lotSize': '',
+			'address': '',
+			'bcaDataUpdateDate': ''
+		}, function () {
+			console.log("mls-fullpublic clear AssessInfo! ");
 		})
 	},
 
@@ -569,14 +602,17 @@ function getDecimalNumber(strNum) {
 	return result.toFixed(0);
 };
 
-function convertStringToDecimal(strNum) {
+function convertStringToDecimal(strNum, keepFraction) {
 
 	var result = 0,
 		numbers = '';
+	keepFraction = keepFraction || false;
 
 	strNum = strNum.replace(/,/g, '');
 	//remove the fraction
-	strNum = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
+	if(!keepFraction){
+		strNum = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
+	}
 	//remove the [] 
 	strNum = strNum.substring(0, strNum.indexOf('[') == -1 ? strNum.length : strNum.indexOf('['));
 	//remove the unit

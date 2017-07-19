@@ -91,13 +91,21 @@ let taxDetails = {
 					self.bcaDescription = $('div[style="top:441px;left:150px;width:221px;height:14px;"]').text();
 					self.bcaDataUpdateDate = $('div[style="top:469px;left:150px;width:221px;height:14px;"]').text();
 				}else{
-					self.landValue = $('div[style="top:576px;left:0px;width:246px;height:14px;"]').text();
-					self.improvementValue = $('div[style="top:576px;left:250px;width:246px;height:14px;"]').text();
-					self.totalValue = $('div[style="top:576px;left:500px;width:246px;height:14px;"]').text();
 					self.planNum = $('div[style="top:303px;left:0px;width:79px;height:14px;"]').text();
 					self.lotSize = $('div[style="top:360px;left:150px;width:221px;height:14px;"]').text();
 					self.bcaDescription = $('div[style="top:402px;left:150px;width:221px;height:14px;"]').text();
-					self.bcaDataUpdateDate = $('div[style="top:430px;left:150px;width:221px;height:14px;"]').text();
+					self.bcaWaterConn = $('div[style="top:430px;left:0px;width:144px;height:14px;"]').text();
+					if(self.bcaWaterConn == 'WaterConn'){
+						self.bcaDataUpdateDate = $('div[style="top:444px;left:150px;width:221px;height:14px;"]').text();
+						self.landValue = $('div[style="top:590px;left:0px;width:246px;height:14px;"]').text();
+						self.improvementValue = $('div[style="top:590px;left:250px;width:246px;height:14px;"]').text();
+						self.totalValue = $('div[style="top:590px;left:500px;width:246px;height:14px;"]').text();
+					}else{
+						self.bcaDataUpdateDate = $('div[style="top:430px;left:150px;width:221px;height:14px;"]').text();
+						self.landValue = $('div[style="top:576px;left:0px;width:246px;height:14px;"]').text();
+						self.improvementValue = $('div[style="top:576px;left:250px;width:246px;height:14px;"]').text();
+						self.totalValue = $('div[style="top:576px;left:500px;width:246px;height:14px;"]').text();
+					}
 				}
 				break;
 		}

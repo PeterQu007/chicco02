@@ -556,7 +556,7 @@
 
 	// get strata plan number
 
-	var strataPlanPrefix = ['EPS', 'BCS', 'LMS', 'BCP', 'LMP', 'NWS', 'NW', 'EPP', 'PLAN', 'PL'];
+	var strataPlanPrefix = ['EPS', 'BCS', 'LMS', 'BCP', 'LMP', 'NWS', 'EPP', 'PLAN', 'PL', 'NW'];
 
 	var LegalDescription = function () {
 		function LegalDescription(legal) {
