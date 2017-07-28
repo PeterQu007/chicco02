@@ -1,5 +1,6 @@
 //background script, event mode
 //message passed between background - defaultpage - iframes
+
 import database from '../assets/scripts/modules/Database';
 
 var db = new database();
