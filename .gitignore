@@ -12,8 +12,12 @@
 @*.*
 node_modules/
 .tmp/
+
+# Temperary folders
 **/temp/
-**/bower_components/
+
+# Bower dependency directory (https://bower.io/)
+bower_components
 
 # OS or Editor folders
 .DS_Store
