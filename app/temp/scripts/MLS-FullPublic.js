@@ -48,11 +48,11 @@
 
 	var _fullpublic;
 
-	var _LegalDescription = __webpack_require__(2);
+	var _LegalDescription = __webpack_require__(4);
 
 	var _LegalDescription2 = _interopRequireDefault(_LegalDescription);
 
-	var _AddressInfo = __webpack_require__(3);
+	var _AddressInfo = __webpack_require__(5);
 
 	var _AddressInfo2 = _interopRequireDefault(_AddressInfo);
 
@@ -541,7 +541,9 @@
 
 /***/ }),
 /* 1 */,
-/* 2 */
+/* 2 */,
+/* 3 */,
+/* 4 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -614,7 +616,7 @@
 	exports.default = LegalDescription;
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, exports) {
 
 	'use strict';

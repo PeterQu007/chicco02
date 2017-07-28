@@ -24,7 +24,7 @@
   "content_scripts": [
     {
       "matches": ["http://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword"],
-      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/content-login.js"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/@mls-login.js"],
       "css": ["./temp/content.css"]
     },
 
