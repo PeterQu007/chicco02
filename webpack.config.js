@@ -10,6 +10,7 @@ module.exports={
 
 	entry: {
 		"app": './app/app.js',
+		"Library": './app/assets/scripts/Library.js',
 		"EventPage": './app/background/eventPage.js',
 		'@MLS-Login': './app/content/@mls-login.js',
 		"DefaultPage": './app/content/defaultpage.js',

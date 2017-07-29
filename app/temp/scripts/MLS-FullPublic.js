@@ -61,23 +61,7 @@
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; } //custom full public report
 
 	//console.log("full public script activated now: ");
-	var getToday = function getToday() {
-		var today = new Date();
-		var dd = today.getDate();
-		var mm = today.getMonth() + 1; //January is 0!
-		var yyyy = today.getFullYear();
-
-		if (dd < 10) {
-			dd = '0' + dd;
-		}
-
-		if (mm < 10) {
-			mm = '0' + mm;
-		}
-
-		today = yyyy + mm + dd;
-		return today;
-	};
+	var $fx = L$();
 
 	var fullpublic = (_fullpublic = {
 
@@ -104,9 +88,9 @@
 		calculateSFPrice: function calculateSFPrice() {
 
 			console.log(this.lp.text(), this.sp.text(), this.finishedFloorArea.text());
-			var listPrice = convertStringToDecimal(this.lp.text());
-			var soldPrice = convertStringToDecimal(this.sp.text());
-			var FinishedFloorArea = convertStringToDecimal(this.finishedFloorArea.text());
+			var listPrice = $fx.convertStringToDecimal(this.lp.text());
+			var soldPrice = $fx.convertStringToDecimal(this.sp.text());
+			var FinishedFloorArea = $fx.convertStringToDecimal(this.finishedFloorArea.text());
 			var sfPriceList = listPrice / FinishedFloorArea;
 			var sfPriceSold = soldPrice / FinishedFloorArea;
 
@@ -183,19 +167,13 @@
 		searchTax: function searchTax() {
 
 			var PID = this.pid.text();
-
 			if (!PID) {
 				return;
 			};
-
 			chrome.storage.sync.set({ 'PID': PID });
-
 			chrome.storage.sync.get('PID', function (result) {
-
 				console.log(result.PID);
-
 				chrome.runtime.sendMessage({ from: 'ListingReport', todo: 'taxSearch' }, function (response) {
-
 					console.log('mls-fullpublic got response:', response);
 				});
 			});
@@ -221,7 +199,7 @@
 				_id: strataPlan + '-' + address.streetNumber + '-' + address.streetName + '-' + address.streetType,
 				name: complexName,
 				strataPlan: strataPlan,
-				addDate: getToday(),
+				addDate: $fx.getToday(),
 				subArea: subArea,
 				neighborhood: neighborhood,
 				postcode: postcode,
@@ -302,8 +280,8 @@
 		updateAssess: function updateAssess() {
 
 			var self = this;
-			var listPrice = convertStringToDecimal(self.lp.text());
-			var soldPrice = convertStringToDecimal(self.sp.text());
+			var listPrice = $fx.convertStringToDecimal(self.lp.text());
+			var soldPrice = $fx.convertStringToDecimal(self.sp.text());
 
 			chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize'], function (result) {
 				var totalValue = result.totalValue;
@@ -316,17 +294,17 @@
 
 					if (soldPrice > 0) {
 
-						var intTotalValue = convertStringToDecimal(totalValue);
+						var intTotalValue = $fx.convertStringToDecimal(totalValue);
 						var changeValue = soldPrice - intTotalValue;
 						var changeValuePercent = changeValue / intTotalValue * 100;
 					} else {
-						var intTotalValue = convertStringToDecimal(totalValue);
+						var intTotalValue = $fx.convertStringToDecimal(totalValue);
 						var changeValue = listPrice - intTotalValue;
 						var changeValuePercent = changeValue / intTotalValue * 100;
 					}
 				}
-				self.bcAssess.text(removeDecimalFraction(self.bcAssess.text()) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
-				self.lotArea.text(numberWithCommas(convertStringToDecimal(lotArea)));
+				self.bcAssess.text($fx.removeDecimalFraction(self.bcAssess.text()) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
+				self.lotArea.text($fx.numberWithCommas($fx.convertStringToDecimal(lotArea)));
 			});
 		},
 
@@ -371,8 +349,8 @@
 
 		this.cnStrataFee.css("text-decoration", "underline").text('月管理費：');
 		this.cnGrossTaxes.css("text-decoration", "underline").text('地稅金額：');
-		var squareMeters = convertUnit(this.finishedFloorArea.text());
-		var totalSquareMeters = convertUnit(this.totalFinishedFloorArea.text());
+		var squareMeters = $fx.convertUnit(this.finishedFloorArea.text());
+		var totalSquareMeters = $fx.convertUnit(this.totalFinishedFloorArea.text());
 
 		this.cnFinishedFloor.text('室内面積：(' + squareMeters.toString() + ' M2)').css("text-decoration: underline");
 		this.cnTotalFinishedFloor.text('縂面積：(' + totalSquareMeters.toString() + ' M2)').css("text-decoration: underline");
@@ -487,57 +465,9 @@
 	}), _fullpublic);
 
 	//fullpublic startpoint
-	//document.addEventListener("DOMContentLoaded", function(){
 	$(function () {
 		fullpublic.init();
 	});
-
-	function convertStringToDecimal(strNum) {
-
-		var result = 0,
-		    numbers = '';
-
-		strNum = strNum.replace(/,/g, '');
-		//remove the fraction
-		strNum = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
-		//remove the [] 
-		strNum = strNum.substring(0, strNum.indexOf('[') == -1 ? strNum.length : strNum.indexOf('['));
-		//remove the unit
-		strNum = strNum.substring(0, strNum.indexOf(' ') == -1 ? strNum.length : strNum.indexOf(' '));
-		for (var i = 0, len = strNum.length; i < len; ++i) {
-
-			if (!isNaN(strNum[i])) {
-				numbers += strNum[i];
-			}
-		}
-
-		result = Number(numbers);
-		return result.toFixed(0);
-	}
-
-	function removeDecimalFraction(strNum) {
-
-		var result = 0,
-
-
-		//remove the fraction
-		result = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
-
-		return result;
-	}
-
-	function convertUnit(sf) {
-
-		sf = convertStringToDecimal(sf);
-		var result = parseInt(sf) / 10.76;
-		return result.toFixed(1);
-	}
-
-	function numberWithCommas(x) {
-		return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	}
-
-	//});
 
 /***/ }),
 /* 1 */,

@@ -44,7 +44,7 @@
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 
 	var _Database = __webpack_require__(3);
 
@@ -55,23 +55,25 @@
 	var db = new _Database2.default(); //background script, event mode
 	//message passed between background - defaultpage - iframes
 
-	function getToday() {
-		var today = new Date();
-		var dd = today.getDate();
-		var mm = today.getMonth() + 1; //January is 0!
-		var yyyy = today.getFullYear();
+	var $fx = L$();
 
-		if (dd < 10) {
-			dd = '0' + dd;
-		}
+	// function getToday() {
+	// 	var today = new Date();
+	// 	var dd = today.getDate();
+	// 	var mm = today.getMonth() + 1; //January is 0!
+	// 	var yyyy = today.getFullYear();
 
-		if (mm < 10) {
-			mm = '0' + mm;
-		}
+	// 	if (dd < 10) {
+	// 		dd = '0' + dd
+	// 	}
 
-		today = yyyy + mm + dd;
-		return today;
-	};
+	// 	if (mm < 10) {
+	// 		mm = '0' + mm
+	// 	}
+
+	// 	today = yyyy + mm + dd;
+	// 	return today;
+	// };
 
 	(function () {
 
@@ -162,7 +164,7 @@
 					if (!strataPlan || strataPlan == 'PLAN' || strataPlan == 'PL') {
 						return;
 					};
-					var today = getToday();
+					var today = $fx.getToday();
 					db.readStrataPlanSummary(strataPlan + '-' + today, function (strataPlanSummaryToday) {
 						console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday);
 						if (!strataPlanSummaryToday) {

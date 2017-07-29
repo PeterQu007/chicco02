@@ -10,48 +10,16 @@ import addressInfo from '../assets/scripts/modules/AddressInfo';
 import uiListingInfo from '../assets/scripts/ui/uiListingInfo';
 
 var curTabID = null;
-var topPosition = 7;
-var houseType = $('div[style="top:32px;left:46px;width:61px;height:14px;"]');
-
-// get the currently selected Chrome tab
-var getCurrentTab = function () {
-	chrome.storage.sync.set({ 'curTabID': curTabID });
-	chrome.runtime.sendMessage(
-		{ todo: 'readCurTabID', from: 'mls-fullrealtor' },
-		function (response) {
-			console.log('current Tab ID is: ', response);
-		}
-	)
-};
-
-var setHouseType = function (houseType) {
-	chrome.storage.sync.set({ 'houseType': houseType });
-	console.log('current House Type is: ', houseType);
-}
-
-var getToday = function () {
-	var today = new Date();
-	var dd = today.getDate();
-	var mm = today.getMonth() + 1; //January is 0!
-	var yyyy = today.getFullYear();
-	if (dd < 10) {
-		dd = '0' + dd
-	}
-	if (mm < 10) {
-		mm = '0' + mm
-	}
-	today = yyyy + mm + dd;
-	return today;
-};
+var $fx = L$();
 
 var fullRealtor = {
 
 	init: function () {
 		//read full realtor report, get listing data
-		getCurrentTab();
+		$fx.getCurrentTab(curTabID);
 		this.clearAssess();
 		this.houseListingType = this.houseType.text().replace(',', '').replace(' ', '');
-		setHouseType(this.houseListingType);
+		$fx.setHouseType(this.houseListingType);
 		this.getMorePropertyInfo(); //get pid, complexName, lotArea, etc.
 		this.calculateSFPrice();
 		//create extra listing info UI:
@@ -137,9 +105,9 @@ var fullRealtor = {
 
 	calculateSFPrice: function () {
 		console.log(this.lp.text(), this.sp.text(), this.finishedFloorArea.text());
-		var listPrice = convertStringToDecimal(this.lp.text());
-		var soldPrice = convertStringToDecimal(this.sp.text());
-		var finishedFloorArea = convertStringToDecimal(this.finishedFloorArea.text());
+		var listPrice = $fx.convertStringToDecimal(this.lp.text());
+		var soldPrice = $fx.convertStringToDecimal(this.sp.text());
+		var finishedFloorArea = $fx.convertStringToDecimal(this.finishedFloorArea.text());
 		var sfPriceList = listPrice / finishedFloorArea;
 		var sfPriceSold = soldPrice / finishedFloorArea;
 
@@ -203,7 +171,7 @@ var fullRealtor = {
 			_id: strataPlan + '-' + address.streetNumber + '-' + address.streetName + '-' + address.streetType,
 			name: complexName,
 			strataPlan: strataPlan,
-			addDate: getToday(),
+			addDate: $fx.getToday(),
 			subArea: subArea,
 			neighborhood: neighborhood,
 			postcode: postcode,
@@ -247,7 +215,7 @@ var fullRealtor = {
 		var publicRemarks = this.publicRemarks.text();
 		this.uiListingInfo.publicRemarks.text(publicRemarks);
 		//highlight keyword in public remarks:
-		highlight_words(this.keyword.val(), this.uiListingInfo.publicRemarks);
+		$fx.highlight_words(this.keyword.val(), this.uiListingInfo.publicRemarks);
 	},
 
 	addShowingInfo: function () {
@@ -383,20 +351,20 @@ var fullRealtor = {
 
 	updateAssess: function () {
 		var self = this;
-		var listPrice = convertStringToDecimal(self.lp.text());
-		var soldPrice = convertStringToDecimal(self.sp.text());
+		var listPrice = $fx.convertStringToDecimal(self.lp.text());
+		var soldPrice = $fx.convertStringToDecimal(self.sp.text());
 		chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate'], function (result) {
 			var totalValue = result.totalValue;
 			var improvementValue = result.improvementValue;
 			var landValue = result.landValue;
 			var lotSize = result.lotSize;
-			var lotArea = convertStringToDecimal(lotSize, true);
+			var lotArea = $fx.convertStringToDecimal(lotSize, true);
 			var lotAreaInSquareFeet = (lotArea < 500 ? (lotArea * 43560).toFixed(0) : lotArea);
 			var formalAddress = result.address.trim();
-			var finishedFloorArea = convertStringToDecimal(self.finishedFloorArea.text());
-			var intTotalValue = convertStringToDecimal(totalValue);
-			var intImprovementValue = convertStringToDecimal(improvementValue);
-			var intLandValue = convertStringToDecimal(landValue);
+			var finishedFloorArea = $fx.convertStringToDecimal(self.finishedFloorArea.text());
+			var intTotalValue = $fx.convertStringToDecimal(totalValue);
+			var intImprovementValue = $fx.convertStringToDecimal(improvementValue);
+			var intLandValue = $fx.convertStringToDecimal(landValue);
 			var land2TotalRatio = (intLandValue / intTotalValue * 100).toFixed(1);
 			var house2TotalRatio = (intImprovementValue / intTotalValue * 100).toFixed(1);
 			var land2HouseRatio = (intLandValue / intImprovementValue).toFixed(1);
@@ -436,14 +404,14 @@ var fullRealtor = {
 					olderTimerLotValuePerSF = 'OT Lot/SF list$' + listOldTimerPerSF + ' /bca$' + (intTotalValue / lotAreaInSquareFeet).toFixed(0).toString();
 				}
 			}
-			self.bcAssess.text('total:  ' + removeDecimalFraction(totalValue));
-			self.bcLand.text('land:  ' + removeDecimalFraction(landValue) + landValuePerSF);
-			self.bcImprovement.text('house:' + removeDecimalFraction(improvementValue) + houseValuePerSF);
+			self.bcAssess.text('total:  ' + $fx.removeDecimalFraction(totalValue));
+			self.bcLand.text('land:  ' + $fx.removeDecimalFraction(landValue) + landValuePerSF);
+			self.bcImprovement.text('house:' + $fx.removeDecimalFraction(improvementValue) + houseValuePerSF);
 			self.bcLand2ImprovementRatio.text(land2TotalRatio.toString() + '%L-T ' + house2TotalRatio.toString() + '%H-T ' + land2HouseRatio.toString() + 'L-H');
-			self.valueChange.text("$" + numberWithCommas(changeValue.toFixed(0)) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
+			self.valueChange.text("$-" + $fx.numberWithCommas(changeValue.toFixed(0)) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
 			self.oldTimerLotValuePerSF.text(olderTimerLotValuePerSF);
 			self.marketValuePerSF.text('Lot:$' + marketLotValuePerSF.toString() + '/SF' + ' | Impv:$' + marketHouseValuePerSF.toString() + '/SF')
-			self.lotArea.text(numberWithCommas(convertStringToDecimal(lotAreaInSquareFeet, true)));
+			self.lotArea.text($fx.numberWithCommas($fx.convertStringToDecimal(lotAreaInSquareFeet, true)));
 			self.formalAddress.text(formalAddress);
 		})
 	},
@@ -487,90 +455,3 @@ var fullRealtor = {
 $(function () {
 	fullRealtor.init();
 });
-
-function getDecimalNumber(strNum) {
-
-	var result = 0,
-		numbers = '';
-
-	strNum = strNum.replace(/,/g, '');
-	//remove the fraction
-	strNum = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
-
-	for (var i = 0, len = strNum.length; i < len; ++i) {
-
-		if (!isNaN(strNum[i])) {
-			numbers += strNum[i];
-		}
-	}
-
-	result = Number(numbers);
-	return result.toFixed(0);
-};
-
-function convertStringToDecimal(strNum, keepFraction) {
-
-	var result = 0,
-		numbers = '';
-	keepFraction = keepFraction || false;
-
-	strNum = strNum.replace(/,/g, '');
-	//remove the fraction
-	if (!keepFraction) {
-		strNum = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
-	}
-	//remove the [] 
-	strNum = strNum.substring(0, strNum.indexOf('[') == -1 ? strNum.length : strNum.indexOf('['));
-	//remove the unit
-	strNum = strNum.substring(0, strNum.indexOf(' ') == -1 ? strNum.length : strNum.indexOf(' '));
-
-	for (var i = 0, len = strNum.length; i < len; ++i) {
-
-		if (!isNaN(strNum[i])) {
-			numbers += strNum[i];
-		}
-	}
-
-	result = Number(numbers);
-	return result.toFixed(0);
-};
-
-function removeDecimalFraction(strNum) {
-
-	var result = 0,
-
-		//remove the fraction
-		result = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
-
-	return result;
-};
-
-
-function convertUnit(sf) {
-
-	sf = convertStringToDecimal(sf);
-	var result = parseInt(sf) / 10.76;
-	return result.toFixed(1);
-};
-
-function numberWithCommas(x) {
-	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
-
-function highlight_words(keywords, element) {
-	if (keywords) {
-		var textNodes;
-		keywords = keywords.replace(/\W/g, '');
-		var str = keywords.split(" ");
-		$(str).each(function () {
-			var term = this;
-			var textNodes = $(element).contents().filter(function () { return this.nodeType === 3 });
-			textNodes.each(function () {
-				var content = $(this).text();
-				var regex = new RegExp(term, "gi");
-				content = content.replace(regex, '<span class="highlight">' + term + '</span>');
-				$(this).replaceWith(content);
-			});
-		});
-	}
-};

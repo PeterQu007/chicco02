@@ -51,42 +51,26 @@
 	// quick search feature is a iframe page
 
 	$(function () {
-
-	    // just place a div at top right
-	    var div = document.createElement('div');
-	    div.style.position = 'fixed';
-	    div.style.top = 0;
-	    div.style.right = 0;
-	    div.textContent = 'MLS List!';
-	    document.body.appendChild(div);
-
+	    console.groupCollapsed('mls-data');
 	    var strataPlanNumber, complexName, countResult;
-
+	    var $fx = L$();
 	    // iframe loaded, trigger search event
-
 	    window.addEventListener('load', myMain, false);
 
 	    function myMain(evt) {
-	        var jsInitChecktimer = setInterval(checkForJS_Finish, 100);
-
-	        function checkForJS_Finish() {
+	        var checkTimer = setInterval(checkForSearchFinish, 100);
+	        function checkForSearchFinish() {
 	            if (document.querySelector('#CountResult')) {
-
-	                clearInterval(jsInitChecktimer);
-
+	                clearInterval(checkTimer);
 	                // DO YOUR STUFF HERE.
 	                $(function () {
-
 	                    var mlsDateLow = $('#f_33_Low__1-2-3-4');
 	                    var mlsDateHigh = $('#f_33_High__1-2-3-4');
-
 	                    // function .blur() is used to trigger PARAGON to split the mls#s
-	                    mlsDateLow.focus().val('05/01/2017').blur();
-	                    mlsDateHigh.focus().val('05/02/2017').blur();
-
-	                    // btn.click();
+	                    mlsDateLow.focus().val($fx.today).blur();
+	                    mlsDateHigh.focus().val($fx.today).blur();
 	                });
-
+	                //do not show search results, do not save results
 	                getCountResult(false, false);
 	            }
 	        };
@@ -94,107 +78,59 @@
 
 	    // waiting the search result from Quick Search box
 	    function getCountResult(showResult, saveResult) {
-
-	        var countTimer = setInterval(checkCount, 100);
-
-	        function checkCount() {
+	        console.groupCollapsed('getCountResult');
+	        var checkTimer = setInterval(checkSearchResult, 100);
+	        var counter = 1;
+	        function checkSearchResult() {
 	            // result is a text with commas, remove the commas
 	            var mlsCountResult = $('#CountResult').val().replace(',', '');
-
-	            if (isInt(mlsCountResult)) {
-
-	                clearInterval(countTimer);
-
+	            if ($fx.isInt(mlsCountResult)) {
+	                clearInterval(checkTimer);
 	                countResult = mlsCountResult;
-	                var btn = $('#Search');
-
-	                console.log('mls Date Search!');
-	                console.log(mlsCountResult);
+	                var btnSearch = $('#Search');
+	                console.log('mls Quick Search Done: ', mlsCountResult);
 	                console.log($('#CountResult').val());
-
+	                console.groupEnd();
 	                if (saveResult) {
 	                    saveCountResult();
 	                }
-
 	                // jump to detailed page view of the search results
 	                if (showResult) {
-	                    btn.click();
+	                    btnSearch.click();
 	                }
 	            } else {
-	                console.log('mls date searching ...', countTimer);
+	                console.log('mls data searching ...', checkTimer);
+	                if (counter++ > 300) {
+	                    clearInterval(checkTimer);
+	                    console.warn('overtimed, stop checking result', counter);
+	                    console.groupEnd();
+	                }
 	            }
 	        }
 	    };
 
 	    //save count result
 	    function saveCountResult() {
-
 	        var spSummary = {
-	            _id: strataPlanNumber + '-' + getToday(),
+	            _id: strataPlanNumber + '-' + $fx.getToday(),
 	            strataPlan: strataPlanNumber,
 	            name: complexName,
-	            searchDate: getToday(),
+	            searchDate: $fx.getToday(),
 	            count: countResult,
 	            active: 'todo',
 	            sold: 'todo',
 	            from: 'strataPlanSummary' + Math.random().toFixed(8)
-	        };
-
-	        chrome.storage.sync.set(spSummary);
+	            //save results to storage:
+	        };chrome.storage.sync.set(spSummary);
 	        console.log('mls-data wrap up the complex data: ', spSummary);
 	        chrome.runtime.sendMessage({ 'todo': 'saveStrataPlanSummary', 'spSummaryData': spSummary });
 	    }
 
-	    // validate the Integer value
-	    function isInt(value) {
-	        // value = value.trim();
-	        return !isNaN(value) && parseInt(Number(value)) == value && !isNaN(parseInt(value, 10));
-	    };
-
-	    function formatDate(date) {
-
-	        var dd = date.getDate();
-	        var mm = date.getMonth() + 1; // January is 0!
-
-	        var yyyy = date.getFullYear();
-	        if (dd < 10) {
-	            dd = '0' + dd;
-	        }
-	        if (mm < 10) {
-	            mm = '0' + mm;
-	        }
-	        var date = mm + '/' + dd + '/' + yyyy;
-	        return date;
-	    };
-
-	    function getToday() {
-	        var today = new Date();
-	        var dd = today.getDate();
-	        var mm = today.getMonth() + 1; //January is 0!
-	        var yyyy = today.getFullYear();
-
-	        if (dd < 10) {
-	            dd = '0' + dd;
-	        }
-
-	        if (mm < 10) {
-	            mm = '0' + mm;
-	        }
-
-	        today = yyyy + mm + dd;
-	        return today;
-	    };
-
 	    chrome.runtime.onMessage.addListener(function (msg, sender, response) {
-
 	        console.log('mls-data got message: ', msg);
-
 	        if (msg.todo != 'switchTab' && msg.todo != 'searchComplex') {
 	            return;
 	        };
-
-	        console.log('I am in mls-data.js');
-	        console.log('mls-data got msg: ', msg);
 	        response('mls-data got a message');
 
 	        var mlsDateLow = $('#f_33_Low__1-2-3-4');
@@ -214,9 +150,8 @@
 	        strataPlan.focus().val('').blur();
 
 	        chrome.storage.sync.get(['strataPlan1', 'strataPlan2', 'strataPlan3', 'strataPlan4', 'complexName'], function (listing) {
-
-	            mlsDateLow.focus().val(formatDate(day60)).blur();
-	            mlsDateHigh.focus().val(formatDate(today)).blur();
+	            mlsDateLow.focus().val($fx.formatDate(day60)).blur();
+	            mlsDateHigh.focus().val($fx.formatDate(today)).blur();
 	            var strataPlans = listing.strataPlan1 + ',' + listing.strataPlan2 + ',' + listing.strataPlan3 + ',' + listing.strataPlan4 + ',';
 	            strataPlan.focus().val(strataPlans).blur();
 	            strataPlanNumber = listing.strataPlan1;
@@ -224,6 +159,7 @@
 	            getCountResult(msg.showResult, msg.saveResult);
 	        });
 	    });
+	    console.groupEnd();
 	});
 
 /***/ })

@@ -4,24 +4,25 @@
 import database from '../assets/scripts/modules/Database';
 
 var db = new database();
+var $fx = L$();
 
-function getToday() {
-	var today = new Date();
-	var dd = today.getDate();
-	var mm = today.getMonth() + 1; //January is 0!
-	var yyyy = today.getFullYear();
+// function getToday() {
+// 	var today = new Date();
+// 	var dd = today.getDate();
+// 	var mm = today.getMonth() + 1; //January is 0!
+// 	var yyyy = today.getFullYear();
 
-	if (dd < 10) {
-		dd = '0' + dd
-	}
+// 	if (dd < 10) {
+// 		dd = '0' + dd
+// 	}
 
-	if (mm < 10) {
-		mm = '0' + mm
-	}
+// 	if (mm < 10) {
+// 		mm = '0' + mm
+// 	}
 
-	today = yyyy + mm + dd;
-	return today;
-};
+// 	today = yyyy + mm + dd;
+// 	return today;
+// };
 
 (function () {
 
@@ -112,7 +113,7 @@ function getToday() {
 				var strataPlan = result.strataPlan;
 				var complexName = result.complexName;
 				if (!strataPlan || strataPlan == 'PLAN' || strataPlan == 'PL') { return; };
-				var today = getToday();
+				var today = $fx.getToday();
 				db.readStrataPlanSummary(strataPlan + '-' + today, function (strataPlanSummaryToday) {
 					console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday)
 					if (!strataPlanSummaryToday) {
