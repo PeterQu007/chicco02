@@ -9,7 +9,7 @@ let webpack=require('webpack');
 module.exports={
 
 	entry: {
-
+		"app": './app/app.js',
 		"EventPage": './app/background/eventPage.js',
 		'@MLS-Login': './app/content/@mls-login.js',
 		"DefaultPage": './app/content/defaultpage.js',
@@ -23,7 +23,6 @@ module.exports={
 		'MLS-TaxResult': './app/content/mls-taxresult.js',
 		'MLS-TaxDetails': './app/content/mls-taxdetails.js',
 		'MLS-SearchBypassCriteria': './app/content/mls-searchbypasscriteria.js',
-
 	},
 
 	output: {

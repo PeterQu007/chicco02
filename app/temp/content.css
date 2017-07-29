@@ -23,3 +23,22 @@
     clear: both;
     display: table;
 }
+
+.uilistinginfo{
+	border: 1px solid red;
+	width: 147px;
+	padding: 2px 5px;
+	position: absolute;
+	top: 0px;
+	left: 770px;
+}
+
+.inputbox{
+	width: 120px;
+}
+
+.bottomline{
+	border-bottom: 1px dotted lightblue;
+	padding-bottom: 2px;
+	margin-bottom: 2px;
+}

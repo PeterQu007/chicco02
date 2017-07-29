@@ -55,7 +55,6 @@
 	var db = new _Database2.default(); //background script, event mode
 	//message passed between background - defaultpage - iframes
 
-
 	function getToday() {
 		var today = new Date();
 		var dd = today.getDate();

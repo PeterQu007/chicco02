@@ -1,7 +1,13 @@
+//add extra functions to the full realtor report
+//show bca info
+//show strata info
+//cal unit price, percent numbers
+
 'use strict'
 
 import legalDescription from '../assets/scripts/modules/LegalDescription';
 import addressInfo from '../assets/scripts/modules/AddressInfo';
+import uiListingInfo from '../assets/scripts/ui/uiListingInfo';
 
 var curTabID = null;
 var topPosition = 7;
@@ -38,38 +44,39 @@ var getToday = function () {
 	return today;
 };
 
-var fullrealtor = {
+var fullRealtor = {
 
 	init: function () {
+		//read full realtor report, get listing data
 		getCurrentTab();
 		this.clearAssess();
 		this.houseListingType = this.houseType.text().replace(',', '').replace(' ', '');
 		setHouseType(this.houseListingType);
-		this.getMorePropertyInfo(); //get pid, complex, lotArea, etc.
+		this.getMorePropertyInfo(); //get pid, complexName, lotArea, etc.
 		this.calculateSFPrice();
-		this.addMLSNo();
-		this.addStrataPlan();
-		this.addBCAssessment();
-		this.addRemarks();
-		this.addShowingInfo();
+		//create extra listing info UI:
+		this.uiListingInfo.showUI(this.report);
+		this.populateUiListing();
+		//add event listeners:
 		this.addDataEvents();
-		this.searchTax();
-		this.addComplexInfo();
 		this.addStrataEvents();
 		this.addComplexEvent();
+		//do searches:
+		this.searchTax();
 		this.searchStrataPlanSummary();
 	},
 
+	uiListingInfo: new uiListingInfo(),
 	//elements on the page
 	houseType: $('div[style="top:32px;left:46px;width:61px;height:14px;"]'),
 	div: $('div.mls0'),
 	lp: $('div[style="top:7px;left:571px;width:147px;height:13px;"]'),
 	sp: $('div[style="top:23px;left:571px;width:147px;height:15px;"]'),
-	lotArea: null,
+	lotArea: null, //lotArea from getMorePropertyInfo
 	finishedFloorArea: $('div[style="top:698px;left:120px;width:50px;height:16px;"]'),
 	report: $('div#divHtmlReport'),
-	pid: null,
-	complex: null, //complex name
+	pid: null, //pid from getMorePropertyInfo
+	complexOrSubdivision: null, //complex name from getMorePropertyInfo
 	mlsNo: $('div[style="top:18px;left:4px;width:123px;height:13px;"] a'),
 	legal: $('div[style="top:426px;left:75px;width:593px;height:24px;"]'),
 	realtorRemarks: $('div[style="top:860px;left:53px;width:710px;height:35px;"]'),
@@ -83,16 +90,17 @@ var fullrealtor = {
 	neighborhood: $('div[style="top:33px;left:134px;width:479px;height:13px;"]'),
 	postcode: $('div[style="top:46px;left:306px;width:130px;height:13px;"]'),
 	dwellingType: $('div[style="top:46px;left:4px;width:137px;height:15px;"]'),
-	totalUnits: null,
-	devUnits: null,
+	totalUnits: null, //from getMorePropertyInfo
+	devUnits: null, //from getMorePropertyInfo
 
-	averagePrice: $('<div style="top:7px;left:471px;width:147px;height:13px;" id="averagePrice" class="mls18"></div>'),
 	saveComplexButton: null,
 	legalDesc: null,
 	strataPlan: null, //new strataPlan field, to be added
 	formalAddress: null, //new formal Address field, to be added
 	strataPlanLink: null, //new strataPlan search link, to be added
 	complexSummary: null, //new complex summary data, to be added
+	complexName: null,
+	complexListingSummary: null,
 	bcAssess: null,
 	bcLand: null,
 	bcImprovement: null,
@@ -112,14 +120,14 @@ var fullrealtor = {
 		switch (listingHouseType) {
 			case 'Attached':
 				self.pid = $('div[style="top:194px;left:355px;width:82px;height:15px;"]');
-				self.complex = $('div[style="top:236px;left:381px;width:383px;height:14px;"]');
+				self.complexOrSubdivision = $('div[style="top:236px;left:381px;width:383px;height:14px;"]');
 				self.totalUnits = $('div[style="top:326px;left:659px;width:101px;height:16px;"');
 				self.devUnits = $('div[style="top:326px;left:470px;width:95px;height:15px;"');
 				self.lotArea = $('div[style="top:129px;left:355px;width:75px;height:13px;"');
 				break;
 			case 'Detached':
 				self.pid = $('div[style="top:198px;left:681px;width:82px;height:15px;"]');
-				self.complex = $('div[style="top:229px;left:393px;width:369px;height:13px;"]');
+				self.complexOrSubdivision = $('div[style="top:229px;left:393px;width:369px;height:13px;"]');
 				self.lotArea = $('div[style="top:133px;left:375px;width:67px;height:13px;"');
 				self.devUnits = $('<div>1</div>');
 				self.totalUnits = $('<div>1</div>');
@@ -141,60 +149,35 @@ var fullrealtor = {
 		}
 	},
 
+	populateUiListing: function () {
+		this.addMLSNo();
+		this.addStrataPlan();
+		this.addComplexInfo();
+		this.addBCAssessment();
+		this.addRemarks();
+	},
+
 	addMLSNo: function () {
-		var newDivMLS = $('<div style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;">MLS #</div>');
-		newDivMLS.appendTo(this.report);
-		var lineBreak = $('<br>');
-		lineBreak.appendTo(this.report);
-		topPosition += 13 + 1;
 		var mlsNO = this.mlsNo.text();
-		newDivMLS.text(mlsNO);
+		this.uiListingInfo.mlsNo.text(mlsNO);
 	},
 
 	addStrataPlan: function () {
-		var stylePosition = function (top, left, width, height) {
-			var result = 'position: absolute;';
-			result += 'top: ' + top.toString().trim() + 'px; ';
-			result += 'left: ' + left.toString().trim() + 'px; ';
-			result += 'width: ' + width.toString().trim() + 'px; ';
-			result += 'height: ' + height.toString().trim() + 'px;';
-			return result;
-		};
 		var legal = this.legal.text(); //get legal description from the Report
 		var legalDesc = this.legalDesc = new legalDescription(legal);
-		var complexName = this.complex.text();
-		var newDivStrPlan = $('<div id="strataPlan" style="' + stylePosition(topPosition, 771, 147, 13) + '"></div>');
-		topPosition += 13 + 1;
-		var lineBreak = $('<br>');
-		var strPlanLink = $('<a href="http://bcres.paragonrels.com/ParagonLS/Home/Page.mvc#HomeTab" target="HomeTab" id="strataPlanLink" ></a>');
-		var formalAddress = $('<div id="formaladdress" style="' + stylePosition(topPosition, 771, 147, 13) + '"></div>');
-		topPosition += 13 + 1;
-		var complexSummary = $('<div id="complexSummary" style="' + stylePosition(topPosition, 771, 147, 13) + '">re:</div>');
-		if (complexName) {
-			complexSummary.text(complexName + ": ");
-		}
-		topPosition += 26 + 1;
-		var complexNameInput = $('<input id="complexname" type="text" style="' + stylePosition(topPosition, 771, 147, 13) + '"><br>');
-		topPosition += 24 + 1;
-		//var saveComplexButton = $('<button id="savecomplex" type="button" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:80px;height:20px;">save</button>');
-		var saveComplexButton = $('<button id="savecomplex" type="button" style="' + stylePosition(topPosition, 771, 80, 20) + '">save</button>');
-		topPosition += 22 + 1;
+		var complexName = this.complexOrSubdivision.text();
 		this.strataPlan = legalDesc.strataPlan1;
-		strPlanLink.text(legalDesc.strataPlan1);
-		strPlanLink.appendTo(newDivStrPlan);
-		newDivStrPlan.appendTo(this.report);
-		lineBreak.appendTo(this.report);
-		formalAddress.appendTo(this.report);
-		lineBreak.appendTo(this.report);
-		complexSummary.appendTo(this.report);
-		lineBreak.appendTo(this.report);
-		complexNameInput.appendTo(this.report);
-		saveComplexButton.appendTo(this.report);
-		lineBreak.appendTo(this.report);
-		this.saveComplexButton = $('#savecomplex');
+		this.uiListingInfo.planLink.text(legalDesc.strataPlan1);
+
+		this.saveComplexButton = $('#saveComplexName');
 		this.strataPlanLink = $('#strataPlanLink');
 		this.complexSummary = $('#complexSummary');
-		this.formalAddress = $('#formaladdress');
+		this.complexName = $('#complexName');
+		if (complexName) {
+			this.complexName.text(complexName + ": ");
+		};
+		this.complexListingSummary = $('#listingQuantity');
+		this.formalAddress = $('#formalAddress');
 
 		chrome.storage.sync.set({
 			strataPlan1: legalDesc.strataPlan1,
@@ -204,20 +187,19 @@ var fullrealtor = {
 		});
 	},
 
-	addComplexInfo: function (complexname) {
+	addComplexInfo: function (complex) {
 		var self = this;
 		var subArea = self.subArea.text();
 		var neighborhood = self.neighborhood.text();
 		var postcode = self.postcode.text();
 		var dwellingType = self.dwellingType.text();
-		var complexName = complexname || self.complex.text().trim();
+		var complexName = complex || self.complexOrSubdivision.text().trim();
 		var address = new addressInfo(self.address.text(), this.houseListingType); //todo list...
 		var strataPlan = self.strataPlan;
 		var totalUnits = self.totalUnits.text();
 		var devUnits = self.devUnits.text();
 
 		var complexInfo = {
-
 			_id: strataPlan + '-' + address.streetNumber + '-' + address.streetName + '-' + address.streetType,
 			name: complexName,
 			strataPlan: strataPlan,
@@ -230,12 +212,7 @@ var fullrealtor = {
 			dwellingType: dwellingType,
 			totalUnits: totalUnits,
 			devUnits: devUnits,
-			todo: 'searchComplex'
-
-		}
-		if (complexName.length > 0) {
-			complexInfo.todo = 'saveComplex';
-			//chrome.runtime.send
+			todo: complexName.length > 0 ? 'saveComplex' : 'searchComplex'
 		};
 
 		console.log('===>add ComplexInfo: ', complexInfo);
@@ -243,110 +220,38 @@ var fullrealtor = {
 			complexInfo,
 			function (response) {
 				if (response) {
-					self.complex.text(response);
-					self.complexSummary.text(response);
+					self.complexName.text(response);
+					self.complexOrSubdivision.text(response);
 				}
 			}
 		)
 	},
 
 	addBCAssessment: function () {
-
-		//get bc assessment
-		var newDivLandValue = $('<div id="landValue" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
-		topPosition += 13 + 1;
-		var newDivImprovementValue = $('<div id="improvementValue" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
-		topPosition += 13 + 1;
-		var newDivL2IRatio = $('<div id="land2improvementratio" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
-		topPosition += 13 + 1;
-		var newDivTotalValue = $('<div id="totalValue" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
-		topPosition += 13 + 1;
-
-		var newDivValueChange = $('<div id="changeValue" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
-		topPosition += 13 + 1;
-		var newOldTimerLotValuePerSF = $('<div id="oldtimerlotvaluepersf" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
-		topPosition += 13 + 1;
-		var newMarketValuePerSF = $('<div id="marketvaluepersf" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
-		topPosition += 18 + 1;
-		//var newDivValueChangePercent = $('<div id="changeValuePercent" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:147px;height:13px;"></div>');
-		//topPosition += 13 + 1;
-		newDivLandValue.appendTo(this.report);
-		newDivImprovementValue.appendTo(this.report);
-		newDivL2IRatio.appendTo(this.report);
-		newDivTotalValue.appendTo(this.report);
-		newDivValueChange.appendTo(this.report);
-		newOldTimerLotValuePerSF.appendTo(this.report);
-		newMarketValuePerSF.appendTo(this.report);
-		//newDivValueChangePercent.appendTo(this.report);
-
+		//set bc assessment properties:
 		this.bcAssess = $("#totalValue");
 		this.bcLand = $("#landValue");
-		this.bcImprovement = $("#improvementValue");
-		this.bcLand2ImprovementRatio = $('#land2improvementratio');
-		this.valueChange = $("#changeValue");
-		this.valueChangePercent = $("#changeValuePercent");
-		this.oldTimerLotValuePerSF = $('#oldtimerlotvaluepersf');
-		this.marketValuePerSF = $('#marketvaluepersf');
+		this.bcImprovement = $("#houseValue");
+		this.bcLand2ImprovementRatio = $('#land2HouseRatio');
+		this.valueChange = $("#valueChange");
+		this.valueChangePercent = $("#valueChangePercent");
+		this.oldTimerLotValuePerSF = $('#oldTimerLotValuePerSF');
+		this.marketValuePerSF = $('#marketValuePerSF');
 	},
 
 	addRemarks: function () {
-
-		//get realtor remarks
-
+		//get realtor remarks:
 		var realtorRemarks = this.realtorRemarks.text();
-		var newDivRealtorRemarks = $('<div style = "position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:160px;height:130px;"></div>');
-		newDivRealtorRemarks.text(realtorRemarks);
-		newDivRealtorRemarks.appendTo(this.report);
-		topPosition += 130 + 1;
-		//get public remarks
-
+		this.uiListingInfo.realtorRemarks.text(realtorRemarks);
+		//get public remarks:
 		var publicRemarks = this.publicRemarks.text();
-		var newDivPublicRemarks = $('<div style = "position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:160px;height:150px;"></div>');
-		newDivPublicRemarks.text(publicRemarks);
-
-		highlight_words(this.keyword.val(), newDivPublicRemarks);
-
-		newDivPublicRemarks.appendTo(this.report);
-		topPosition += 320 + 1;
-
+		this.uiListingInfo.publicRemarks.text(publicRemarks);
+		//highlight keyword in public remarks:
+		highlight_words(this.keyword.val(), this.uiListingInfo.publicRemarks);
 	},
 
 	addShowingInfo: function () {
-		var stylePosition = function (top, left, width, height) {
-			var result = 'position: absolute;';
-			height = height || 1;
-			result += 'top: ' + top.toString().trim() + 'px; ';
-			result += 'left: ' + left.toString().trim() + 'px; ';
-			result += 'width: ' + width.toString().trim() + 'px; ';
-			result += 'height: ' + height.toString().trim() + 'px;';
-			topPosition += height + 13;
-			return result;
-		};
-
-		var newDivShowingInfo = $('<div id="showinginfo" style="' + stylePosition(topPosition, 771, 147) + '">Showing Info:</div>');
-		//topPosition += 13 + 1;
-		var lineBreak = $('<br>');
-		var clientNameInput = $('<input id="clientname" type="text" style="' + stylePosition(topPosition, 771, 147, 13) + '"><br>');
-		//topPosition += 13 + 1;
-		var requestMethod = $('<input id="requestmethod" type="text" style="' + stylePosition(topPosition, 771, 147, 13) + '"><br>');
-		//topPosition += 13 +1;
-		var showingDate = $('<input id="showingdate" type="text" style="' + stylePosition(topPosition, 771, 147, 13) + '"><br>');
-		//topPosition += 13 +1;
-		var showingTime = $('<input id="showingtime" type="text" style="' + stylePosition(topPosition, 771, 147, 13) + '"><br>');
-		//topPosition += 13 +1;
-		//var saveComplexButton = $('<button id="savecomplex" type="button" style="position: absolute; top:' + topPosition.toString() + 'px;left:771px;width:80px;height:20px;">save</button>');
-		var saveShowingButton = $('<button id="saveshowing" type="button" style="' + stylePosition(topPosition, 771, 60, 20) + '">save</button>');
-		//topPosition += 22 + 1;
-		newDivShowingInfo.appendTo(this.report);
-		lineBreak.appendTo(this.report);
-		clientNameInput.appendTo(this.report);
-		lineBreak.appendTo(this.report);
-		requestMethod.appendTo(this.report);
-		showingDate.appendTo(this.report);
-		showingTime.appendTo(this.report);
-		lineBreak.appendTo(this.report);
-		saveShowingButton.appendTo(this.report);
-		this.saveShowingButton = $('#savecomplex');
+		//todo ...
 	},
 
 	searchTax: function () {
@@ -366,25 +271,25 @@ var fullrealtor = {
 	},
 
 	searchStrataPlanSummary: function () {
-
 		console.log('mls-fullrealtor.search strataPlanSummary listings: ');
 		var strataPlan = this.legalDesc.strataPlan1;
-		var complexName = this.complex.text();
+		var complexName = this.complexOrSubdivision.text();
 		chrome.storage.sync.set({ 'strataPlan': strataPlan, 'complexName': complexName }, function (e) {
 			console.log('mls-fullrealtor.searchComplex.callback parameters: ', e);
 			chrome.runtime.sendMessage(
-
-				{ from: 'ListingReport', todo: 'searchStrataPlanSummary', showResult: true, saveResult: true },
-
+				{
+					from: 'ListingReport',
+					todo: 'searchStrataPlanSummary',
+					showResult: true,
+					saveResult: true
+				},
 				function (response) {
-
 					console.log('mls-fullrealtor got search strataPlanSummary response: ', response);
-
 				}
 			)
 		});
 	},
-
+	//send strata plan number to Home Tab - Quick search
 	addStrataEvents: function () {
 
 		var self = this;
@@ -402,7 +307,12 @@ var fullrealtor = {
 			divTab.removeAttr("style");
 
 			chrome.runtime.sendMessage(
-				{ from: 'ListingReport', todo: 'switchTab', showResult: false, saveResult: true },
+				{
+					from: 'ListingReport',
+					todo: 'switchTab',
+					showResult: false,
+					saveResult: true
+				},
 
 				function (response) {
 					console.log('mls-fullrealtor got response: ', response);
@@ -417,19 +327,17 @@ var fullrealtor = {
 			self.saveComplexButton.click(
 				self.saveComplexInfo.bind(self)
 			);
-
 		})(this);
 	},
 
 	saveComplexInfo: function () {
 		console.log('save button clicked!');
-		var inputName = $('#complexname').val();
+		var inputName = $('#inputComplexName').val();
 		if (inputName.length > 0) {
 			this.addComplexInfo(inputName);
-			this.complex.text(inputName + '*');
-			this.complexSummary.text(inputName + '*');
+			this.complexName.text(inputName + '*');
+			//this.complexSummary.text(inputName + '*');
 		};
-
 	},
 
 	addDataEvents: function () {
@@ -437,60 +345,43 @@ var fullrealtor = {
 		(function onEvents(self) {
 
 			chrome.storage.onChanged.addListener(function (changes, area) {
-
 				console.log("====>fullrealtor: got a message: !", changes);
-
 				if (area == "sync" && "from" in changes) {
-
 					if (changes.from.newValue.indexOf('assess') > -1) {
 						self.updateAssess();
 					};
-
 					if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
-						self.updateStrataPlanSummary(changes);
+						self.updateComplexListingQuan(changes);
 					}
-
 					if (changes.from.newValue.indexOf('complex') > -1) {
 						self.updateComplexInfo();
 					}
 					console.log("this: ", self);
-
 				}
 
 				if (area == "sync" && "curTabID" in changes) {
-
 					if (changes.curTabID.newValue) {
-
 						if (changes.curTabID.oldValue) {
 							//remove the old style of the div
 							var oldTabID = changes.curTabID.oldValue;
 							console.log("mls-fullrealtor: my old tab ID is: ", oldTabID);
-
 							var oldDivTab = $('div' + oldTabID, top.document);
-
 							oldDivTab.removeAttr("style");
-
 						}
-
 						curTabID = changes.curTabID.newValue;
 						console.log("mls-fullrealtor: my tab ID is: ", curTabID);
-
 						var divTab = $('div' + curTabID, top.document);
 						var divTab1 = $('div#tab1', top.document);
 						console.log(divTab);
-
 						divTab.attr("style", "display: block!important");
 						divTab1.attr("style", "display: none!important");
-
 					}
 				}
 			});
-
 		})(this);
 	},
 
 	updateAssess: function () {
-
 		var self = this;
 		var listPrice = convertStringToDecimal(self.lp.text());
 		var soldPrice = convertStringToDecimal(self.sp.text());
@@ -531,7 +422,6 @@ var fullrealtor = {
 				}
 			}
 			if (houseType == 'Detached') {
-
 				var bcaLandValuePerSF = (intLandValue / lotAreaInSquareFeet).toFixed(0);
 				var bcaHouseValuePerSF = (intImprovementValue / finishedFloorArea).toFixed(0);
 				landValuePerSF = '[ $' + bcaLandValuePerSF.toString() + '/sf ]';
@@ -545,7 +435,6 @@ var fullrealtor = {
 					var listOldTimerPerSF = (listPrice / lotAreaInSquareFeet).toFixed(0).toString();
 					olderTimerLotValuePerSF = 'OT Lot/SF list$' + listOldTimerPerSF + ' /bca$' + (intTotalValue / lotAreaInSquareFeet).toFixed(0).toString();
 				}
-
 			}
 			self.bcAssess.text('total:  ' + removeDecimalFraction(totalValue));
 			self.bcLand.text('land:  ' + removeDecimalFraction(landValue) + landValuePerSF);
@@ -573,13 +462,14 @@ var fullrealtor = {
 		})
 	},
 
-	updateStrataPlanSummary: function (changes) {
+	updateComplexListingQuan: function (changes) {
 		var self = this;
 		console.log("update strataPlanSummary:");
 		chrome.storage.sync.get('count', function (result) {
-			var complexName = (self.complex.text().length > 0 ? self.complex.text() : 'Complex');
-			var summary = self.complex.text() + ': [ ' + result.count + ' ]';
-			self.complexSummary.text(summary);
+			var complexName = (self.complexOrSubdivision.text().length > 0 ? self.complexOrSubdivision.text() : 'Complex');
+			var summary = ': [ ' + result.count + ' ]';
+			self.complexName.text(complexName);
+			self.complexListingSummary.text(summary);
 		})
 	},
 
@@ -587,15 +477,15 @@ var fullrealtor = {
 		var self = this;
 		console.log('update Complex info:');
 		chrome.storage.sync.get('complexName', function (result) {
-			self.complex.text(result.complexName);
-			self.complexSummary.text(result.complexName);
+			self.complexName.text(result.complexName);
+			self.complexOrSubdivision.text(result.complexName);
 		})
 	}
 }
 
 //star the app
 $(function () {
-	fullrealtor.init();
+	fullRealtor.init();
 });
 
 function getDecimalNumber(strNum) {
