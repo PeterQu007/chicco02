@@ -1,6 +1,9 @@
 //Class Tabs for the default main page of Paragon
 //get the tab elements, containers, links
 //keep the state of the current tab
+//to Active the top tab, add classes: ui-tabs-selected ui-state-active
+//to DeActive the top tab, remove the classes: ui-tabs-selected ui-state-active
+
 
 export default class Tabs {
     constructor() {

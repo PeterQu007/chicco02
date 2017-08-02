@@ -6,24 +6,6 @@ import database from '../assets/scripts/modules/Database';
 var db = new database();
 var $fx = L$();
 
-// function getToday() {
-// 	var today = new Date();
-// 	var dd = today.getDate();
-// 	var mm = today.getMonth() + 1; //January is 0!
-// 	var yyyy = today.getFullYear();
-
-// 	if (dd < 10) {
-// 		dd = '0' + dd
-// 	}
-
-// 	if (mm < 10) {
-// 		mm = '0' + mm
-// 	}
-
-// 	today = yyyy + mm + dd;
-// 	return today;
-// };
-
 (function () {
 
 	//console.log("Hello!-1");
@@ -186,6 +168,22 @@ var $fx = L$();
 			});
 
 			sendResponse("readCurTabID Command sent out!");
+		}
+
+		if (request.todo == "syncTabToContent"){
+			console.log("New Command: syncTabToContent");
+
+			chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, { todo: "syncTabToContent" })
+			});
+		}
+
+		if (request.todo == "hideQuickSearch"){
+			console.log("New Command: showQuickSearch");
+
+			chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, { todo: "hideQuickSearch", tabID: request.tabID })
+			});
 		}
 	});
 

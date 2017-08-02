@@ -46,7 +46,7 @@
 
 	"use strict";
 
-	var _Database = __webpack_require__(3);
+	var _Database = __webpack_require__(4);
 
 	var _Database2 = _interopRequireDefault(_Database);
 
@@ -56,24 +56,6 @@
 	//message passed between background - defaultpage - iframes
 
 	var $fx = L$();
-
-	// function getToday() {
-	// 	var today = new Date();
-	// 	var dd = today.getDate();
-	// 	var mm = today.getMonth() + 1; //January is 0!
-	// 	var yyyy = today.getFullYear();
-
-	// 	if (dd < 10) {
-	// 		dd = '0' + dd
-	// 	}
-
-	// 	if (mm < 10) {
-	// 		mm = '0' + mm
-	// 	}
-
-	// 	today = yyyy + mm + dd;
-	// 	return today;
-	// };
 
 	(function () {
 
@@ -236,6 +218,22 @@
 
 				sendResponse("readCurTabID Command sent out!");
 			}
+
+			if (request.todo == "syncTabToContent") {
+				console.log("New Command: syncTabToContent");
+
+				chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+					chrome.tabs.sendMessage(tabs[0].id, { todo: "syncTabToContent" });
+				});
+			}
+
+			if (request.todo == "hideQuickSearch") {
+				console.log("New Command: showQuickSearch");
+
+				chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+					chrome.tabs.sendMessage(tabs[0].id, { todo: "hideQuickSearch", tabID: request.tabID });
+				});
+			}
 		});
 
 		//End of Main Function
@@ -244,7 +242,8 @@
 /***/ }),
 /* 1 */,
 /* 2 */,
-/* 3 */
+/* 3 */,
+/* 4 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -263,38 +262,38 @@
 		function Database() {
 			_classCallCheck(this, Database);
 
-			console.group('database constructor');
+			//console.group('database constructor');
 			this.dbAssess = new PouchDB('http://localhost:5984/bcassessment');
 			this.dbComplex = new PouchDB('http://localhost:5984/complex');
 			this.dbStrataPlanSummary = new PouchDB('http://localhost:5984/strataplansummary');
 			this.dbShowing = new PouchDB('http://localhost:5984/showing');
 			this.dbAssess.info().then(function (info) {
-				console.log(info);
+				//console.log(info);
 			});
 			this.dbComplex.info().then(function (info) {
-				console.log(info);
+				//console.log(info);
 			});
 			this.dbStrataPlanSummary.info().then(function (info) {
-				console.log(info);
+				//console.log(info);
 			});
 			this.dbShowing.info().then(function (info) {
-				console.log(info);
+				//console.log(info);
 			});
 			this.assess = null;
 			this.complex = null;
 			this.strataPlan = null;
 			this.showing = null;
-			console.groupEnd('database constructor');
+			//console.groupEnd('database constructor');
 		}
 
 		_createClass(Database, [{
 			key: 'readAssess',
 			value: function readAssess(PID, callback) {
-				console.group(">>>readAssess");
+				//console.group(">>>readAssess");
 				var self = this;
 				self.dbAssess.get(PID).then(function (doc) {
 					var assess = self.assess = doc;
-					console.log(">>>read the tax info in database is: ", assess);
+					//console.log(">>>read the tax info in database is: ", assess);
 					assess.from = 'assess' + Math.random().toFixed(8);
 					chrome.storage.sync.set(
 					// {
@@ -307,41 +306,41 @@
 					assess);
 					callback(self.assess);
 				}).catch(function (err) {
-					console.log(">>>read database error: ", err);
+					//console.log(">>>read database error: ", err);
 					self.assess = null;
 					callback(self.assess);
 				});
-				console.groupEnd(">>>readAssess");
+				//console.groupEnd(">>>readAssess");
 			}
 		}, {
 			key: 'writeAssess',
 			value: function writeAssess(assess) {
-				console.group('writeAssess');
+				//console.group('writeAssess');
 				var PID = assess._id;
 				var self = this;
 				self.dbAssess.put(assess).then(function () {
 					return self.dbAssess.get(PID);
 				}).then(function (doc) {
-					console.log(">>>bc assessment has been saved to db: ", doc);
+					//console.log(">>>bc assessment has been saved to db: ", doc);
 				}).catch(function (err) {
-					console.log(">>>save bc assessment error: ", err);
+					//console.log(">>>save bc assessment error: ", err);
 					self.dbAssess.get(PID).then(function (doc) {
 						return self.dbAssess.remove(doc);
 					}).catch(function (err) {
-						console.log(">>>remove bc assess error: ", err);
+						//console.log(">>>remove bc assess error: ", err);
 					});
 				});
-				console.groupEnd('writeAssess');
+				//console.groupEnd('writeAssess');
 			}
 		}, {
 			key: 'readStrataPlanSummary',
 			value: function readStrataPlanSummary(strataPlan, callback) {
-				console.group('readStrataPlanSummary');
-				console.log(">>>this in Database is: ", this);
+				//console.group('readStrataPlanSummary');
+				//console.log(">>>this in Database is: ", this);
 				var self = this;
 				self.dbStrataPlanSummary.get(strataPlan).then(function (doc) {
 					self.strataPlan = doc;
-					console.log(">>>read the strataPlanSummary in database is: ", self.strataPlan);
+					//console.log(">>>read the strataPlanSummary in database is: ", self.strataPlan);
 					chrome.storage.sync.set({
 						active: doc.active,
 						sold: doc.sold,
@@ -353,40 +352,40 @@
 					});
 					callback(self.strataPlan);
 				}).catch(function (err) {
-					console.log(">>>read database strataPlanSummary error: ", err);
+					//console.log(">>>read database strataPlanSummary error: ", err);
 					self.strataPlan = null;
 					callback(self.strataPlan);
 				});
-				console.groupEnd('readStrataPlanSummary');
+				//console.groupEnd('readStrataPlanSummary');
 			}
 		}, {
 			key: 'writeStrataPlanSummary',
 			value: function writeStrataPlanSummary(strataplan) {
-				console.group('writeStrataPlanSummary');
+				//console.group('writeStrataPlanSummary');
 				var strataPlan = strataplan._id;
 				var self = this;
 				self.dbStrataPlanSummary.put(strataplan).then(function () {
 					return self.dbStrataPlanSummary.get(strataPlan);
 				}).then(function (doc) {
-					console.log(">>>StrataPlan Summary has been saved to dbComplex: ", doc);
+					//console.log(">>>StrataPlan Summary has been saved to dbComplex: ", doc);
 				}).catch(function (err) {
-					console.log(">>>save StrataPlan Summary error: ", err);
+					//console.log(">>>save StrataPlan Summary error: ", err);
 					self.dbStrataPlanSummary.get(strataPlan).then(function (doc) {
 						return self.dbStrataPlanSummary.remove(doc);
 					}).catch(function (err) {
-						console.log(">>>remove StrataPlan Summary error: ", err);
+						//console.log(">>>remove StrataPlan Summary error: ", err);
 					});
 				});
-				console.groupEnd('writeStrataPlanSummary');
+				//console.groupEnd('writeStrataPlanSummary');
 			}
 		}, {
 			key: 'readComplex',
 			value: function readComplex(complexID, callback) {
-				console.group(">>>readComplex");
+				//console.group(">>>readComplex");
 				var self = this;
 				self.dbComplex.get(complexID).then(function (doc) {
 					self.complex = doc;
-					console.log(">>>read the Complex info in database is: ", self.complex);
+					//console.log(">>>read the Complex info in database is: ", self.complex);
 					chrome.storage.sync.set({
 						complexID: doc._id,
 						complexName: doc.name + '*',
@@ -404,40 +403,40 @@
 					});
 					callback(self.complex);
 				}).catch(function (err) {
-					console.log(">>>read database Complex error: ", err);
+					//console.log(">>>read database Complex error: ", err);
 					self.complex = null;
 					callback(self.complex);
 				});
-				console.groupEnd(">>>readComplex");
+				//console.groupEnd(">>>readComplex");
 			}
 		}, {
 			key: 'writeComplex',
 			value: function writeComplex(complex) {
-				console.group('>>>writeComplex');
+				//console.group('>>>writeComplex');
 				var complexID = complex._id;
 				var self = this;
 				self.dbComplex.get(complexID).then(function (doc) {
-					console.log('writeComplex...the complex EXISTS, pass writing');
+					//console.log('writeComplex...the complex EXISTS, pass writing');
 				}).catch(function (err) {
 					self.dbComplex.put(complex).then(function () {
-						console.log('SAVED the complex info to database:', complex.name);
+						//console.log('SAVED the complex info to database:', complex.name);
 						return self.dbComplex.get(complexID);
 					}).then(function (doc) {
-						console.log(">>>Complex Info has been saved to dbComplex: ", doc);
+						//console.log(">>>Complex Info has been saved to dbComplex: ", doc);
 					}).catch(function (err) {
-						console.log(">>>save Complex info error: ", err);
+						//console.log(">>>save Complex info error: ", err);
 					});
 				});
-				console.groupEnd('>>>writeComplex');
+				//console.groupEnd('>>>writeComplex');
 			}
 		}, {
 			key: 'readShowing',
 			value: function readShowing(showingID, callback) {
-				console.group(">>>readShowing");
+				//console.group(">>>readShowing");
 				var self = this;
 				self.dbShowing.get(showingID).then(function (doc) {
 					self.showing = doc;
-					console.log(">>>read the showing Info in database is: ", self.showing);
+					//console.log(">>>read the showing Info in database is: ", self.showing);
 					chrome.storage.sync.set({
 						showingID: doc._id,
 						mlsNo: doc.mls,
@@ -457,32 +456,32 @@
 					});
 					callback(self.showing);
 				}).catch(function (err) {
-					console.log(">>>read database showing error: ", err);
+					//console.log(">>>read database showing error: ", err);
 					self.showing = null;
 					callback(self.showing);
 				});
-				console.groupEnd(">>>readShowing");
+				//console.groupEnd(">>>readShowing");
 			}
 		}, {
 			key: 'writeShowing',
 			value: function writeShowing(showing) {
 				var showingID = showing._id;
 				var self = this;
-				console.group('>>>writeShowing');
+				//console.group('>>>writeShowing');
 				self.dbShowing.get(showingID).then(function (doc) {
-					console.log('writeShowing...the showing info EXISTS, pass writing!');
+					//console.log('writeShowing...the showing info EXISTS, pass writing!');
 				}).catch(function (err) {
 
 					self.dbShowing.put(showing).then(function () {
-						console.log('SAVED the showing info to database:', showing.clientName);
+						//console.log('SAVED the showing info to database:', showing.clientName);
 						return self.dbShowing.get(showingID);
 					}).then(function (doc) {
-						console.log(">>>Showing Info has been saved to dbShowing: ", doc);
+						//console.log(">>>Showing Info has been saved to dbShowing: ", doc);
 					}).catch(function (err) {
-						console.log(">>>save showing info error: ", err);
+						//console.log(">>>save showing info error: ", err);
 					});
 				});
-				console.groupEnd('>>>writeShowing');
+				//console.groupEnd('>>>writeShowing');
 			}
 		}]);
 

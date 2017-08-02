@@ -51,17 +51,19 @@
 
 	'use strict';
 
-	var _LegalDescription = __webpack_require__(4);
+	var _LegalDescription = __webpack_require__(5);
 
 	var _LegalDescription2 = _interopRequireDefault(_LegalDescription);
 
-	var _AddressInfo = __webpack_require__(5);
+	var _AddressInfo = __webpack_require__(6);
 
 	var _AddressInfo2 = _interopRequireDefault(_AddressInfo);
 
-	var _uiListingInfo = __webpack_require__(6);
+	var _uiListingInfo = __webpack_require__(7);
 
 	var _uiListingInfo2 = _interopRequireDefault(_uiListingInfo);
+
+	var _TopTabs = __webpack_require__(2);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -78,6 +80,9 @@
 			$fx.setHouseType(this.houseListingType);
 			this.getMorePropertyInfo(); //get pid, complexName, lotArea, etc.
 			this.calculateSFPrice();
+			//link to iframe's tabID
+			this.tabID = this.getTabID(window.frameElement.src);
+			console.warn('=====>window.frameElement.id', this.tabID);
 			//create extra listing info UI:
 			this.uiListingInfo.showUI(this.report);
 			this.populateUiListing();
@@ -137,6 +142,22 @@
 		street: null,
 		streetNumber: null,
 		curTabID: null,
+
+		getTabID: function getTabID(str) {
+			var src = str;
+			var start = src.indexOf('searchID=');
+			src = src.substring(start);
+			console.log(src);
+			var end = src.indexOf('&');
+			src = src.substring(0, end);
+			start = src.indexOf('=tab');
+			src = src.substring(start + 1);
+			end = src.indexOf('_');
+			//only need the main tab id, remove the sub tab ids:
+			src = src.substring(0, end);
+			console.log('full realtor page\'s tabID is:', src);
+			return src;
+		},
 
 		getMorePropertyInfo: function getMorePropertyInfo() {
 			var self = this;
@@ -303,6 +324,7 @@
 					saveResult: true
 				}, function (response) {
 					console.log('mls-fullrealtor got search strataPlanSummary response: ', response);
+					//set the current Tab 
 				});
 			});
 		},
@@ -362,6 +384,9 @@
 						};
 						if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
 							self.updateComplexListingQuan(changes);
+							self.syncTabToContent();
+							//let topTabInfo = new TopTabInfo(curTabID);
+							//topTabInfo.ActiveThisTab();
 						}
 						if (changes.from.newValue.indexOf('complex') > -1) {
 							self.updateComplexInfo();
@@ -490,18 +515,238 @@
 				self.complexName.text(result.complexName);
 				self.complexOrSubdivision.text(result.complexName);
 			});
-		}
+		},
 
-		//star the app
-	};$(function () {
+		syncTabToContent: function syncTabToContent() {
+			chrome.runtime.sendMessage({ todo: 'syncTabToContent',
+				from: 'full-realtor syncTabToContent',
+				tabID: this.tabID });
+		}
+	};
+
+	//star the app
+	$(function () {
 		fullRealtor.init();
 	});
 
 /***/ }),
 /* 1 */,
-/* 2 */,
+/* 2 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	//class for top tab container
+
+	var topTabContainerID = 'ul#tab-bg';
+	var tabContentContainerID = 'div#app_tab_switcher';
+	var activeTabClass = 'ui-tabs-selected ui-state-active';
+	var savedPropertySearches = 'iframe#tab2';
+	//jQuery plugin: check inline Style:
+	//return the style value 
+	//or return undefined:
+	// (function ($) {
+	//     $.fn.inlineStyle = function (prop) {
+	//         return this.prop("style")[$.camelCase(prop)];
+	//     };
+	// }(jQuery));
+
+	var TopTabInfo = exports.TopTabInfo = function () {
+	    function TopTabInfo($tab) {
+	        _classCallCheck(this, TopTabInfo);
+
+	        //$tab element is a li under ul#tab-bg:
+	        this.$tab = $tab; //keep the tab li element <li>
+	        this.$tabLink = $tab.children('a'); //keep the tab link <a>
+	        this.$tabTitle = this.$tabLink.children('span'); //keep the tab title <span>
+	        this.tabID = this.$tabLink.attr('href'); //keep the tabID, '#tab3', '#' is reserved
+	        this.tabTitle = this.$tabTitle.text(); //keep the tab title text string
+	        this.tabURL = this.$tabLink.attr('url'); //keep the tab url
+	        this.$subTabsContainer = $(tabContentContainerID).children(this.tabID); //keep the tab's content <element>
+	        this.tabClicked = false; //
+	        //find the tab Content of this tab
+	        console.log('TopTabInfo.tabID:', this.tabID);
+	        this.tabContent = new TabContent(this.tabID);
+	        console.log('TopTabInfo.tabContent:', this.tabContent);
+	        this.onClick();
+	    }
+
+	    _createClass(TopTabInfo, [{
+	        key: 'onClick',
+	        value: function onClick() {
+	            var self = this;
+	            //jquery add click event to anchor element a
+	            this.$tabLink.click(function () {
+	                console.log('click tab Link');
+	                self.tabClicked = true;
+	                //self.ActiveThisTab();
+	            });
+
+	            this.$tabTitle.click(function () {
+	                console.log('click tab span-title');
+	            });
+
+	            this.$tab.click(function () {
+	                console.log('click tab li');
+	            });
+	        }
+	    }, {
+	        key: 'ActivateThisTab',
+	        value: function ActivateThisTab() {
+	            //this.$tab.addClass(activeTabClass);
+	            this.syncTabToContent();
+	        }
+	    }, {
+	        key: 'DeactivateThisTab',
+	        value: function DeactivateThisTab() {
+	            this.$tab.removeClass(activeTabClass);
+	            this.syncContentToTab();
+	        }
+	    }, {
+	        key: 'syncTabToContent',
+	        value: function syncTabToContent() {
+	            if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
+	                this.$tab.addClass(activeTabClass);
+	            } else {
+	                if (this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
+	                    this.$tab.removeClass(activeTabClass);
+	                } else {
+	                    this.$tab.addClass(activeTabClass);
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'syncContentToTab',
+	        value: function syncContentToTab() {
+	            if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
+	                this.tabContent.$tabContainer.removeAttr('display');
+	            } else {
+	                if (!this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
+	                    this.tabContent.$tabContainer.addClass('ui-tabs-hide');
+	                }
+	            }
+	        }
+	    }]);
+
+	    return TopTabInfo;
+	}();
+
+	var TabContent = function () {
+	    function TabContent(tabID) {
+	        _classCallCheck(this, TabContent);
+
+	        this.$tabContainer = this.getTabContentContainer(tabID);
+	        console.log("TabContent is: ", this.$tabContainer);
+	    }
+
+	    _createClass(TabContent, [{
+	        key: 'getTabContentContainer',
+	        value: function getTabContentContainer(tabID) {
+
+	            var $tabContentContainer = $(tabContentContainerID).children(tabID);
+	            return $tabContentContainer;
+	        }
+	    }, {
+	        key: 'showTabContent',
+	        value: function showTabContent() {
+	            this.$tabContainer.removeClass('ui-tabs-hide');
+	        }
+	    }, {
+	        key: 'hideTabContent',
+	        value: function hideTabContent() {
+	            this.$tabContainer.addClass('ui-tabs-hide');
+	        }
+	    }]);
+
+	    return TabContent;
+	}();
+
+	var TopTabs = function () {
+	    function TopTabs(tabContainerID) {
+	        _classCallCheck(this, TopTabs);
+
+	        this.$topTabsContainer = $(topTabContainerID);
+	        this.$topTabs = null;
+	        this.topTabInfos = [];
+	        this.curTab = null;
+	        this.onAddNewTab();
+	        this.updateTopTabInfos();
+	        this.onClick();
+	    }
+
+	    _createClass(TopTabs, [{
+	        key: 'onAddNewTab',
+	        value: function onAddNewTab() {
+	            //event will be triggered by adding new tab with class ui-corner-top
+	            //goggle: jquery detecting div of certain class has been added to DOM
+	            var self = this;
+	            $.initialize(".ui-corner-top", function () {
+	                console.warn('===>New Tab added');
+	                console.log($(this));
+	                self.updateTopTabInfos();
+	            });
+	        }
+	    }, {
+	        key: 'onClick',
+	        value: function onClick() {
+	            var self = this;
+	            //jquery add click event to a li element
+	            this.$topTabs.each(function (index) {
+	                $(this).click(function (e) {
+	                    console.log('top tab clicked', e);
+	                    self.topTabInfos.forEach(function (tab) {
+	                        tab.DeactivateThisTab();
+	                    });
+	                    var tabInfo = new TopTabInfo($(e.currentTarget));
+	                    console.log(tabInfo);
+	                    tabInfo.ActiveThisTab();
+	                });
+	            });
+	        }
+	    }, {
+	        key: 'updateTopTabInfos',
+	        value: function updateTopTabInfos() {
+	            var self = this;
+	            self.topTabInfos.length = 0; //clean up the array
+	            this.$topTabs = null; //clean up the $topTabs
+	            this.$topTabs = this.$topTabsContainer.children('li.ui-state-default.ui-corner-top');
+	            this.$topTabs.each(function (index) {
+	                var tabInfo = new TopTabInfo($(this));
+	                self.topTabInfos.push(tabInfo);
+	            });
+	        }
+	    }, {
+	        key: 'setCurTab',
+	        value: function setCurTab(tabID) {
+	            this.updateTopTabInfos();
+	            for (i = 0; i < this.topTabInfos.length; i++) {
+	                var thisTab = this.topTabInfos[i];
+	                if (thisTab.tabID == tabID) {
+	                    thisTab.ActiveThisTab();
+	                } else {
+	                    thisTab.DeactivateThisTab();
+	                }
+	            }
+	        }
+	    }]);
+
+	    return TopTabs;
+	}();
+
+	exports.default = TopTabs;
+
+/***/ }),
 /* 3 */,
-/* 4 */
+/* 4 */,
+/* 5 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -574,7 +819,7 @@
 	exports.default = LegalDescription;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -659,7 +904,7 @@
 	exports.default = AddressInfo;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 	'use strict';

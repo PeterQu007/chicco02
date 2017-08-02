@@ -5,7 +5,7 @@ export default class MainMenu{
     constructor(){
         this.appBanner = $('#app_banner');
         this.appLeftBanner = $('#app_banner_links_left');
-        this.appRightBanner = $('app_banner_links_right');
+        this.appRightBanner = $('#app_banner_links_right');
         this.appMidBanner = $('<div id = "app_banner_mid"></div>');
         this.appMainMenu = $('#app_banner_menu');
         this.chkLanguage = $(`<div class="languagebox">

@@ -33,7 +33,9 @@
 
     {
       "matches": ["http://bcres.paragonrels.com/ParagonLS/Default.mvc*"],
-      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/defaultpage.js"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js",
+            "./assets/lib/jquery.initialize-master/jquery.initialize.js",
+            "./temp/scripts/defaultpage.js"],
       "css": ["./temp/content.css"]
     },
 
@@ -58,10 +60,23 @@
       "run_at": "document_end",
       "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c65*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js",
+              "./assets/lib/jquery.initialize-master/jquery.initialize.js",
               "./temp/scripts/Library.js",
               "./temp/scripts/MLS-FullRealtor.js"],
       "css": ["./temp/content.css"],
       "all_frames": true
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/about:blank*"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js",
+              "./assets/lib/jquery.initialize-master/jquery.initialize.js",
+              "./temp/scripts/Library.js",
+              "./temp/scripts/MLS-QuickSearch.js"],
+      "css": ["./temp/content.css"],
+      "all_frames": true
+      //about:blank?searchID=tab4_1
     },
 
     {

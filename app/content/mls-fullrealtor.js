@@ -8,6 +8,7 @@
 import legalDescription from '../assets/scripts/modules/LegalDescription';
 import addressInfo from '../assets/scripts/modules/AddressInfo';
 import uiListingInfo from '../assets/scripts/ui/uiListingInfo';
+import { TopTabInfo } from '../assets/scripts/modules/TopTabs';
 
 var curTabID = null;
 var $fx = L$();
@@ -22,6 +23,9 @@ var fullRealtor = {
 		$fx.setHouseType(this.houseListingType);
 		this.getMorePropertyInfo(); //get pid, complexName, lotArea, etc.
 		this.calculateSFPrice();
+		//link to iframe's tabID
+		this.tabID = this.getTabID(window.frameElement.src);
+		console.warn('=====>window.frameElement.id', this.tabID);
 		//create extra listing info UI:
 		this.uiListingInfo.showUI(this.report);
 		this.populateUiListing();
@@ -81,6 +85,22 @@ var fullRealtor = {
 	street: null,
 	streetNumber: null,
 	curTabID: null,
+
+	getTabID: function (str) {
+		let src = str;
+		let start = src.indexOf('searchID=');
+		src = src.substring(start);
+		console.log(src);
+		let end = src.indexOf('&');
+		src = src.substring(0, end);
+		start = src.indexOf('=tab');
+		src = src.substring(start + 1);
+		end = src.indexOf('_');
+		//only need the main tab id, remove the sub tab ids:
+		src = src.substring(0,end);
+		console.log('full realtor page\'s tabID is:', src);
+		return src
+	},
 
 	getMorePropertyInfo: function () {
 		var self = this;
@@ -253,6 +273,7 @@ var fullRealtor = {
 				},
 				function (response) {
 					console.log('mls-fullrealtor got search strataPlanSummary response: ', response);
+					//set the current Tab 
 				}
 			)
 		});
@@ -320,6 +341,10 @@ var fullRealtor = {
 					};
 					if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
 						self.updateComplexListingQuan(changes);
+						self.syncTabToContent();
+						//let topTabInfo = new TopTabInfo(curTabID);
+						//topTabInfo.ActiveThisTab();
+
 					}
 					if (changes.from.newValue.indexOf('complex') > -1) {
 						self.updateComplexInfo();
@@ -448,6 +473,14 @@ var fullRealtor = {
 			self.complexName.text(result.complexName);
 			self.complexOrSubdivision.text(result.complexName);
 		})
+	}, 
+
+	syncTabToContent(){
+		chrome.runtime.sendMessage(
+			{todo: 'syncTabToContent',
+			 from: 'full-realtor syncTabToContent',
+			 tabID: this.tabID}
+		)
 	}
 }
 

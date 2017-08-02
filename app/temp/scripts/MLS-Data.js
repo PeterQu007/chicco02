@@ -95,8 +95,9 @@
 	                    saveCountResult();
 	                }
 	                // jump to detailed page view of the search results
-	                if (showResult) {
+	                if (showResult && countResult > 1) {
 	                    btnSearch.click();
+	                    chrome.storage.sync.set({ showTabQuickSearch: false });
 	                }
 	            } else {
 	                console.log('mls data searching ...', checkTimer);

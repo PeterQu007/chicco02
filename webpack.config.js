@@ -24,6 +24,7 @@ module.exports={
 		'MLS-TaxResult': './app/content/mls-taxresult.js',
 		'MLS-TaxDetails': './app/content/mls-taxdetails.js',
 		'MLS-SearchBypassCriteria': './app/content/mls-searchbypasscriteria.js',
+		'MLS-QuickSearch': './app/content/mls-QuickSearch.js'
 	},
 
 	output: {
