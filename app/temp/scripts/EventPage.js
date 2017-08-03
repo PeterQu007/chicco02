@@ -44,7 +44,7 @@
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var _Database = __webpack_require__(4);
 
@@ -56,6 +56,8 @@
 	//message passed between background - defaultpage - iframes
 
 	var $fx = L$();
+
+	console.clear();
 
 	(function () {
 
@@ -72,8 +74,9 @@
 		});
 
 		chrome.webNavigation.onCompleted.addListener(function (details) {
-			console.log("Completed!");
+			//console.log("Completed!");
 			//alert("Completed!");
+
 		}, {
 			url: [{ hostContains: '.paragonrels.com' }]
 		});
@@ -81,12 +84,12 @@
 		//receive message from iframes, then transfer the message to Main Page content script
 		chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
-			console.log("eventPage got a message", request);
+			//console.log("onMessage.eventPage got a message", request);
 
 			//message from Warning iframe
 			if (request.todo == "warningMessage") {
 
-				console.log("I got the warning message!");
+				//console.log("I got the warning message!");
 				//pass the message to defaultpage(Main Home Page)
 				chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 					chrome.tabs.sendMessage(tabs[0].id, { todo: "ignoreWarning" });
@@ -96,7 +99,7 @@
 			//message from Logout iframe
 			if (request.todo == "logoutMessage") {
 
-				console.log("I got logout message!");
+				//console.log("I got logout message!");
 				//pass the message to defaultpage(Main Home Page)
 				chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 					chrome.tabs.sendMessage(tabs[0].id, { todo: "logoutMLS" });
@@ -116,13 +119,13 @@
 
 			if (request.todo == "taxSearch") {
 				//get request to search tax info of Property with PID saved to storage
-				console.log(">>>I got tax search command!");
+				//console.log(">>>I got tax search command!");
 
 				chrome.storage.sync.get('PID', function (result) {
 					//check database, if assess exist, send it back
-					console.log(">>>PID is: ", result.PID);
+					//console.log(">>>PID is: ", result.PID);
 					db.readAssess(result.PID, function (assess) {
-						console.log(">>>read from , assess is: ", assess);
+						//console.log(">>>read from , assess is: ", assess)
 						if (!assess) {
 							//other wise , send out tax research command:
 							chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -136,11 +139,11 @@
 
 			if (request.todo == "searchStrataPlanSummary") {
 				//get request to search tax info of Property with PID saved to storage
-				console.log(">>>I got search StrataPlanSummary command!");
+				//console.log(">>>I got search StrataPlanSummary command!");
 
 				chrome.storage.sync.get(['strataPlan', 'complexName'], function (result) {
 					//check database, if assess exist, send it back
-					console.log(">>>strataPlan is: ", result.strataPlan);
+					//console.log(">>>strataPlan is: ", result.strataPlan);
 					var strataPlan = result.strataPlan;
 					var complexName = result.complexName;
 					if (!strataPlan || strataPlan == 'PLAN' || strataPlan == 'PL') {
@@ -148,7 +151,7 @@
 					};
 					var today = $fx.getToday();
 					db.readStrataPlanSummary(strataPlan + '-' + today, function (strataPlanSummaryToday) {
-						console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday);
+						//console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday)
 						if (!strataPlanSummaryToday) {
 							//other wise , send out tax research command:
 							chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -158,6 +161,14 @@
 									strataPlan: strataPlan, complexName: complexName
 								});
 							});
+
+							//also sendout close quicksearchTab command
+							// chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+							// 	chrome.tabs.sendMessage(tabs[0].id, {
+							// 		todo: "closeQuickSearchTab",
+							// 		from: "EventPage::searchStrataPlanSummary"
+							// 	})
+							// });
 						}
 					});
 				});
@@ -167,10 +178,10 @@
 			if (request.todo == 'searchComplex') {
 				var complexID = request._id;
 				db.readComplex(complexID, function (complexInfo) {
-					console.log('>>>read the complex info from database:', complexInfo);
+					//console.log('>>>read the complex info from database:', complexInfo);
 					if (complexInfo && complexInfo.complexName.length > 0) {
 						chrome.storage.sync.set(complexInfo, function () {
-							console.log('complexInfo has been updated to storage for report listeners');
+							//console.log('complexInfo has been updated to storage for report listeners');
 						});
 					}
 				});
@@ -183,7 +194,7 @@
 
 			if (request.todo == "saveTax") {
 
-				console.log(">>>I got save tax info: ");
+				//console.log(">>>I got save tax info: ");
 				var assess = request.taxData;
 				db.writeAssess(assess);
 				sendResponse(assess);
@@ -191,7 +202,7 @@
 
 			if (request.todo == "saveStrataPlanSummary") {
 
-				console.log(">>>I got save Complex info: ");
+				//console.log(">>>I got save Complex info: ");
 				var spSummary = request.spSummaryData;
 				db.writeStrataPlanSummary(spSummary);
 				sendResponse(spSummary);
@@ -233,6 +244,23 @@
 				chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 					chrome.tabs.sendMessage(tabs[0].id, { todo: "hideQuickSearch", tabID: request.tabID });
 				});
+			}
+
+			if (request.todo == "getTabTitle") {
+				console.log("Command: ", request.todo, request.from);
+				var result = null;
+				chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+					chrome.tabs.sendMessage(tabs[0].id, { todo: "getTabTitle", tabID: request.tabID }, function (response) {
+						result = response;
+						console.log("getTabTitle response:", response);
+						chrome.storage.sync.set({ getTabID: result.tabID,
+							getTabTitle: result.tabTitle,
+							todo: 'getTabTitle' + Math.random().toFixed(8),
+							from: 'EventPage.getTabTitle' });
+						sendResponse(response);
+					});
+				});
+				//check(result); //wait for 1 sec, stop eventPage hit the exit point, send out null response
 			}
 		});
 

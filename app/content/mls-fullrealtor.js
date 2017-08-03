@@ -10,22 +10,26 @@ import addressInfo from '../assets/scripts/modules/AddressInfo';
 import uiListingInfo from '../assets/scripts/ui/uiListingInfo';
 import { TopTabInfo } from '../assets/scripts/modules/TopTabs';
 
-var curTabID = null;
+//var curTabID = null;
 var $fx = L$();
 
 var fullRealtor = {
 
 	init: function () {
+		console.clear();
 		//read full realtor report, get listing data
-		$fx.getCurrentTab(curTabID);
+		//$fx.getCurrentTab(curTabID);
+		//link to iframe's tabID
+		this.tabID = $fx.getTabID(window.frameElement.src);
+		console.warn('[FR]===>window.frameElement.id', this.tabID);
+		this.lockVisibility();
+		console.warn('[FR]===>tabContentContainer: ', this.tabContentContainer);
 		this.clearAssess();
 		this.houseListingType = this.houseType.text().replace(',', '').replace(' ', '');
 		$fx.setHouseType(this.houseListingType);
 		this.getMorePropertyInfo(); //get pid, complexName, lotArea, etc.
 		this.calculateSFPrice();
-		//link to iframe's tabID
-		this.tabID = this.getTabID(window.frameElement.src);
-		console.warn('=====>window.frameElement.id', this.tabID);
+
 		//create extra listing info UI:
 		this.uiListingInfo.showUI(this.report);
 		this.populateUiListing();
@@ -34,8 +38,11 @@ var fullRealtor = {
 		this.addStrataEvents();
 		this.addComplexEvent();
 		//do searches:
-		this.searchTax();
 		this.searchStrataPlanSummary();
+		var that =this;
+		setTimeout(function(){
+				that.searchTax()}
+			,500); //delay does not help the tab jumps issue
 	},
 
 	uiListingInfo: new uiListingInfo(),
@@ -84,22 +91,17 @@ var fullRealtor = {
 	marketHouseValuePerSF: null,
 	street: null,
 	streetNumber: null,
-	curTabID: null,
+	tabID: null,
+	tabContentContainer: null,
 
-	getTabID: function (str) {
-		let src = str;
-		let start = src.indexOf('searchID=');
-		src = src.substring(start);
-		console.log(src);
-		let end = src.indexOf('&');
-		src = src.substring(0, end);
-		start = src.indexOf('=tab');
-		src = src.substring(start + 1);
-		end = src.indexOf('_');
-		//only need the main tab id, remove the sub tab ids:
-		src = src.substring(0,end);
-		console.log('full realtor page\'s tabID is:', src);
-		return src
+	lockVisibility: function () {
+		var divTab = $('div' + this.tabID, top.document);
+		var divTaxSearch = $('div#tab1', top.document);
+		this.tabContentContainer = divTab;
+		//console.log(divTab);
+		divTab.attr("style", "display: block!important");
+		divTaxSearch.attr("style", "display: none!important");
+		chrome.storage.sync.set({curTabID: this.tabID});
 	},
 
 	getMorePropertyInfo: function () {
@@ -124,7 +126,7 @@ var fullRealtor = {
 	},
 
 	calculateSFPrice: function () {
-		console.log(this.lp.text(), this.sp.text(), this.finishedFloorArea.text());
+		//console.log(this.lp.text(), this.sp.text(), this.finishedFloorArea.text());
 		var listPrice = $fx.convertStringToDecimal(this.lp.text());
 		var soldPrice = $fx.convertStringToDecimal(this.sp.text());
 		var finishedFloorArea = $fx.convertStringToDecimal(this.finishedFloorArea.text());
@@ -203,7 +205,7 @@ var fullRealtor = {
 			todo: complexName.length > 0 ? 'saveComplex' : 'searchComplex'
 		};
 
-		console.log('===>add ComplexInfo: ', complexInfo);
+		//console.log('===>add ComplexInfo: ', complexInfo);
 		chrome.runtime.sendMessage(
 			complexInfo,
 			function (response) {
@@ -245,25 +247,26 @@ var fullRealtor = {
 	searchTax: function () {
 		var PID = this.pid.text();
 		var self = this;
+		console.log('[FR]===>Check the container class before TaxSearch:', self.tabContentContainer);
 		if (!PID) { return; };
 		chrome.storage.sync.set({ 'PID': PID });
 		chrome.storage.sync.get('PID', function (result) {
-			console.log(">>>PID saved for tax search: ", result.PID);
+			//console.log(">>>PID saved for tax search: ", result.PID);
 			chrome.runtime.sendMessage(
 				{ from: 'ListingReport', todo: 'taxSearch' },
 				function (response) {
-					console.log('>>>mls-fullpublic got tax response:', response);
+					//console.log('>>>mls-fullpublic got tax response:', response);
 				}
 			)
 		});
 	},
 
 	searchStrataPlanSummary: function () {
-		console.log('mls-fullrealtor.search strataPlanSummary listings: ');
+		//console.log('mls-fullrealtor.search strataPlanSummary listings: ');
 		var strataPlan = this.legalDesc.strataPlan1;
 		var complexName = this.complexOrSubdivision.text();
 		chrome.storage.sync.set({ 'strataPlan': strataPlan, 'complexName': complexName }, function (e) {
-			console.log('mls-fullrealtor.searchComplex.callback parameters: ', e);
+			//console.log('mls-fullrealtor.searchComplex.callback parameters: ', e);
 			chrome.runtime.sendMessage(
 				{
 					from: 'ListingReport',
@@ -272,7 +275,7 @@ var fullRealtor = {
 					saveResult: true
 				},
 				function (response) {
-					console.log('mls-fullrealtor got search strataPlanSummary response: ', response);
+					//console.log('mls-fullrealtor got search strataPlanSummary response: ', response);
 					//set the current Tab 
 				}
 			)
@@ -288,11 +291,11 @@ var fullRealtor = {
 			e.preventDefault();
 			var homeTab = $('#HomeTabLink', top.document);
 			homeTab[0].click();
-			console.log("strata plan Link Clicked!");
+			//console.log("strata plan Link Clicked!");
 			var mlsDateLow = $("#f_33_Low__1-2-3-4");
 			var mlsDateHigh = $("#f_33_High__1-2-3-4");
-			var divTab = $('div' + curTabID, top.document);
-			console.log(divTab);
+			var divTab = $('div' + this.tabID, top.document);
+			//console.log(divTab);
 			divTab.removeAttr("style");
 
 			chrome.runtime.sendMessage(
@@ -304,7 +307,7 @@ var fullRealtor = {
 				},
 
 				function (response) {
-					console.log('mls-fullrealtor got response: ', response);
+					//console.log('mls-fullrealtor got response: ', response);
 				}
 			)
 
@@ -320,7 +323,7 @@ var fullRealtor = {
 	},
 
 	saveComplexInfo: function () {
-		console.log('save button clicked!');
+		//console.log('save button clicked!');
 		var inputName = $('#inputComplexName').val();
 		if (inputName.length > 0) {
 			this.addComplexInfo(inputName);
@@ -341,7 +344,7 @@ var fullRealtor = {
 					};
 					if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
 						self.updateComplexListingQuan(changes);
-						self.syncTabToContent();
+						//self.syncTabToContent();
 						//let topTabInfo = new TopTabInfo(curTabID);
 						//topTabInfo.ActiveThisTab();
 
@@ -352,24 +355,24 @@ var fullRealtor = {
 					console.log("this: ", self);
 				}
 
-				if (area == "sync" && "curTabID" in changes) {
-					if (changes.curTabID.newValue) {
-						if (changes.curTabID.oldValue) {
-							//remove the old style of the div
-							var oldTabID = changes.curTabID.oldValue;
-							console.log("mls-fullrealtor: my old tab ID is: ", oldTabID);
-							var oldDivTab = $('div' + oldTabID, top.document);
-							oldDivTab.removeAttr("style");
-						}
-						curTabID = changes.curTabID.newValue;
-						console.log("mls-fullrealtor: my tab ID is: ", curTabID);
-						var divTab = $('div' + curTabID, top.document);
-						var divTab1 = $('div#tab1', top.document);
-						console.log(divTab);
-						divTab.attr("style", "display: block!important");
-						divTab1.attr("style", "display: none!important");
-					}
-				}
+				// if (area == "sync" && "curTabID" in changes) {
+				// 	if (changes.curTabID.newValue) {
+				// 		if (changes.curTabID.oldValue) {
+				// 			//remove the old style of the div
+				// 			var oldTabID = changes.curTabID.oldValue;
+				// 			console.log("mls-fullrealtor: my old tab ID is: ", oldTabID);
+				// 			var oldDivTab = $('div' + oldTabID, top.document);
+				// 			oldDivTab.removeAttr("style");
+				// 		}
+				// 		curTabID = changes.curTabID.newValue;
+				// 		console.log("mls-fullrealtor: my tab ID is: ", curTabID);
+				// 		var divTab = $('div' + curTabID, top.document);
+				// 		var divTab1 = $('div#tab1', top.document);
+				// 		console.log(divTab);
+				// 		divTab.attr("style", "display: block!important");
+				// 		divTab1.attr("style", "display: none!important");
+				// 	}
+				// }
 			});
 		})(this);
 	},
@@ -400,7 +403,7 @@ var fullRealtor = {
 			var marketHouseValuePerSF = '';
 			var marketValuePerSF = '';
 			var houseType = self.houseListingType;
-			console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
+			//console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
 			if (totalValue != 0) {
 				if (soldPrice > 0) {
 					var changeValue = soldPrice - intTotalValue;
@@ -418,9 +421,9 @@ var fullRealtor = {
 				var bcaLandValuePerSF = (intLandValue / lotAreaInSquareFeet).toFixed(0);
 				var bcaHouseValuePerSF = (intImprovementValue / finishedFloorArea).toFixed(0);
 				landValuePerSF = '[ $' + bcaLandValuePerSF.toString() + '/sf ]';
-				console.log('landValue / lotArea', intLandValue, lotAreaInSquareFeet);
+				//console.log('landValue / lotArea', intLandValue, lotAreaInSquareFeet);
 				houseValuePerSF = '[ $' + bcaHouseValuePerSF.toString() + '/sf ]';
-				console.log('houseValue / finishedArea', intImprovementValue, finishedFloorArea);
+				//console.log('houseValue / finishedArea', intImprovementValue, finishedFloorArea);
 				if (soldPrice > 0) {
 					var soldOldTimerPerSF = (soldPrice / lotAreaInSquareFeet).toFixed(0).toString();
 					olderTimerLotValuePerSF = 'OT Lot/SF sold$' + soldOldTimerPerSF + ' /bca$' + (intTotalValue / lotAreaInSquareFeet).toFixed(0).toString();
@@ -451,13 +454,13 @@ var fullRealtor = {
 			'address': '',
 			'bcaDataUpdateDate': ''
 		}, function () {
-			console.log("mls-fullpublic clear AssessInfo! ");
+			//console.log("mls-fullpublic clear AssessInfo! ");
 		})
 	},
 
 	updateComplexListingQuan: function (changes) {
 		var self = this;
-		console.log("update strataPlanSummary:");
+		//console.log("update strataPlanSummary:");
 		chrome.storage.sync.get('count', function (result) {
 			var complexName = (self.complexOrSubdivision.text().length > 0 ? self.complexOrSubdivision.text() : 'Complex');
 			var summary = ': [ ' + result.count + ' ]';
@@ -468,20 +471,20 @@ var fullRealtor = {
 
 	updateComplexInfo: function () {
 		var self = this;
-		console.log('update Complex info:');
+		//console.log('update Complex info:');
 		chrome.storage.sync.get('complexName', function (result) {
 			self.complexName.text(result.complexName);
 			self.complexOrSubdivision.text(result.complexName);
 		})
-	}, 
+	},
 
-	syncTabToContent(){
-		chrome.runtime.sendMessage(
-			{todo: 'syncTabToContent',
-			 from: 'full-realtor syncTabToContent',
-			 tabID: this.tabID}
-		)
-	}
+	// syncTabToContent(){
+	// 	chrome.runtime.sendMessage(
+	// 		{todo: 'syncTabToContent',
+	// 		 from: 'full-realtor syncTabToContent',
+	// 		 tabID: this.tabID}
+	// 	)
+	// }
 }
 
 //star the app

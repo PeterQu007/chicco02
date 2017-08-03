@@ -75,8 +75,9 @@
 	        this.mainMenu.openTaxSearch();
 	        this.mainMenu.openSavedSearches();
 	        this.topTabs = new _TopTabs2.default();
-	        console.log(this.topTabs);
+	        //console.log(this.topTabs);
 	        this.onMessage();
+	        this.onChanged();
 	    },
 
 	    mainMenu: new _mlsMainMenu2.default(),
@@ -85,7 +86,7 @@
 
 	    onMessage: function onMessage() {
 	        (function (self) {
-	            chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
+	            chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	                // get Warning message: the search results exceed the limit, ignore it
 	                if (request.todo == 'ignoreWarning') {
 	                    var checkCount = function checkCount() {
@@ -93,7 +94,7 @@
 	                        if (document.querySelector('#OK')) {
 	                            clearInterval(countTimer);
 	                            var btnOK = $('#OK');
-	                            console.log('OK', btnOK);
+	                            //console.log('OK', btnOK);
 	                            btnOK.click();
 	                        }
 	                    };
@@ -101,8 +102,7 @@
 	                    // Warning Form is a special page, the buttons are in the div, 
 	                    // the iframe is separate with the buttons
 	                    // this message sent from mls-warning.js
-	                    console.log('Main Home ignore warning message!');
-	                    console.log($('#OK'));
+	                    //console.log('Main Home ignore warning message!', $('#OK'));
 	                    var countTimer = setInterval(checkCount, 100);
 	                    ;
 	                };
@@ -115,13 +115,13 @@
 	                        if (document.querySelector('#confirm')) {
 	                            clearInterval(countTimer);
 	                            var btnYes = $('#confirm');
-	                            console.log('confirm', btnYes);
+	                            //console.log('confirm', btnYes);
 	                            btnYes.click();
 	                        }
 	                    };
 
-	                    console.log('Main Home got logout message!');
-	                    console.log($('#confirm'));
+	                    //console.log('Main Home got logout message!');
+	                    //console.log($('#confirm'));
 	                    var countTimer = setInterval(_checkCount, 100);
 	                    ;
 	                };
@@ -155,7 +155,7 @@
 	                    console.group('defaultpage.syncTabToContent');
 	                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
 	                        console.info('tab in topTabInfos: ', tabInfo);
-	                        tabInfo.ActivateThisTab();
+	                        tabInfo.syncTabToContent();
 	                    });
 	                    console.groupEnd();
 	                }
@@ -171,8 +171,42 @@
 	                    });
 	                    console.groupEnd();
 	                }
+
+	                //get TabTitle by TabID
+	                if (request.todo == 'getTabTitle') {
+	                    console.group('getTabTitle', request.tabID);
+	                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
+	                        if (tabInfo.tabID == request.tabID) {
+	                            console.log('find tabTitle:', tabInfo.tabID, tabInfo.tabTitle);
+	                            sendResponse({ tabID: tabInfo.tabID, tabTitle: tabInfo.tabTitle });
+	                        }
+	                    });
+	                    console.groupEnd();
+	                }
+
+	                //close quicksearchTab
+	                // if (request.todo == 'closeQuickSearchTab') {
+	                //     console.group('closeQuickSearchTab', request.from);
+	                //     self.topTabs.closeQuickSearchTab();
+	                //     console.groupEnd();
+	                // }
 	            });
 	        })(this);
+	    },
+	    onChanged: function onChanged() {
+	        var self = this;
+	        //listen the change from QuickSearch
+	        chrome.storage.onChanged.addListener(function (changes, area) {
+	            //hide QuickSearchTab & TabContent
+	            if (area == "sync" && "todo" in changes && changes.todo.newValue.indexOf('hideQuickSearch') > -1) {
+	                console.log("onTabStatusUpdate.command::", changes.todo.newValue);
+	                self.topTabs.topTabInfos.forEach(function (tabInfo) {
+	                    if (tabInfo.tabTitle.trim() == "Quick Search") {
+	                        tabInfo.DeactivateThisTab();
+	                    }
+	                });
+	            }
+	        });
 	    }
 	};
 
@@ -214,10 +248,10 @@
 	        this.topTabLinks = $('ul#tab-bg li a');
 	        this.curTopTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
 	        this.curTopTabID = this.curTopTabLink.attr('href');;
-	        console.info('New Tabs Class works now...');
+	        //console.info('New Tabs Class works now...');
 	        //add event listeners
 	        this.OnClick_topTabsContainer();
-	        this.onMessage();
+	        //this.onMessage();
 	    }
 
 	    _createClass(Tabs, [{
@@ -227,7 +261,7 @@
 	            this.topTabsContainer.click(function () {
 	                self.subTabsContainer = $('div.ui-tabs-sub');
 	                self.subTabsContainer.removeAttr('style');
-	                console.info('get top tabs container clicked');
+	                console.info('[mlsTab].remove Style Display Attr');
 	            });
 	        }
 	    }, {
@@ -236,68 +270,64 @@
 	            (function (self) {
 	                chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
 	                    // get Warning message: the search results exceed the limit, ignore it
-	                    if (request.todo == 'ignoreWarning') {
-	                        var checkCount = function checkCount() {
-	                            // #OK button, "Continue", belongs to default page
-	                            if (document.querySelector('#OK')) {
-	                                clearInterval(countTimer);
-	                                var btnOK = $('#OK');
-	                                console.log('OK', btnOK);
-	                                btnOK.click();
-	                            }
-	                        };
-
-	                        // Warning Form is a special page, the buttons are in the div, 
-	                        // the iframe is separate with the buttons
-	                        // this message sent from mls-warning.js
-	                        console.log('Main Home ignore warning message!');
-	                        console.log($('#OK'));
-	                        var countTimer = setInterval(checkCount, 100);
-	                        ;
-	                    };
+	                    // if (request.todo == 'ignoreWarning') {
+	                    //     // Warning Form is a special page, the buttons are in the div, 
+	                    //     // the iframe is separate with the buttons
+	                    //     // this message sent from mls-warning.js
+	                    //     console.log('Main Home ignore warning message!');
+	                    //     console.log($('#OK'));
+	                    //     var countTimer = setInterval(checkCount, 100);
+	                    //     function checkCount() {
+	                    //         // #OK button, "Continue", belongs to default page
+	                    //         if (document.querySelector('#OK')) {
+	                    //             clearInterval(countTimer);
+	                    //             let btnOK = $('#OK');
+	                    //             console.log('OK', btnOK);
+	                    //             btnOK.click();
+	                    //         }
+	                    //     };
+	                    // };
 
 	                    // Logout MLS Windows shows an annoying confirm box, pass it
 	                    // The message sent from logout iframe , the buttons are inside the iframe
-	                    if (request.todo == 'logoutMLS') {
-	                        var _checkCount = function _checkCount() {
-	                            // the button is inside the iframe, this iframe belongs to default page
-	                            if (document.querySelector('#confirm')) {
-	                                clearInterval(countTimer);
-	                                var btnYes = $('#confirm');
-	                                console.log('confirm', btnYes);
-	                                btnYes.click();
-	                            }
-	                        };
-
-	                        console.log('Main Home got logout message!');
-	                        console.log($('#confirm'));
-	                        var countTimer = setInterval(_checkCount, 100);
-	                        ;
-	                    };
+	                    // if (request.todo == 'logoutMLS') {
+	                    //     console.log('Main Home got logout message!');
+	                    //     console.log($('#confirm'));
+	                    //     var countTimer = setInterval(checkCount, 100);
+	                    //     function checkCount() {
+	                    //         // the button is inside the iframe, this iframe belongs to default page
+	                    //         if (document.querySelector('#confirm')) {
+	                    //             clearInterval(countTimer);
+	                    //             let btnYes = $('#confirm');
+	                    //             console.log('confirm', btnYes);
+	                    //             btnYes.click();
+	                    //         }
+	                    //     };
+	                    // };
 
 	                    //Top Level Tabs Changed
-	                    if (request.todo == 'updateTopLevelTabMenuItems') {
-	                        // update tabs
-	                        self.tabs = $('ul#tab-bg li');
-	                        console.log('default home page update top level tabs: ', tabs);
-	                        self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-	                        self.curTabID = curTabLink.attr('href');
-	                        chrome.storage.sync.set({ curTabID: self.curTabID });
-	                    }
+	                    // if (request.todo == 'updateTopLevelTabMenuItems') {
+	                    //     // update tabs
+	                    //     self.tabs = $('ul#tab-bg li');
+	                    //     console.log('default home page update top level tabs: ', tabs);
+	                    //     self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+	                    //     self.curTabID = curTabLink.attr('href');
+	                    //     chrome.storage.sync.set({ curTabID: self.curTabID });
+	                    // }
 
 	                    //Read the Current TabID
-	                    if (request.todo == 'readCurTabID') {
-	                        // read cur tabID
-	                        self.tabs = $('ul#tab-bg li');
-	                        console.log('default home page read top level tabs: ', self.tabs);
-	                        self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-	                        self.curTabID = self.curTabLink.attr('href');
-	                        console.log('current Tab ID is: ', self.curTabID);
-	                        // save the curTabID
-	                        chrome.storage.sync.set({ curTabID: self.curTabID }, function () {
-	                            console.log('curTabID has been save to storage.');
-	                        });
-	                    }
+	                    // if (request.todo == 'readCurTabID') {
+	                    //     // read cur tabID
+	                    //     self.tabs = $('ul#tab-bg li');
+	                    //     console.log('default home page read top level tabs: ', self.tabs);
+	                    //     self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
+	                    //     self.curTabID = self.curTabLink.attr('href');
+	                    //     console.log('current Tab ID is: ', self.curTabID);
+	                    //     // save the curTabID
+	                    //     chrome.storage.sync.set({ curTabID: self.curTabID }, function () {
+	                    //         console.log('curTabID has been save to storage.');
+	                    //     });
+	                    // }
 	                });
 	            })(this);
 	        }
@@ -344,16 +374,16 @@
 	        //$tab element is a li under ul#tab-bg:
 	        this.$tab = $tab; //keep the tab li element <li>
 	        this.$tabLink = $tab.children('a'); //keep the tab link <a>
+	        this.$tabCloseLink = $tab.children('em'); //close the tab
 	        this.$tabTitle = this.$tabLink.children('span'); //keep the tab title <span>
 	        this.tabID = this.$tabLink.attr('href'); //keep the tabID, '#tab3', '#' is reserved
-	        this.tabTitle = this.$tabTitle.text(); //keep the tab title text string
+	        this.tabTitle = this.$tabTitle.text().trim(); //keep the tab title text string
 	        this.tabURL = this.$tabLink.attr('url'); //keep the tab url
-	        this.$subTabsContainer = $(tabContentContainerID).children(this.tabID); //keep the tab's content <element>
+	        this.$tabContentContainer = $(tabContentContainerID).children(this.tabID); //keep the tab's content <element>
 	        this.tabClicked = false; //
 	        //find the tab Content of this tab
-	        console.log('TopTabInfo.tabID:', this.tabID);
-	        this.tabContent = new TabContent(this.tabID);
-	        console.log('TopTabInfo.tabContent:', this.tabContent);
+	        //this.tabContent = new TabContent(this.tabID);
+	        //console.log('TopTabInfo.tabID:', this.tabID, this.tabTitle, 'TopTabInfo.tabContent:', this.$tabContentContainer);
 	        this.onClick();
 	    }
 
@@ -380,72 +410,70 @@
 	        key: 'ActivateThisTab',
 	        value: function ActivateThisTab() {
 	            //this.$tab.addClass(activeTabClass);
-	            this.syncTabToContent();
+	            //this.syncTabToContent();
+	            this.$tab.addClass(activeTabClass);
+	            console.log('ActivateThisTab, title, id:', this.tabTitle, this.tabID);
+	            this.$tabContentContainer.removeClass('ui-tabs-hide');
 	        }
 	    }, {
 	        key: 'DeactivateThisTab',
 	        value: function DeactivateThisTab() {
 	            this.$tab.removeClass(activeTabClass);
-	            this.syncContentToTab();
+	            console.log('DeactivateThisTab, title, id:', this.tabTitle, this.tabID);
+	            this.$tabContentContainer.removeAttr('style');
+	            this.$tabContentContainer.addClass('ui-tabs-hide');
+	            //this.syncTabToContent();
 	        }
 	    }, {
 	        key: 'syncTabToContent',
 	        value: function syncTabToContent() {
-	            if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
+	            if (this.$tabContentContainer.inlineStyle('display') === 'block') {
 	                this.$tab.addClass(activeTabClass);
 	            } else {
-	                if (this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
+	                if (this.$tabContentContainer.hasClass('ui-tabs-hide')) {
 	                    this.$tab.removeClass(activeTabClass);
 	                } else {
-	                    this.$tab.addClass(activeTabClass);
+	                    //this.$tab.addClass(activeTabClass)
 	                }
 	            }
+	            console.log('syncTabToContent, title, id:', this.$tab, this.tabTitle, this.tabID);
 	        }
-	    }, {
-	        key: 'syncContentToTab',
-	        value: function syncContentToTab() {
-	            if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
-	                this.tabContent.$tabContainer.removeAttr('display');
-	            } else {
-	                if (!this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
-	                    this.tabContent.$tabContainer.addClass('ui-tabs-hide');
-	                }
-	            }
-	        }
+
+	        // syncContentToTab() {
+	        //     if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
+	        //         this.tabContent.$tabContainer.removeAttr('display')
+	        //     } else {
+	        //         if (!this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
+	        //             this.tabContent.$tabContainer.addClass('ui-tabs-hide');
+	        //         }
+	        //     }
+	        // }
+
 	    }]);
 
 	    return TopTabInfo;
 	}();
 
-	var TabContent = function () {
-	    function TabContent(tabID) {
-	        _classCallCheck(this, TabContent);
+	// class TabContent {
+	//     constructor(tabID) {
+	//         this.$tabContainer = this.getTabContentContainer(tabID);
+	//         //console.log("TabContent is: ", this.$tabContainer);
+	//     }
 
-	        this.$tabContainer = this.getTabContentContainer(tabID);
-	        console.log("TabContent is: ", this.$tabContainer);
-	    }
+	//     getTabContentContainer(tabID) {
 
-	    _createClass(TabContent, [{
-	        key: 'getTabContentContainer',
-	        value: function getTabContentContainer(tabID) {
+	//         let $tabContentContainer = $(tabContentContainerID).children(tabID);
+	//         return $tabContentContainer;
+	//     }
 
-	            var $tabContentContainer = $(tabContentContainerID).children(tabID);
-	            return $tabContentContainer;
-	        }
-	    }, {
-	        key: 'showTabContent',
-	        value: function showTabContent() {
-	            this.$tabContainer.removeClass('ui-tabs-hide');
-	        }
-	    }, {
-	        key: 'hideTabContent',
-	        value: function hideTabContent() {
-	            this.$tabContainer.addClass('ui-tabs-hide');
-	        }
-	    }]);
+	//     showTabContent() {
+	//         this.$tabContainer.removeClass('ui-tabs-hide');
+	//     }
 
-	    return TabContent;
-	}();
+	//     hideTabContent() {
+	//         this.$tabContainer.addClass('ui-tabs-hide');
+	//     }
+	// }
 
 	var TopTabs = function () {
 	    function TopTabs(tabContainerID) {
@@ -455,9 +483,12 @@
 	        this.$topTabs = null;
 	        this.topTabInfos = [];
 	        this.curTab = null;
+	        this.EnableOnAddNewTab = false; //disable onAddNewTab event in the init
 	        this.onAddNewTab();
+	        this.onAddNewTabContent();
 	        this.updateTopTabInfos();
 	        this.onClick();
+	        this.EnableOnAddNewTab = true; //enable onAddNewTab event after the init
 	    }
 
 	    _createClass(TopTabs, [{
@@ -467,9 +498,36 @@
 	            //goggle: jquery detecting div of certain class has been added to DOM
 	            var self = this;
 	            $.initialize(".ui-corner-top", function () {
-	                console.warn('===>New Tab added');
-	                console.log($(this));
-	                self.updateTopTabInfos();
+	                var $tab = $(this);
+	                //if added $tab is the top tab, then update the topTabInfos:
+	                if (self.EnableOnAddNewTab && $tab.parent().attr('id') == "tab-bg") {
+	                    console.warn('[Class.TopTabs]onAddNewTab===>New Tab added', $tab, $tab.parent().attr('id'));
+	                    self.updateTopTabInfos();
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'onAddNewTabContent',
+	        value: function onAddNewTabContent() {
+	            //event will be triggered by adding new tab with class ui-corner-top
+	            //goggle: jquery detecting div of certain class has been added to DOM
+	            var self = this;
+	            $.initialize(".ui-tabs-sub", function () {
+	                var $tabContent = $(this);
+	                //if added $tab is the top tab, then update the topTabInfos:
+	                //if(self.EnableOnAddNewTab && $tab.parent().attr('id')=="tab-bg") {
+	                //console.warn('Class.TopTabs.onAddNewTabContent===>New TabContent added', $tabContent, $tabContent.parent().attr('id'));
+	                //    self.updateTopTabInfos();
+	                //}
+	                chrome.storage.sync.get('showTabQuickSearch', function (result) {
+	                    //console.log('Class.TopTabs.onAddNewTabContent::get showTabQuickSearch:', result.showTabQuickSearch);
+	                    self.topTabInfos.forEach(function (tabInfo) {
+	                        //console.log('tabInfo.tabTitle:', tabInfo.tabTitle)
+	                        if (tabInfo.tabTitle == 'Quick Search') {
+	                            tabInfo.DeactivateThisTab();
+	                        }
+	                    });
+	                });
 	            });
 	        }
 	    }, {
@@ -479,12 +537,12 @@
 	            //jquery add click event to a li element
 	            this.$topTabs.each(function (index) {
 	                $(this).click(function (e) {
-	                    console.log('top tab clicked', e);
+	                    //console.log('top tab clicked', e);
 	                    self.topTabInfos.forEach(function (tab) {
 	                        tab.DeactivateThisTab();
 	                    });
 	                    var tabInfo = new TopTabInfo($(e.currentTarget));
-	                    console.log(tabInfo);
+	                    //console.log(tabInfo);
 	                    tabInfo.ActiveThisTab();
 	                });
 	            });
@@ -514,6 +572,16 @@
 	                }
 	            }
 	        }
+
+	        // closeQuickSearchTab(tabID){
+	        //     this.topTabInfos.forEach(function(tabInfo){
+	        //         if(tabInfo.tabTitle.trim()=="Quick Search"){
+	        //             tabInfo.$tabLink.click();
+	        //             tabInfo.$tabCloseLink.click();
+	        //         }
+	        //     })
+	        // }
+
 	    }]);
 
 	    return TopTabs;
@@ -550,7 +618,7 @@
 	        this.chkLanguage = $('<div class="languagebox">\n                                <div id="reportlanguage">\n                                    <label>cn</label>\n                                    <input type="checkbox" name="checkbox" style="width: 14px!important" />\n                                </div>\n                            </div>'), this.chkLanguage.insertAfter(this.appLeftBanner);
 	        this.taxSearch = $('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]');
 	        this.savedSearches = $('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]');
-	        console.info('New Main Menu Class works!');
+	        //console.info('New Main Menu Class works!');
 
 	        //add the tabs object to Main Menu.
 	        //this.tabs = new Tabs();

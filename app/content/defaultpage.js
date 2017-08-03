@@ -19,8 +19,9 @@ let DefaultPage = {
         this.mainMenu.openTaxSearch();
         this.mainMenu.openSavedSearches();
         this.topTabs = new TopTabs();
-        console.log(this.topTabs);
+        //console.log(this.topTabs);
         this.onMessage();
+        this.onChanged();
     },
 
     mainMenu: new MainMenu(),
@@ -29,21 +30,20 @@ let DefaultPage = {
 
     onMessage() {
         (function (self) {
-            chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
+            chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 // get Warning message: the search results exceed the limit, ignore it
                 if (request.todo == 'ignoreWarning') {
                     // Warning Form is a special page, the buttons are in the div, 
                     // the iframe is separate with the buttons
                     // this message sent from mls-warning.js
-                    console.log('Main Home ignore warning message!');
-                    console.log($('#OK'));
+                    //console.log('Main Home ignore warning message!', $('#OK'));
                     var countTimer = setInterval(checkCount, 100);
                     function checkCount() {
                         // #OK button, "Continue", belongs to default page
                         if (document.querySelector('#OK')) {
                             clearInterval(countTimer);
                             let btnOK = $('#OK');
-                            console.log('OK', btnOK);
+                            //console.log('OK', btnOK);
                             btnOK.click();
                         }
                     };
@@ -52,15 +52,15 @@ let DefaultPage = {
                 // Logout MLS Windows shows an annoying confirm box, pass it
                 // The message sent from logout iframe , the buttons are inside the iframe
                 if (request.todo == 'logoutMLS') {
-                    console.log('Main Home got logout message!');
-                    console.log($('#confirm'));
+                    //console.log('Main Home got logout message!');
+                    //console.log($('#confirm'));
                     var countTimer = setInterval(checkCount, 100);
                     function checkCount() {
                         // the button is inside the iframe, this iframe belongs to default page
                         if (document.querySelector('#confirm')) {
                             clearInterval(countTimer);
                             let btnYes = $('#confirm');
-                            console.log('confirm', btnYes);
+                            //console.log('confirm', btnYes);
                             btnYes.click();
                         }
                     };
@@ -91,31 +91,64 @@ let DefaultPage = {
                 }
 
                 //Sync Tab to Content
-                if (request.todo == 'syncTabToContent'){
+                if (request.todo == 'syncTabToContent') {
                     console.group('defaultpage.syncTabToContent');
-                    self.topTabs.topTabInfos.forEach(function(tabInfo){
+                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
                         console.info('tab in topTabInfos: ', tabInfo);
-                        tabInfo.ActivateThisTab();
+                        tabInfo.syncTabToContent();
                     })
                     console.groupEnd();
                 }
 
                 //Hide QuickSearch Tab Content
-                if (request.todo == 'hideQuickSearch'){
+                if (request.todo == 'hideQuickSearch') {
                     console.group('defaultPage.hideQuickSearch.tabID:', request.tabID);
-                        self.topTabs.topTabInfos.forEach(function(tabInfo){
-                            if(tabInfo.tabID == request.tabID){
-                                console.info('defaultPage.QuickSearch.tabInfo:', tabInfo);
-                                tabInfo.DeactivateThisTab();
-                            }
-                        })
+                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
+                        if (tabInfo.tabID == request.tabID) {
+                            console.info('defaultPage.QuickSearch.tabInfo:', tabInfo);
+                            tabInfo.DeactivateThisTab();
+                        }
+                    })
                     console.groupEnd();
                 }
+
+                //get TabTitle by TabID
+                if (request.todo == 'getTabTitle') {
+                    console.group('getTabTitle', request.tabID);
+                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
+                        if (tabInfo.tabID == request.tabID) {
+                            console.log('find tabTitle:', tabInfo.tabID, tabInfo.tabTitle);
+                            sendResponse({ tabID: tabInfo.tabID, tabTitle: tabInfo.tabTitle })
+                        }
+                    })
+                    console.groupEnd();
+                }
+
+                //close quicksearchTab
+                // if (request.todo == 'closeQuickSearchTab') {
+                //     console.group('closeQuickSearchTab', request.from);
+                //     self.topTabs.closeQuickSearchTab();
+                //     console.groupEnd();
+                // }
             });
         }(this));
+    },
+
+    onChanged() {
+        let self = this;
+        //listen the change from QuickSearch
+        chrome.storage.onChanged.addListener(function (changes, area) {
+            //hide QuickSearchTab & TabContent
+            if (area == "sync" && "todo" in changes && changes.todo.newValue.indexOf('hideQuickSearch') > -1) {
+                console.log("onTabStatusUpdate.command::", changes.todo.newValue);
+                self.topTabs.topTabInfos.forEach(function (tabInfo) {
+                    if (tabInfo.tabTitle.trim() == "Quick Search") {
+                        tabInfo.DeactivateThisTab();
+                    }
+                })
+            }
+        })
     }
-
-
 };
 
 // Start point

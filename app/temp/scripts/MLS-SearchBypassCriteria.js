@@ -44,11 +44,11 @@
 /* 0 */
 /***/ (function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	$(function () {
 
-		console.log("Search Bypass Criteria iFrame");
+		//console.log("Search Bypass Criteria iFrame");
 
 		var btnSearch = $('#Search');
 

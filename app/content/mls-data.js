@@ -3,7 +3,7 @@
 // quick search feature is a iframe page
 
 $(function () {
-    console.groupCollapsed('mls-data');
+    //console.groupCollapsed('mls-data');
     var strataPlanNumber, complexName, countResult;
     var $fx = L$();
     // iframe loaded, trigger search event
@@ -30,7 +30,7 @@ $(function () {
 
     // waiting the search result from Quick Search box
     function getCountResult(showResult, saveResult) {
-        console.groupCollapsed('getCountResult');
+        //console.groupCollapsed('getCountResult');
         let checkTimer = setInterval(checkSearchResult, 100);
         let counter = 1;
         function checkSearchResult() {
@@ -40,9 +40,9 @@ $(function () {
                 clearInterval(checkTimer);
                 countResult = mlsCountResult;
                 let btnSearch = $('#Search');
-                console.log('mls Quick Search Done: ', mlsCountResult);
-                console.log($('#CountResult').val());
-                console.groupEnd();
+                //console.log('mls Quick Search Done: ', mlsCountResult);
+                //console.log($('#CountResult').val());
+                //console.groupEnd();
                 if (saveResult){
                     saveCountResult();
                 }
@@ -52,11 +52,11 @@ $(function () {
                     chrome.storage.sync.set({showTabQuickSearch: false});
                 }
             }else{
-                console.log('mls data searching ...', checkTimer);
+                //console.log('mls data searching ...', checkTimer);
                 if(counter++>300){
                     clearInterval(checkTimer);
-                    console.warn('overtimed, stop checking result', counter);
-                    console.groupEnd();
+                    //console.warn('overtimed, stop checking result', counter);
+                    //console.groupEnd();
                 }
             }
         }
@@ -76,12 +76,12 @@ $(function () {
         }
         //save results to storage:
         chrome.storage.sync.set(spSummary);
-        console.log('mls-data wrap up the complex data: ', spSummary);
+        //console.log('mls-data wrap up the complex data: ', spSummary);
         chrome.runtime.sendMessage({ 'todo': 'saveStrataPlanSummary', 'spSummaryData': spSummary });
     }
 
     chrome.runtime.onMessage.addListener(function (msg, sender, response) {
-        console.log('mls-data got message: ', msg);
+        //console.log('mls-data got message: ', msg);
         if (msg.todo != 'switchTab' && msg.todo != 'searchComplex' ) {
             return;
         };
@@ -113,6 +113,6 @@ $(function () {
             getCountResult(msg.showResult, msg.saveResult);
         });
     });
-    console.groupEnd();
+    //console.groupEnd();
 });
 

@@ -1,44 +1,74 @@
 //QuickSearch Page
 //show / hide as per needed
+var $fx = L$();
 
 var quickSearch = {
 
-    init: function(){
+    init: function () {
         //link to iframe's tabID
-		this.tabID = this.getTabID(window.frameElement.src);
-        console.warn('QuickSearch=====>window.frameElement.id', this.tabID);
-        this.$tabContentContainer = $('div#'+this.tabID, top.document)
-        this.onMessage();
+        this.tabID = $fx.getTabID(window.frameElement.src); //prefixed with # id-sign
+        this.$tabContentContainer = $('div' + this.tabID, top.document)
+        //this.onMessage();
+        this.tabTitle = this.getTabTitle(this.tabID);
+        console.warn('tabID, tabTitle', this.tabID, this.tabTitle);
+        this.OnTabTitle();
     },
 
-    getTabID: function (str) {
-		let src = str;
-		let start = src.indexOf('searchID=');
-		src = src.substring(start);
-		console.log(src);
-		
-		start = src.indexOf('=tab');
-		src = src.substring(start + 1);
-		end = src.indexOf('_');
-		//only need the main tab id, remove the sub tab ids:
-		src = src.substring(0,end);
-		console.log('QuickSearch Page\'s tabID is:', src);
-		return src
-    },
+    tabID: null,
+    tabTitle: null,
 
-    getTabStatus: function(){
+    OnTabTitle: function () {
         let self = this;
-        chrome.storage.sync.get('showTabQuickSearch', function(result){
+        chrome.storage.onChanged.addListener(function (changes, area) {
+            
+            if (area == "sync" && "todo" in changes) {
+                if (changes.todo.newValue.indexOf('getTabTitle') > -1) {
+                    console.log("command::getTabTitle:", changes.todo.newValue);
+                    chrome.storage.sync.get(['getTabTitle','from', 'showTabQuickSearch'], function (result) {
+                        self.tabTitle = result.getTabTitle;
+                        console.log("OnTabTitle.getTabTitle:", result);
+                        //showQuickSearchTab
+                        if (!result.showTabQuickSearch && result.getTabTitle.trim()=="Quick Search") {
+                            chrome.storage.sync.set(
+                                {
+                                    from: 'QuickSearch' ,
+                                    todo: 'hideQuickSearch'+ Math.random().toFixed(8),
+                                    tabID: self.tabID
+                                }
+                            )
+                        }
+                    })
+                };
+            }
+        })
+    },
 
-            if(result.showTabQuickSearch){
+    getTabTitle: function (tabID) {
+        chrome.runtime.sendMessage({
+            todo: 'getTabTitle',
+            from: 'quickSearch',
+            tabID: tabID
+        }, function (response) {
+            //self.tabTitle = response.tabTitle;
+            //self.updateQuickSearchTabStatus();
+            console.warn('QuickSearch.getTabTitle::', response);
+            return response;
+        })
+    },
+
+    getTabStatus: function () {
+        let self = this;
+        chrome.storage.sync.get('showTabQuickSearch', function (result) {
+
+            if (result.showTabQuickSearch) {
                 self.showQuickSearch();
-            }else{
+            } else {
                 self.hideQuickSearch();
             }
         })
     },
-    
-    showQuickSearch: function() {
+
+    showQuickSearch: function () {
         chrome.runtime.sendMessage({
             from: 'QuickSearch',
             todo: 'showQuickSearch',
@@ -46,7 +76,7 @@ var quickSearch = {
         })
     },
 
-    hideQuickSearch: function() {
+    hideQuickSearch: function () {
         chrome.runtime.sendMessage({
             from: 'QuickSearch',
             todo: 'hideQuickSearch',
@@ -54,3 +84,10 @@ var quickSearch = {
         })
     }
 }
+
+//entry point:
+$(function () {
+    quickSearch.init();
+})
+
+//

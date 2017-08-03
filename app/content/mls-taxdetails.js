@@ -1,4 +1,5 @@
 // read tax details report, save the data
+var curTabID = null;
 
 let taxDetails = {
 
@@ -47,6 +48,8 @@ let taxDetails = {
 				console.log('TaxDetails.bcAssessment is...', assess);
 				self.getReportLink(function () {
 					self.reportLink[0].click();
+					let curTabContentContainer = $('div'+ curTabID,top.document );
+					curTabContentContainer.attr("style","display:block!important");
 				});
 			});
 			chrome.runtime.sendMessage(
@@ -65,6 +68,7 @@ let taxDetails = {
 		let self = this;
 		chrome.storage.sync.get('curTabID', function (result) {
 			self.reportLink = $('div#app_tab_switcher a[href="' + result.curTabID + '"]', top.document);
+			curTabID = result.curTabID;
 			callback();
 		});
 	},

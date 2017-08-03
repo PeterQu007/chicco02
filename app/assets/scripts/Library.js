@@ -139,7 +139,7 @@
 
         setHouseType: function (houseType) {
             chrome.storage.sync.set({ 'houseType': houseType });
-            console.log('current House Type is: ', houseType);
+            //console.log('current House Type is: ', houseType);
             return this;
         },
 
@@ -148,11 +148,30 @@
             chrome.runtime.sendMessage(
                 { todo: 'readCurTabID', from: 'mls-fullrealtor' },
                 function (response) {
-                    console.log('current Tab ID is: ', response);
+                    //console.log('current Tab ID is: ', response);
                 }
             )
             return this;
-        }
+        },
+
+        getTabID: function (str) {
+            let src, start, end;
+            src = str;
+            start = src.indexOf('searchID=');
+            src = src.substring(start);
+            //console.log(src);
+            if (src.indexOf('&') > -1) {
+                end = src.indexOf('&');
+                src = src.substring(0, end);
+            };
+            start = src.indexOf('=tab');
+            src = src.substring(start + 1);
+            end = src.indexOf('_');
+            //only need the main tab id, remove the sub tab ids:
+            src = src.substring(0, end);
+            //console.log('QuickSearch Page\'s tabID is:', src);
+            return '#' + src; //add id sign # as prefix
+        },
     };
 
     Library.init = function (houseType) {

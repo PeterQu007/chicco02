@@ -1,6 +1,6 @@
 $(function(){
 
-	console.log("Search Bypass Criteria iFrame");
+	//console.log("Search Bypass Criteria iFrame");
 
 	var btnSearch = $('#Search');
 

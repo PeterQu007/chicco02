@@ -48,7 +48,7 @@
 
 	//Query tax information
 
-	console.log("MLS tax search iframe");
+	//console.log("MLS tax search iframe");
 
 	// chrome.storage.sync.get("PID",function(result){
 
@@ -65,8 +65,8 @@
 
 				if (msg.todo == 'taxSearch') {
 
-							console.log("I am in mls-tax.js");
-							console.log("mls-tax got msg: ", msg);
+							//console.log("I am in mls-tax.js");
+							//console.log("mls-tax got msg: ", msg);
 							response("mls-tax got a message");
 
 							chrome.storage.sync.get("PID", function (result) {

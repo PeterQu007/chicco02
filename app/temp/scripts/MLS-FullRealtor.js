@@ -67,22 +67,26 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var curTabID = null;
+	//var curTabID = null;
 	var $fx = L$();
 
 	var fullRealtor = {
 
 		init: function init() {
+			console.clear();
 			//read full realtor report, get listing data
-			$fx.getCurrentTab(curTabID);
+			//$fx.getCurrentTab(curTabID);
+			//link to iframe's tabID
+			this.tabID = $fx.getTabID(window.frameElement.src);
+			console.warn('[FR]===>window.frameElement.id', this.tabID);
+			this.lockVisibility();
+			console.warn('[FR]===>tabContentContainer: ', this.tabContentContainer);
 			this.clearAssess();
 			this.houseListingType = this.houseType.text().replace(',', '').replace(' ', '');
 			$fx.setHouseType(this.houseListingType);
 			this.getMorePropertyInfo(); //get pid, complexName, lotArea, etc.
 			this.calculateSFPrice();
-			//link to iframe's tabID
-			this.tabID = this.getTabID(window.frameElement.src);
-			console.warn('=====>window.frameElement.id', this.tabID);
+
 			//create extra listing info UI:
 			this.uiListingInfo.showUI(this.report);
 			this.populateUiListing();
@@ -91,8 +95,11 @@
 			this.addStrataEvents();
 			this.addComplexEvent();
 			//do searches:
-			this.searchTax();
 			this.searchStrataPlanSummary();
+			var that = this;
+			setTimeout(function () {
+				that.searchTax();
+			}, 500); //delay does not help the tab jumps issue
 		},
 
 		uiListingInfo: new _uiListingInfo2.default(),
@@ -141,22 +148,17 @@
 		marketHouseValuePerSF: null,
 		street: null,
 		streetNumber: null,
-		curTabID: null,
+		tabID: null,
+		tabContentContainer: null,
 
-		getTabID: function getTabID(str) {
-			var src = str;
-			var start = src.indexOf('searchID=');
-			src = src.substring(start);
-			console.log(src);
-			var end = src.indexOf('&');
-			src = src.substring(0, end);
-			start = src.indexOf('=tab');
-			src = src.substring(start + 1);
-			end = src.indexOf('_');
-			//only need the main tab id, remove the sub tab ids:
-			src = src.substring(0, end);
-			console.log('full realtor page\'s tabID is:', src);
-			return src;
+		lockVisibility: function lockVisibility() {
+			var divTab = $('div' + this.tabID, top.document);
+			var divTaxSearch = $('div#tab1', top.document);
+			this.tabContentContainer = divTab;
+			//console.log(divTab);
+			divTab.attr("style", "display: block!important");
+			divTaxSearch.attr("style", "display: none!important");
+			chrome.storage.sync.set({ curTabID: this.tabID });
 		},
 
 		getMorePropertyInfo: function getMorePropertyInfo() {
@@ -181,7 +183,7 @@
 		},
 
 		calculateSFPrice: function calculateSFPrice() {
-			console.log(this.lp.text(), this.sp.text(), this.finishedFloorArea.text());
+			//console.log(this.lp.text(), this.sp.text(), this.finishedFloorArea.text());
 			var listPrice = $fx.convertStringToDecimal(this.lp.text());
 			var soldPrice = $fx.convertStringToDecimal(this.sp.text());
 			var finishedFloorArea = $fx.convertStringToDecimal(this.finishedFloorArea.text());
@@ -260,7 +262,7 @@
 				todo: complexName.length > 0 ? 'saveComplex' : 'searchComplex'
 			};
 
-			console.log('===>add ComplexInfo: ', complexInfo);
+			//console.log('===>add ComplexInfo: ', complexInfo);
 			chrome.runtime.sendMessage(complexInfo, function (response) {
 				if (response) {
 					self.complexName.text(response);
@@ -299,31 +301,32 @@
 		searchTax: function searchTax() {
 			var PID = this.pid.text();
 			var self = this;
+			console.log('[FR]===>Check the container class before TaxSearch:', self.tabContentContainer);
 			if (!PID) {
 				return;
 			};
 			chrome.storage.sync.set({ 'PID': PID });
 			chrome.storage.sync.get('PID', function (result) {
-				console.log(">>>PID saved for tax search: ", result.PID);
+				//console.log(">>>PID saved for tax search: ", result.PID);
 				chrome.runtime.sendMessage({ from: 'ListingReport', todo: 'taxSearch' }, function (response) {
-					console.log('>>>mls-fullpublic got tax response:', response);
+					//console.log('>>>mls-fullpublic got tax response:', response);
 				});
 			});
 		},
 
 		searchStrataPlanSummary: function searchStrataPlanSummary() {
-			console.log('mls-fullrealtor.search strataPlanSummary listings: ');
+			//console.log('mls-fullrealtor.search strataPlanSummary listings: ');
 			var strataPlan = this.legalDesc.strataPlan1;
 			var complexName = this.complexOrSubdivision.text();
 			chrome.storage.sync.set({ 'strataPlan': strataPlan, 'complexName': complexName }, function (e) {
-				console.log('mls-fullrealtor.searchComplex.callback parameters: ', e);
+				//console.log('mls-fullrealtor.searchComplex.callback parameters: ', e);
 				chrome.runtime.sendMessage({
 					from: 'ListingReport',
 					todo: 'searchStrataPlanSummary',
 					showResult: true,
 					saveResult: true
 				}, function (response) {
-					console.log('mls-fullrealtor got search strataPlanSummary response: ', response);
+					//console.log('mls-fullrealtor got search strataPlanSummary response: ', response);
 					//set the current Tab 
 				});
 			});
@@ -338,11 +341,11 @@
 				e.preventDefault();
 				var homeTab = $('#HomeTabLink', top.document);
 				homeTab[0].click();
-				console.log("strata plan Link Clicked!");
+				//console.log("strata plan Link Clicked!");
 				var mlsDateLow = $("#f_33_Low__1-2-3-4");
 				var mlsDateHigh = $("#f_33_High__1-2-3-4");
-				var divTab = $('div' + curTabID, top.document);
-				console.log(divTab);
+				var divTab = $('div' + this.tabID, top.document);
+				//console.log(divTab);
 				divTab.removeAttr("style");
 
 				chrome.runtime.sendMessage({
@@ -351,7 +354,7 @@
 					showResult: false,
 					saveResult: true
 				}, function (response) {
-					console.log('mls-fullrealtor got response: ', response);
+					//console.log('mls-fullrealtor got response: ', response);
 				});
 			});
 		},
@@ -363,7 +366,7 @@
 		},
 
 		saveComplexInfo: function saveComplexInfo() {
-			console.log('save button clicked!');
+			//console.log('save button clicked!');
 			var inputName = $('#inputComplexName').val();
 			if (inputName.length > 0) {
 				this.addComplexInfo(inputName);
@@ -384,7 +387,7 @@
 						};
 						if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
 							self.updateComplexListingQuan(changes);
-							self.syncTabToContent();
+							//self.syncTabToContent();
 							//let topTabInfo = new TopTabInfo(curTabID);
 							//topTabInfo.ActiveThisTab();
 						}
@@ -394,24 +397,24 @@
 						console.log("this: ", self);
 					}
 
-					if (area == "sync" && "curTabID" in changes) {
-						if (changes.curTabID.newValue) {
-							if (changes.curTabID.oldValue) {
-								//remove the old style of the div
-								var oldTabID = changes.curTabID.oldValue;
-								console.log("mls-fullrealtor: my old tab ID is: ", oldTabID);
-								var oldDivTab = $('div' + oldTabID, top.document);
-								oldDivTab.removeAttr("style");
-							}
-							curTabID = changes.curTabID.newValue;
-							console.log("mls-fullrealtor: my tab ID is: ", curTabID);
-							var divTab = $('div' + curTabID, top.document);
-							var divTab1 = $('div#tab1', top.document);
-							console.log(divTab);
-							divTab.attr("style", "display: block!important");
-							divTab1.attr("style", "display: none!important");
-						}
-					}
+					// if (area == "sync" && "curTabID" in changes) {
+					// 	if (changes.curTabID.newValue) {
+					// 		if (changes.curTabID.oldValue) {
+					// 			//remove the old style of the div
+					// 			var oldTabID = changes.curTabID.oldValue;
+					// 			console.log("mls-fullrealtor: my old tab ID is: ", oldTabID);
+					// 			var oldDivTab = $('div' + oldTabID, top.document);
+					// 			oldDivTab.removeAttr("style");
+					// 		}
+					// 		curTabID = changes.curTabID.newValue;
+					// 		console.log("mls-fullrealtor: my tab ID is: ", curTabID);
+					// 		var divTab = $('div' + curTabID, top.document);
+					// 		var divTab1 = $('div#tab1', top.document);
+					// 		console.log(divTab);
+					// 		divTab.attr("style", "display: block!important");
+					// 		divTab1.attr("style", "display: none!important");
+					// 	}
+					// }
 				});
 			})(this);
 		},
@@ -442,7 +445,7 @@
 				var marketHouseValuePerSF = '';
 				var marketValuePerSF = '';
 				var houseType = self.houseListingType;
-				console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
+				//console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
 				if (totalValue != 0) {
 					if (soldPrice > 0) {
 						var changeValue = soldPrice - intTotalValue;
@@ -460,9 +463,9 @@
 					var bcaLandValuePerSF = (intLandValue / lotAreaInSquareFeet).toFixed(0);
 					var bcaHouseValuePerSF = (intImprovementValue / finishedFloorArea).toFixed(0);
 					landValuePerSF = '[ $' + bcaLandValuePerSF.toString() + '/sf ]';
-					console.log('landValue / lotArea', intLandValue, lotAreaInSquareFeet);
+					//console.log('landValue / lotArea', intLandValue, lotAreaInSquareFeet);
 					houseValuePerSF = '[ $' + bcaHouseValuePerSF.toString() + '/sf ]';
-					console.log('houseValue / finishedArea', intImprovementValue, finishedFloorArea);
+					//console.log('houseValue / finishedArea', intImprovementValue, finishedFloorArea);
 					if (soldPrice > 0) {
 						var soldOldTimerPerSF = (soldPrice / lotAreaInSquareFeet).toFixed(0).toString();
 						olderTimerLotValuePerSF = 'OT Lot/SF sold$' + soldOldTimerPerSF + ' /bca$' + (intTotalValue / lotAreaInSquareFeet).toFixed(0).toString();
@@ -493,13 +496,13 @@
 				'address': '',
 				'bcaDataUpdateDate': ''
 			}, function () {
-				console.log("mls-fullpublic clear AssessInfo! ");
+				//console.log("mls-fullpublic clear AssessInfo! ");
 			});
 		},
 
 		updateComplexListingQuan: function updateComplexListingQuan(changes) {
 			var self = this;
-			console.log("update strataPlanSummary:");
+			//console.log("update strataPlanSummary:");
 			chrome.storage.sync.get('count', function (result) {
 				var complexName = self.complexOrSubdivision.text().length > 0 ? self.complexOrSubdivision.text() : 'Complex';
 				var summary = ': [ ' + result.count + ' ]';
@@ -510,22 +513,24 @@
 
 		updateComplexInfo: function updateComplexInfo() {
 			var self = this;
-			console.log('update Complex info:');
+			//console.log('update Complex info:');
 			chrome.storage.sync.get('complexName', function (result) {
 				self.complexName.text(result.complexName);
 				self.complexOrSubdivision.text(result.complexName);
 			});
-		},
-
-		syncTabToContent: function syncTabToContent() {
-			chrome.runtime.sendMessage({ todo: 'syncTabToContent',
-				from: 'full-realtor syncTabToContent',
-				tabID: this.tabID });
 		}
-	};
 
-	//star the app
-	$(function () {
+		// syncTabToContent(){
+		// 	chrome.runtime.sendMessage(
+		// 		{todo: 'syncTabToContent',
+		// 		 from: 'full-realtor syncTabToContent',
+		// 		 tabID: this.tabID}
+		// 	)
+		// }
+
+
+		//star the app
+	};$(function () {
 		fullRealtor.init();
 	});
 
@@ -566,16 +571,16 @@
 	        //$tab element is a li under ul#tab-bg:
 	        this.$tab = $tab; //keep the tab li element <li>
 	        this.$tabLink = $tab.children('a'); //keep the tab link <a>
+	        this.$tabCloseLink = $tab.children('em'); //close the tab
 	        this.$tabTitle = this.$tabLink.children('span'); //keep the tab title <span>
 	        this.tabID = this.$tabLink.attr('href'); //keep the tabID, '#tab3', '#' is reserved
-	        this.tabTitle = this.$tabTitle.text(); //keep the tab title text string
+	        this.tabTitle = this.$tabTitle.text().trim(); //keep the tab title text string
 	        this.tabURL = this.$tabLink.attr('url'); //keep the tab url
-	        this.$subTabsContainer = $(tabContentContainerID).children(this.tabID); //keep the tab's content <element>
+	        this.$tabContentContainer = $(tabContentContainerID).children(this.tabID); //keep the tab's content <element>
 	        this.tabClicked = false; //
 	        //find the tab Content of this tab
-	        console.log('TopTabInfo.tabID:', this.tabID);
-	        this.tabContent = new TabContent(this.tabID);
-	        console.log('TopTabInfo.tabContent:', this.tabContent);
+	        //this.tabContent = new TabContent(this.tabID);
+	        //console.log('TopTabInfo.tabID:', this.tabID, this.tabTitle, 'TopTabInfo.tabContent:', this.$tabContentContainer);
 	        this.onClick();
 	    }
 
@@ -602,72 +607,70 @@
 	        key: 'ActivateThisTab',
 	        value: function ActivateThisTab() {
 	            //this.$tab.addClass(activeTabClass);
-	            this.syncTabToContent();
+	            //this.syncTabToContent();
+	            this.$tab.addClass(activeTabClass);
+	            console.log('ActivateThisTab, title, id:', this.tabTitle, this.tabID);
+	            this.$tabContentContainer.removeClass('ui-tabs-hide');
 	        }
 	    }, {
 	        key: 'DeactivateThisTab',
 	        value: function DeactivateThisTab() {
 	            this.$tab.removeClass(activeTabClass);
-	            this.syncContentToTab();
+	            console.log('DeactivateThisTab, title, id:', this.tabTitle, this.tabID);
+	            this.$tabContentContainer.removeAttr('style');
+	            this.$tabContentContainer.addClass('ui-tabs-hide');
+	            //this.syncTabToContent();
 	        }
 	    }, {
 	        key: 'syncTabToContent',
 	        value: function syncTabToContent() {
-	            if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
+	            if (this.$tabContentContainer.inlineStyle('display') === 'block') {
 	                this.$tab.addClass(activeTabClass);
 	            } else {
-	                if (this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
+	                if (this.$tabContentContainer.hasClass('ui-tabs-hide')) {
 	                    this.$tab.removeClass(activeTabClass);
 	                } else {
-	                    this.$tab.addClass(activeTabClass);
+	                    //this.$tab.addClass(activeTabClass)
 	                }
 	            }
+	            console.log('syncTabToContent, title, id:', this.$tab, this.tabTitle, this.tabID);
 	        }
-	    }, {
-	        key: 'syncContentToTab',
-	        value: function syncContentToTab() {
-	            if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
-	                this.tabContent.$tabContainer.removeAttr('display');
-	            } else {
-	                if (!this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
-	                    this.tabContent.$tabContainer.addClass('ui-tabs-hide');
-	                }
-	            }
-	        }
+
+	        // syncContentToTab() {
+	        //     if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
+	        //         this.tabContent.$tabContainer.removeAttr('display')
+	        //     } else {
+	        //         if (!this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
+	        //             this.tabContent.$tabContainer.addClass('ui-tabs-hide');
+	        //         }
+	        //     }
+	        // }
+
 	    }]);
 
 	    return TopTabInfo;
 	}();
 
-	var TabContent = function () {
-	    function TabContent(tabID) {
-	        _classCallCheck(this, TabContent);
+	// class TabContent {
+	//     constructor(tabID) {
+	//         this.$tabContainer = this.getTabContentContainer(tabID);
+	//         //console.log("TabContent is: ", this.$tabContainer);
+	//     }
 
-	        this.$tabContainer = this.getTabContentContainer(tabID);
-	        console.log("TabContent is: ", this.$tabContainer);
-	    }
+	//     getTabContentContainer(tabID) {
 
-	    _createClass(TabContent, [{
-	        key: 'getTabContentContainer',
-	        value: function getTabContentContainer(tabID) {
+	//         let $tabContentContainer = $(tabContentContainerID).children(tabID);
+	//         return $tabContentContainer;
+	//     }
 
-	            var $tabContentContainer = $(tabContentContainerID).children(tabID);
-	            return $tabContentContainer;
-	        }
-	    }, {
-	        key: 'showTabContent',
-	        value: function showTabContent() {
-	            this.$tabContainer.removeClass('ui-tabs-hide');
-	        }
-	    }, {
-	        key: 'hideTabContent',
-	        value: function hideTabContent() {
-	            this.$tabContainer.addClass('ui-tabs-hide');
-	        }
-	    }]);
+	//     showTabContent() {
+	//         this.$tabContainer.removeClass('ui-tabs-hide');
+	//     }
 
-	    return TabContent;
-	}();
+	//     hideTabContent() {
+	//         this.$tabContainer.addClass('ui-tabs-hide');
+	//     }
+	// }
 
 	var TopTabs = function () {
 	    function TopTabs(tabContainerID) {
@@ -677,9 +680,12 @@
 	        this.$topTabs = null;
 	        this.topTabInfos = [];
 	        this.curTab = null;
+	        this.EnableOnAddNewTab = false; //disable onAddNewTab event in the init
 	        this.onAddNewTab();
+	        this.onAddNewTabContent();
 	        this.updateTopTabInfos();
 	        this.onClick();
+	        this.EnableOnAddNewTab = true; //enable onAddNewTab event after the init
 	    }
 
 	    _createClass(TopTabs, [{
@@ -689,9 +695,36 @@
 	            //goggle: jquery detecting div of certain class has been added to DOM
 	            var self = this;
 	            $.initialize(".ui-corner-top", function () {
-	                console.warn('===>New Tab added');
-	                console.log($(this));
-	                self.updateTopTabInfos();
+	                var $tab = $(this);
+	                //if added $tab is the top tab, then update the topTabInfos:
+	                if (self.EnableOnAddNewTab && $tab.parent().attr('id') == "tab-bg") {
+	                    console.warn('[Class.TopTabs]onAddNewTab===>New Tab added', $tab, $tab.parent().attr('id'));
+	                    self.updateTopTabInfos();
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'onAddNewTabContent',
+	        value: function onAddNewTabContent() {
+	            //event will be triggered by adding new tab with class ui-corner-top
+	            //goggle: jquery detecting div of certain class has been added to DOM
+	            var self = this;
+	            $.initialize(".ui-tabs-sub", function () {
+	                var $tabContent = $(this);
+	                //if added $tab is the top tab, then update the topTabInfos:
+	                //if(self.EnableOnAddNewTab && $tab.parent().attr('id')=="tab-bg") {
+	                //console.warn('Class.TopTabs.onAddNewTabContent===>New TabContent added', $tabContent, $tabContent.parent().attr('id'));
+	                //    self.updateTopTabInfos();
+	                //}
+	                chrome.storage.sync.get('showTabQuickSearch', function (result) {
+	                    //console.log('Class.TopTabs.onAddNewTabContent::get showTabQuickSearch:', result.showTabQuickSearch);
+	                    self.topTabInfos.forEach(function (tabInfo) {
+	                        //console.log('tabInfo.tabTitle:', tabInfo.tabTitle)
+	                        if (tabInfo.tabTitle == 'Quick Search') {
+	                            tabInfo.DeactivateThisTab();
+	                        }
+	                    });
+	                });
 	            });
 	        }
 	    }, {
@@ -701,12 +734,12 @@
 	            //jquery add click event to a li element
 	            this.$topTabs.each(function (index) {
 	                $(this).click(function (e) {
-	                    console.log('top tab clicked', e);
+	                    //console.log('top tab clicked', e);
 	                    self.topTabInfos.forEach(function (tab) {
 	                        tab.DeactivateThisTab();
 	                    });
 	                    var tabInfo = new TopTabInfo($(e.currentTarget));
-	                    console.log(tabInfo);
+	                    //console.log(tabInfo);
 	                    tabInfo.ActiveThisTab();
 	                });
 	            });
@@ -736,6 +769,16 @@
 	                }
 	            }
 	        }
+
+	        // closeQuickSearchTab(tabID){
+	        //     this.topTabInfos.forEach(function(tabInfo){
+	        //         if(tabInfo.tabTitle.trim()=="Quick Search"){
+	        //             tabInfo.$tabLink.click();
+	        //             tabInfo.$tabCloseLink.click();
+	        //         }
+	        //     })
+	        // }
+
 	    }]);
 
 	    return TopTabs;

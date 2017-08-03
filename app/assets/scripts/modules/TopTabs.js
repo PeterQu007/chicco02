@@ -18,18 +18,18 @@ export class TopTabInfo {
         //$tab element is a li under ul#tab-bg:
         this.$tab = $tab; //keep the tab li element <li>
         this.$tabLink = $tab.children('a'); //keep the tab link <a>
+        this.$tabCloseLink = $tab.children('em'); //close the tab
         this.$tabTitle = this.$tabLink.children('span'); //keep the tab title <span>
         this.tabID = this.$tabLink.attr('href'); //keep the tabID, '#tab3', '#' is reserved
-        this.tabTitle = this.$tabTitle.text(); //keep the tab title text string
+        this.tabTitle = this.$tabTitle.text().trim(); //keep the tab title text string
         this.tabURL = this.$tabLink.attr('url'); //keep the tab url
-        this.$subTabsContainer = $(tabContentContainerID).children(this.tabID); //keep the tab's content <element>
+        this.$tabContentContainer = $(tabContentContainerID).children(this.tabID); //keep the tab's content <element>
         this.tabClicked = false; //
         //find the tab Content of this tab
-        console.log('TopTabInfo.tabID:', this.tabID); 
-        this.tabContent = new TabContent(this.tabID);
-        console.log('TopTabInfo.tabContent:', this.tabContent);
+        //this.tabContent = new TabContent(this.tabID);
+        //console.log('TopTabInfo.tabID:', this.tabID, this.tabTitle, 'TopTabInfo.tabContent:', this.$tabContentContainer);
         this.onClick();
-    }
+     }
 
     onClick() {
         let self = this;
@@ -51,57 +51,65 @@ export class TopTabInfo {
 
     ActivateThisTab() {
         //this.$tab.addClass(activeTabClass);
-        this.syncTabToContent();
+        //this.syncTabToContent();
+        this.$tab.addClass(activeTabClass);
+        console.log('ActivateThisTab, title, id:', this.tabTitle, this.tabID)
+        this.$tabContentContainer.removeClass('ui-tabs-hide');
+
     }
 
     DeactivateThisTab() {
         this.$tab.removeClass(activeTabClass);
-        this.syncContentToTab();
+        console.log('DeactivateThisTab, title, id:', this.tabTitle, this.tabID);
+        this.$tabContentContainer.removeAttr('style');
+        this.$tabContentContainer.addClass('ui-tabs-hide');
+        //this.syncTabToContent();
     }
 
     syncTabToContent() {
-        if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
+        if (this.$tabContentContainer.inlineStyle('display') === 'block') {
             this.$tab.addClass(activeTabClass)
         } else {
-            if (this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
+            if (this.$tabContentContainer.hasClass('ui-tabs-hide')) {
                 this.$tab.removeClass(activeTabClass)
-            }else{
-                this.$tab.addClass(activeTabClass)
+            } else {
+                //this.$tab.addClass(activeTabClass)
             }
         }
+        console.log('syncTabToContent, title, id:', this.$tab, this.tabTitle, this.tabID);
     }
 
-    syncContentToTab() {
-        if(this.tabContent.$tabContainer.inlineStyle('display')==='block'){
-            this.tabContent.$tabContainer.removeAttr('display')
-        }else{
-            if(!this.tabContent.$tabContainer.hasClass('ui-tabs-hide')){
-                this.tabContent.$tabContainer.addClass('ui-tabs-hide');
-            }
-        }
-    }
+    // syncContentToTab() {
+    //     if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
+    //         this.tabContent.$tabContainer.removeAttr('display')
+    //     } else {
+    //         if (!this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
+    //             this.tabContent.$tabContainer.addClass('ui-tabs-hide');
+    //         }
+    //     }
+    // }
 }
 
-class TabContent {
-    constructor(tabID) {
-        this.$tabContainer = this.getTabContentContainer(tabID);
-        console.log("TabContent is: ", this.$tabContainer);
-    }
+// class TabContent {
+//     constructor(tabID) {
+//         this.$tabContainer = this.getTabContentContainer(tabID);
+//         //console.log("TabContent is: ", this.$tabContainer);
+//     }
 
-    getTabContentContainer(tabID) {
-        
-        let $tabContentContainer = $(tabContentContainerID).children(tabID);
-        return $tabContentContainer;
-    }
+//     getTabContentContainer(tabID) {
 
-    showTabContent() {
-        this.$tabContainer.removeClass('ui-tabs-hide');
-    }
+//         let $tabContentContainer = $(tabContentContainerID).children(tabID);
+//         return $tabContentContainer;
+//     }
 
-    hideTabContent() {
-        this.$tabContainer.addClass('ui-tabs-hide');
-    }
-}
+//     showTabContent() {
+//         this.$tabContainer.removeClass('ui-tabs-hide');
+//     }
+
+//     hideTabContent() {
+//         this.$tabContainer.addClass('ui-tabs-hide');
+//     }
+// }
 
 export default class TopTabs {
     constructor(tabContainerID) {
@@ -109,9 +117,12 @@ export default class TopTabs {
         this.$topTabs = null;
         this.topTabInfos = [];
         this.curTab = null;
+        this.EnableOnAddNewTab = false; //disable onAddNewTab event in the init
         this.onAddNewTab();
+        this.onAddNewTabContent();
         this.updateTopTabInfos();
         this.onClick();
+        this.EnableOnAddNewTab = true; //enable onAddNewTab event after the init
     }
 
     onAddNewTab() {
@@ -119,9 +130,35 @@ export default class TopTabs {
         //goggle: jquery detecting div of certain class has been added to DOM
         let self = this;
         $.initialize(".ui-corner-top", function () {
-            console.warn('===>New Tab added');
-            console.log($(this));
-            self.updateTopTabInfos();
+            let $tab = $(this);
+            //if added $tab is the top tab, then update the topTabInfos:
+            if(self.EnableOnAddNewTab && $tab.parent().attr('id')=="tab-bg") {
+                console.warn('[Class.TopTabs]onAddNewTab===>New Tab added', $tab, $tab.parent().attr('id'));
+                self.updateTopTabInfos();
+            }
+        });
+    }
+
+    onAddNewTabContent() {
+        //event will be triggered by adding new tab with class ui-corner-top
+        //goggle: jquery detecting div of certain class has been added to DOM
+        let self = this;
+        $.initialize(".ui-tabs-sub", function () {
+            let $tabContent = $(this);
+            //if added $tab is the top tab, then update the topTabInfos:
+            //if(self.EnableOnAddNewTab && $tab.parent().attr('id')=="tab-bg") {
+            //console.warn('Class.TopTabs.onAddNewTabContent===>New TabContent added', $tabContent, $tabContent.parent().attr('id'));
+            //    self.updateTopTabInfos();
+            //}
+            chrome.storage.sync.get('showTabQuickSearch',function(result){
+                //console.log('Class.TopTabs.onAddNewTabContent::get showTabQuickSearch:', result.showTabQuickSearch);
+                self.topTabInfos.forEach(function(tabInfo){
+                    //console.log('tabInfo.tabTitle:', tabInfo.tabTitle)
+                    if(tabInfo.tabTitle == 'Quick Search'){
+                        tabInfo.DeactivateThisTab();
+                    }
+                })
+            })
         });
     }
 
@@ -130,12 +167,12 @@ export default class TopTabs {
         //jquery add click event to a li element
         this.$topTabs.each(function (index) {
             $(this).click(function (e) {
-                console.log('top tab clicked', e);
+                //console.log('top tab clicked', e);
                 self.topTabInfos.forEach(function (tab) {
                     tab.DeactivateThisTab();
                 })
                 let tabInfo = new TopTabInfo($(e.currentTarget));
-                console.log(tabInfo);
+                //console.log(tabInfo);
                 tabInfo.ActiveThisTab();
             })
         })
@@ -163,4 +200,13 @@ export default class TopTabs {
             }
         }
     }
+
+    // closeQuickSearchTab(tabID){
+    //     this.topTabInfos.forEach(function(tabInfo){
+    //         if(tabInfo.tabTitle.trim()=="Quick Search"){
+    //             tabInfo.$tabLink.click();
+    //             tabInfo.$tabCloseLink.click();
+    //         }
+    //     })
+    // }
 }
