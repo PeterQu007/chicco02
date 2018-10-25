@@ -4,14 +4,6 @@ const topTabContainerID = 'ul#tab-bg';
 const tabContentContainerID = 'div#app_tab_switcher';
 const activeTabClass = 'ui-tabs-selected ui-state-active';
 const savedPropertySearches = 'iframe#tab2';
-//jQuery plugin: check inline Style:
-//return the style value 
-//or return undefined:
-// (function ($) {
-//     $.fn.inlineStyle = function (prop) {
-//         return this.prop("style")[$.camelCase(prop)];
-//     };
-// }(jQuery));
 
 export class TopTabInfo {
     constructor($tab) {
@@ -37,15 +29,22 @@ export class TopTabInfo {
         this.$tabLink.click(function () {
             console.log('click tab Link');
             self.tabClicked = true;
+            if(self.tabTitle!='Home') {
+                self.$tabContentContainer.removeAttr('style');
+            }
             //self.ActiveThisTab();
         })
 
         this.$tabTitle.click(function () {
             console.log('click tab span-title');
+            if(self.tabTitle!='Home') {
+                self.$tabContentContainer.removeAttr('style');
+            }
         })
 
         this.$tab.click(function () {
             console.log('click tab li');
+            self.$tabContentContainer.removeAttr('style');
         })
     }
 
@@ -167,12 +166,12 @@ export default class TopTabs {
         //jquery add click event to a li element
         this.$topTabs.each(function (index) {
             $(this).click(function (e) {
-                //console.log('top tab clicked', e);
+                console.log('top tab clicked', e);
                 self.topTabInfos.forEach(function (tab) {
                     tab.DeactivateThisTab();
                 })
                 let tabInfo = new TopTabInfo($(e.currentTarget));
-                //console.log(tabInfo);
+                console.log(tabInfo);
                 tabInfo.ActiveThisTab();
             })
         })

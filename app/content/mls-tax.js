@@ -28,9 +28,11 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
 			var inputHidenPID = $('#hdnf_22');
 			liPID.remove();
 			inputHidenPID.val('');
+			inputHidenPID.val("['" + result.PID + "']");
 
 			inputPID.focus().val(result.PID).blur();
 
+			
 			var btnSearch = $('#Search');
 
 			chrome.storage.sync.set({

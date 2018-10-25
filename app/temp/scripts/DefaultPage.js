@@ -261,75 +261,9 @@
 	            this.topTabsContainer.click(function () {
 	                self.subTabsContainer = $('div.ui-tabs-sub');
 	                self.subTabsContainer.removeAttr('style');
-	                console.info('[mlsTab].remove Style Display Attr');
+	                console.log('[mlsTab].remove Style Display Attr');
+	                console.log('Test Break Point');
 	            });
-	        }
-	    }, {
-	        key: 'onMessage',
-	        value: function onMessage() {
-	            (function (self) {
-	                chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
-	                    // get Warning message: the search results exceed the limit, ignore it
-	                    // if (request.todo == 'ignoreWarning') {
-	                    //     // Warning Form is a special page, the buttons are in the div, 
-	                    //     // the iframe is separate with the buttons
-	                    //     // this message sent from mls-warning.js
-	                    //     console.log('Main Home ignore warning message!');
-	                    //     console.log($('#OK'));
-	                    //     var countTimer = setInterval(checkCount, 100);
-	                    //     function checkCount() {
-	                    //         // #OK button, "Continue", belongs to default page
-	                    //         if (document.querySelector('#OK')) {
-	                    //             clearInterval(countTimer);
-	                    //             let btnOK = $('#OK');
-	                    //             console.log('OK', btnOK);
-	                    //             btnOK.click();
-	                    //         }
-	                    //     };
-	                    // };
-
-	                    // Logout MLS Windows shows an annoying confirm box, pass it
-	                    // The message sent from logout iframe , the buttons are inside the iframe
-	                    // if (request.todo == 'logoutMLS') {
-	                    //     console.log('Main Home got logout message!');
-	                    //     console.log($('#confirm'));
-	                    //     var countTimer = setInterval(checkCount, 100);
-	                    //     function checkCount() {
-	                    //         // the button is inside the iframe, this iframe belongs to default page
-	                    //         if (document.querySelector('#confirm')) {
-	                    //             clearInterval(countTimer);
-	                    //             let btnYes = $('#confirm');
-	                    //             console.log('confirm', btnYes);
-	                    //             btnYes.click();
-	                    //         }
-	                    //     };
-	                    // };
-
-	                    //Top Level Tabs Changed
-	                    // if (request.todo == 'updateTopLevelTabMenuItems') {
-	                    //     // update tabs
-	                    //     self.tabs = $('ul#tab-bg li');
-	                    //     console.log('default home page update top level tabs: ', tabs);
-	                    //     self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-	                    //     self.curTabID = curTabLink.attr('href');
-	                    //     chrome.storage.sync.set({ curTabID: self.curTabID });
-	                    // }
-
-	                    //Read the Current TabID
-	                    // if (request.todo == 'readCurTabID') {
-	                    //     // read cur tabID
-	                    //     self.tabs = $('ul#tab-bg li');
-	                    //     console.log('default home page read top level tabs: ', self.tabs);
-	                    //     self.curTabLink = $('ul#tab-bg li.ui-tabs-selected.ui-state-active a');
-	                    //     self.curTabID = self.curTabLink.attr('href');
-	                    //     console.log('current Tab ID is: ', self.curTabID);
-	                    //     // save the curTabID
-	                    //     chrome.storage.sync.set({ curTabID: self.curTabID }, function () {
-	                    //         console.log('curTabID has been save to storage.');
-	                    //     });
-	                    // }
-	                });
-	            })(this);
 	        }
 	    }]);
 
@@ -358,14 +292,6 @@
 	var tabContentContainerID = 'div#app_tab_switcher';
 	var activeTabClass = 'ui-tabs-selected ui-state-active';
 	var savedPropertySearches = 'iframe#tab2';
-	//jQuery plugin: check inline Style:
-	//return the style value 
-	//or return undefined:
-	// (function ($) {
-	//     $.fn.inlineStyle = function (prop) {
-	//         return this.prop("style")[$.camelCase(prop)];
-	//     };
-	// }(jQuery));
 
 	var TopTabInfo = exports.TopTabInfo = function () {
 	    function TopTabInfo($tab) {
@@ -395,15 +321,22 @@
 	            this.$tabLink.click(function () {
 	                console.log('click tab Link');
 	                self.tabClicked = true;
+	                if (self.tabTitle != 'Home') {
+	                    self.$tabContentContainer.removeAttr('style');
+	                }
 	                //self.ActiveThisTab();
 	            });
 
 	            this.$tabTitle.click(function () {
 	                console.log('click tab span-title');
+	                if (self.tabTitle != 'Home') {
+	                    self.$tabContentContainer.removeAttr('style');
+	                }
 	            });
 
 	            this.$tab.click(function () {
 	                console.log('click tab li');
+	                self.$tabContentContainer.removeAttr('style');
 	            });
 	        }
 	    }, {
@@ -537,12 +470,12 @@
 	            //jquery add click event to a li element
 	            this.$topTabs.each(function (index) {
 	                $(this).click(function (e) {
-	                    //console.log('top tab clicked', e);
+	                    console.log('top tab clicked', e);
 	                    self.topTabInfos.forEach(function (tab) {
 	                        tab.DeactivateThisTab();
 	                    });
 	                    var tabInfo = new TopTabInfo($(e.currentTarget));
-	                    //console.log(tabInfo);
+	                    console.log(tabInfo);
 	                    tabInfo.ActiveThisTab();
 	                });
 	            });

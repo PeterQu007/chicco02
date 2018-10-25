@@ -16,13 +16,14 @@ var $fx = L$();
 var fullRealtor = {
 
 	init: function () {
-		console.clear();
+		//console.clear();
 		//read full realtor report, get listing data
 		//$fx.getCurrentTab(curTabID);
 		//link to iframe's tabID
 		this.tabID = $fx.getTabID(window.frameElement.src);
 		console.warn('[FR]===>window.frameElement.id', this.tabID);
-		this.lockVisibility();
+		chrome.storage.sync.set({curTabID: this.tabID});
+		//this.lockVisibility();
 		console.warn('[FR]===>tabContentContainer: ', this.tabContentContainer);
 		this.clearAssess();
 		this.houseListingType = this.houseType.text().replace(',', '').replace(' ', '');
@@ -43,6 +44,7 @@ var fullRealtor = {
 		setTimeout(function(){
 				that.searchTax()}
 			,500); //delay does not help the tab jumps issue
+		//this.lockVisibility();
 	},
 
 	uiListingInfo: new uiListingInfo(),
@@ -57,7 +59,7 @@ var fullRealtor = {
 	pid: null, //pid from getMorePropertyInfo
 	complexOrSubdivision: null, //complex name from getMorePropertyInfo
 	mlsNo: $('div[style="top:18px;left:4px;width:123px;height:13px;"] a'),
-	legal: $('div[style="top:426px;left:75px;width:593px;height:24px;"]'),
+	legal: $('div[style="top:426px;left:75px;width:593px;height:22px;"]'),
 	realtorRemarks: $('div[style="top:860px;left:53px;width:710px;height:35px;"]'),
 	publicRemarks: $('div[style="top:897px;left:4px;width:758px;height:75px;"]'),
 	keyword: $('div#app_banner_links_left input.select2-search__field', top.document),
@@ -109,18 +111,18 @@ var fullRealtor = {
 		var listingHouseType = self.houseType.text().replace(',', '').replace(' ', '');
 		switch (listingHouseType) {
 			case 'Attached':
-				self.pid = $('div[style="top:194px;left:355px;width:82px;height:15px;"]');
-				self.complexOrSubdivision = $('div[style="top:236px;left:381px;width:383px;height:14px;"]');
-				self.totalUnits = $('div[style="top:326px;left:659px;width:101px;height:16px;"');
-				self.devUnits = $('div[style="top:326px;left:470px;width:95px;height:15px;"');
-				self.lotArea = $('div[style="top:129px;left:355px;width:75px;height:13px;"');
+				self.pid = $('div[style="top:194px;left:355px;width:82px;height:15px;"]'); //P.I.D.
+				self.complexOrSubdivision = $('div[style="top:236px;left:381px;width:383px;height:14px;"]'); //Complex/Subdiv
+				self.totalUnits = $('div[style="top:326px;left:659px;width:101px;height:16px;"'); //Total units in Strata
+				self.devUnits = $('div[style="top:326px;left:470px;width:95px;height:15px;"'); //Units in Development
+				self.lotArea = $('div[style="top:129px;left:355px;width:75px;height:13px;"'); //Sq. Footage
 				break;
 			case 'Detached':
-				self.pid = $('div[style="top:198px;left:681px;width:82px;height:15px;"]');
-				self.complexOrSubdivision = $('div[style="top:229px;left:393px;width:369px;height:13px;"]');
-				self.lotArea = $('div[style="top:133px;left:375px;width:67px;height:13px;"');
-				self.devUnits = $('<div>1</div>');
-				self.totalUnits = $('<div>1</div>');
+				self.pid = $('div[style="top:198px;left:681px;width:82px;height:15px;"]'); //P.I.D.
+				self.complexOrSubdivision = $('div[style="top:229px;left:393px;width:369px;height:13px;"]'); //Complex/Subdiv
+				self.lotArea = $('div[style="top:133px;left:375px;width:67px;height:13px;"'); //
+				self.devUnits = $('<div>1</div>'); // N/A for single house
+				self.totalUnits = $('<div>1</div>'); // N/A for single house
 				break;
 		}
 	},
@@ -256,6 +258,13 @@ var fullRealtor = {
 				{ from: 'ListingReport', todo: 'taxSearch' },
 				function (response) {
 					//console.log('>>>mls-fullpublic got tax response:', response);
+					var divTab = $('div' + self.tabID, top.document);
+					var divTaxSearch = $('div#tab1', top.document);
+					this.tabContentContainer = divTab;
+					console.log(divTab);
+					divTab.attr("style", "display: block!important");
+					divTaxSearch.attr("style", "display: none!important");
+					chrome.storage.sync.set({curTabID: this.tabID});
 				}
 			)
 		});
@@ -436,7 +445,7 @@ var fullRealtor = {
 			self.bcLand.text('land:  ' + $fx.removeDecimalFraction(landValue) + landValuePerSF);
 			self.bcImprovement.text('house:' + $fx.removeDecimalFraction(improvementValue) + houseValuePerSF);
 			self.bcLand2ImprovementRatio.text(land2TotalRatio.toString() + '%L-T ' + house2TotalRatio.toString() + '%H-T ' + land2HouseRatio.toString() + 'L-H');
-			self.valueChange.text("$-" + $fx.numberWithCommas(changeValue.toFixed(0)) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
+			self.valueChange.text("$" + $fx.numberWithCommas(changeValue.toFixed(0)) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
 			self.oldTimerLotValuePerSF.text(olderTimerLotValuePerSF);
 			self.marketValuePerSF.text('Lot:$' + marketLotValuePerSF.toString() + '/SF' + ' | Impv:$' + marketHouseValuePerSF.toString() + '/SF')
 			self.lotArea.text($fx.numberWithCommas($fx.convertStringToDecimal(lotAreaInSquareFeet, true)));

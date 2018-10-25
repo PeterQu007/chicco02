@@ -76,6 +76,7 @@
 										var inputHidenPID = $('#hdnf_22');
 										liPID.remove();
 										inputHidenPID.val('');
+										inputHidenPID.val("['" + result.PID + "']");
 
 										inputPID.focus().val(result.PID).blur();
 

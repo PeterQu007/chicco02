@@ -26,13 +26,14 @@
 
   "content_scripts": [
     {
-      "matches": ["http://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword"],
+      "matches": ["https://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/@mls-login.js"],
       "css": ["./temp/content.css"]
     },
 
     {
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Default.mvc*"],
+      "matches": ["http://bcres.paragonrels.com/ParagonLS/Default.mvc*",
+                  "https://bcres.paragonrels.com/ParagonLS/Default.mvc*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js",
             "./assets/lib/jquery.initialize-master/jquery.initialize.js",
             "./temp/scripts/defaultpage.js"],
@@ -41,7 +42,7 @@
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Home/Page.mvc"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Home/Page.mvc"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js",
               "./temp/scripts/Library.js",
               "./temp/scripts/MLS-Data.js"],
@@ -51,25 +52,25 @@
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Search/Property.mvc/Index/2/?savedSearchID=*&searchID=tab3_1"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Search/Property.mvc/Index/2/?savedSearchID=*&searchID=tab3_1"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-SearchBypassCriteria.js"],
       "all_frames": true
     },
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c65*"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c65*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js",
               "./assets/lib/jquery.initialize-master/jquery.initialize.js",
               "./temp/scripts/Library.js",
               "./temp/scripts/MLS-FullRealtor.js"],
-      "css": ["./temp/content.css"],
+      "css": ["./temp/content.css", "./temp/bootstrap.min.css"],
       "all_frames": true
     },
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=*viewID=1*"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=*viewID=1*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js",
               "./assets/lib/jquery.initialize-master/jquery.initialize.js",
               "./temp/scripts/Library.js",
@@ -80,7 +81,9 @@
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c63*"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c63*",
+                  "https://bcres.paragonrels.com/publink/default.aspx*Report=Yes"
+      ],
       "js": ["./assets/lib/jquery/dist/jquery.min.js",
           "./temp/scripts/Library.js",
           "./temp/scripts/MLS-FullPublic.js"],
@@ -89,7 +92,7 @@
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1&searchID=tab1_1"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1&searchID=tab1_1"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-Tax.js"],
       "all_frames": true
     },
@@ -97,21 +100,21 @@
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=False&viewID=1&page=1&usePDF=false&searchID=tab1_1_2&showStats=false&pagingData="],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=False&viewID=1&page=1&usePDF=false&searchID=tab1_1_2&showStats=false&pagingData="],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxResult.js"],
       "all_frames": true
     },
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Reports/TaxReport.mvc?listingIDs=*&screenWidth=*&uniqueIDs=*&viewID=*&classID=1&usePDF=false&ShowAds=true&searchID=tab1_1_2&listingMode=0"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/TaxReport.mvc?listingIDs=*&screenWidth=*&uniqueIDs=*&viewID=*&classID=1&usePDF=false&ShowAds=true&searchID=tab1_1_2&listingMode=0"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxDetails.js"],
       "all_frames": true
     },
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Content/SearchWarningDisplays.html*"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Content/SearchWarningDisplays.html*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/mls-warning.js"],
       "css": ["./temp/mls.css"],
       "all_frames": true
@@ -119,7 +122,7 @@
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Home/Page.mvc/LogoutConfirmation*"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Home/Page.mvc/LogoutConfirmation*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/mls-logout.js"],
       "css": ["./temp/mls.css"],
       "all_frames": true
@@ -127,7 +130,7 @@
 
     {
       "run_at": "document_end",
-      "matches": ["http://bcres.paragonrels.com/ParagonLS/Search/Results.mvc/ExportCSV*"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Search/Results.mvc/ExportCSV*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/mls-export.js"],
       "css": ["./temp/mls.css"],
       "all_frames": true

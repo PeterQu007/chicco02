@@ -6,14 +6,14 @@ export default class UIListingInfo {
         this.mlsNo = $('<div>MLS #</div>');
         //divs for strata & complex info:
         this.planNo = $('<div id="strataPlan">PlanNo: </div>');
-        this.planLink = $(`<a href="http://bcres.paragonrels.com/ParagonLS/Home/Page.mvc#HomeTab" 
+        this.planLink = $(`<a href="https://bcres.paragonrels.com/ParagonLS/Home/Page.mvc#HomeTab" 
                             target="HomeTab" id="strataPlanLink" ></a>`);
         this.formalAddress = $('<div id="formalAddress">adr: </div>');
         this.complexSummary = $('<div id="complexSummary"></div>')
         this.complexName = $('<span id="complexName">ComplexName</span>');
         this.complexListingQuantity = $('<span id="listingQuantity"></span>');
         this.inputComplexName = $('<input name="inputComplexName" />');
-        this.btnSaveComplexName = $('<button name="saveComplexName">Save</button>');
+        this.btnSaveComplexName = $('<button name="saveComplexName" class="btn btn-primary">Save</button>');
         //divs for BC Assessment:
         this.landValue = $('<div id="landValue">land value</div>');
         this.houseValue = $('<div id="houseValue">house value</div>');
@@ -34,7 +34,7 @@ export default class UIListingInfo {
         this.inputShowingRequest = $('<input id ="showingRequest" type="text"/>');
         this.inputShowingDate = $('<input id="showingDate"/>');
         this.inputShowingTime = $('<input id="showingTime"/>');
-        this.btnSaveShowing = $('<button id="saveShowing">Save</button>');
+        this.btnSaveShowing = $('<button id="saveShowing" class="btn btn-success">Save</button>');
         //assemble the elements:
         this.buildUI();
     }
