@@ -52,9 +52,10 @@
 
     {
       "run_at": "document_end",
-      "matches": ["https://bcres.paragonrels.com/ParagonLS/Search/Property.mvc/Index/2/?savedSearchID=*&searchID=tab3_1"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Search/Property.mvc/Index/*/?savedSearchID=*&searchID=tab*_*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-SearchBypassCriteria.js"],
       "all_frames": true
+      //Residential Attached Search Pages, Residential Detached Search Pages
     },
 
     {
@@ -93,8 +94,9 @@
     {
       "run_at": "document_end",
       "matches": ["https://bcres.paragonrels.com/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1&searchID=tab1_1"],
-      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-Tax.js"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxSearch.js"],
       "all_frames": true
+      // mls Tax tab : tab_1_1 - Property Tax Search page
     },
 
 
@@ -103,6 +105,7 @@
       "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=False&viewID=1&page=1&usePDF=false&searchID=tab1_1_2&showStats=false&pagingData="],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxResult.js"],
       "all_frames": true
+      // mls Tax tab: tab_1_2 - spreadsheet shows Property Tax Search Result Records, could change view from spreadsheet to TaxDetails
     },
 
     {
@@ -110,6 +113,7 @@
       "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/TaxReport.mvc?listingIDs=*&screenWidth=*&uniqueIDs=*&viewID=*&classID=1&usePDF=false&ShowAds=true&searchID=tab1_1_2&listingMode=0"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxDetails.js"],
       "all_frames": true
+      // mls Tax tab: tab_1_2 - Property Tax Details Report
     },
 
     {

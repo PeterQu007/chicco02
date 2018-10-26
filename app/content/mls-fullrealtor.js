@@ -8,7 +8,7 @@
 import legalDescription from '../assets/scripts/modules/LegalDescription';
 import addressInfo from '../assets/scripts/modules/AddressInfo';
 import uiListingInfo from '../assets/scripts/ui/uiListingInfo';
-import { TopTabInfo } from '../assets/scripts/modules/TopTabs';
+import { mainNavItem } from '../assets/scripts/modules/MainNavBar';
 
 //var curTabID = null;
 var $fx = L$();
@@ -23,7 +23,7 @@ var fullRealtor = {
 		this.tabID = $fx.getTabID(window.frameElement.src);
 		console.warn('[FR]===>window.frameElement.id', this.tabID);
 		chrome.storage.sync.set({curTabID: this.tabID});
-		//this.lockVisibility();
+		this.lockVisibility();
 		console.warn('[FR]===>tabContentContainer: ', this.tabContentContainer);
 		this.clearAssess();
 		this.houseListingType = this.houseType.text().replace(',', '').replace(' ', '');
@@ -260,11 +260,11 @@ var fullRealtor = {
 					//console.log('>>>mls-fullpublic got tax response:', response);
 					var divTab = $('div' + self.tabID, top.document);
 					var divTaxSearch = $('div#tab1', top.document);
-					this.tabContentContainer = divTab;
+					self.tabContentContainer = divTab;
 					console.log(divTab);
 					divTab.attr("style", "display: block!important");
 					divTaxSearch.attr("style", "display: none!important");
-					chrome.storage.sync.set({curTabID: this.tabID});
+					chrome.storage.sync.set({curTabID: self.tabID});
 				}
 			)
 		});

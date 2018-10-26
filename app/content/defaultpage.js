@@ -3,7 +3,7 @@
 // the messages are passed between the defaultpage and iframes, all are the content scripts
 
 import Tabs from '../assets/scripts/modules/mlsTabs';
-import TopTabs, { TopTabInfo } from '../assets/scripts/modules/TopTabs';
+import MainNavBar, { mainNavItem } from '../assets/scripts/modules/MainNavBar';
 import MainMenu from '../assets/scripts/modules/mlsMainMenu';
 
 (function ($) {
@@ -18,7 +18,7 @@ let DefaultPage = {
         // Open frequently used tabs:
         this.mainMenu.openTaxSearch();
         this.mainMenu.openSavedSearches();
-        this.topTabs = new TopTabs();
+        this.mainNavBar = new MainNavBar();
         //console.log(this.topTabs);
         this.onMessage();
         this.onChanged();
@@ -26,7 +26,7 @@ let DefaultPage = {
 
     mainMenu: new MainMenu(),
     tabs: new Tabs(),
-    topTabs: null,
+    mainNavBar: null,
 
     onMessage() {
         (function (self) {
@@ -93,7 +93,7 @@ let DefaultPage = {
                 //Sync Tab to Content
                 if (request.todo == 'syncTabToContent') {
                     console.group('defaultpage.syncTabToContent');
-                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
+                    self.mainNavBar.topTabInfos.forEach(function (tabInfo) {
                         console.info('tab in topTabInfos: ', tabInfo);
                         tabInfo.syncTabToContent();
                     })
@@ -103,7 +103,7 @@ let DefaultPage = {
                 //Hide QuickSearch Tab Content
                 if (request.todo == 'hideQuickSearch') {
                     console.group('defaultPage.hideQuickSearch.tabID:', request.tabID);
-                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
+                    self.mainNavBar.topTabInfos.forEach(function (tabInfo) {
                         if (tabInfo.tabID == request.tabID) {
                             console.info('defaultPage.QuickSearch.tabInfo:', tabInfo);
                             tabInfo.DeactivateThisTab();
@@ -115,10 +115,10 @@ let DefaultPage = {
                 //get TabTitle by TabID
                 if (request.todo == 'getTabTitle') {
                     console.group('getTabTitle', request.tabID);
-                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
-                        if (tabInfo.tabID == request.tabID) {
-                            console.log('find tabTitle:', tabInfo.tabID, tabInfo.tabTitle);
-                            sendResponse({ tabID: tabInfo.tabID, tabTitle: tabInfo.tabTitle })
+                    self.mainNavBar.mainNavItems.forEach(function (navItem) {
+                        if (navItem.ID == request.tabID) {
+                            console.log('find tabTitle:', navItem.ID, navItem.Title);
+                            sendResponse({ tabID: navItem.ID, tabTitle: navItem.Title })
                         }
                     })
                     console.groupEnd();
@@ -141,7 +141,7 @@ let DefaultPage = {
             //hide QuickSearchTab & TabContent
             if (area == "sync" && "todo" in changes && changes.todo.newValue.indexOf('hideQuickSearch') > -1) {
                 console.log("onTabStatusUpdate.command::", changes.todo.newValue);
-                self.topTabs.topTabInfos.forEach(function (tabInfo) {
+                self.mainNavBar.topTabInfos.forEach(function (tabInfo) {
                     if (tabInfo.tabTitle.trim() == "Quick Search") {
                         tabInfo.DeactivateThisTab();
                     }

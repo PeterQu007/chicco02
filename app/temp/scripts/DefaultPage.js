@@ -50,9 +50,9 @@
 
 	var _mlsTabs2 = _interopRequireDefault(_mlsTabs);
 
-	var _TopTabs = __webpack_require__(2);
+	var _MainNavBar = __webpack_require__(2);
 
-	var _TopTabs2 = _interopRequireDefault(_TopTabs);
+	var _MainNavBar2 = _interopRequireDefault(_MainNavBar);
 
 	var _mlsMainMenu = __webpack_require__(3);
 
@@ -74,7 +74,7 @@
 	        // Open frequently used tabs:
 	        this.mainMenu.openTaxSearch();
 	        this.mainMenu.openSavedSearches();
-	        this.topTabs = new _TopTabs2.default();
+	        this.mainNavBar = new _MainNavBar2.default();
 	        //console.log(this.topTabs);
 	        this.onMessage();
 	        this.onChanged();
@@ -82,7 +82,7 @@
 
 	    mainMenu: new _mlsMainMenu2.default(),
 	    tabs: new _mlsTabs2.default(),
-	    topTabs: null,
+	    mainNavBar: null,
 
 	    onMessage: function onMessage() {
 	        (function (self) {
@@ -153,7 +153,7 @@
 	                //Sync Tab to Content
 	                if (request.todo == 'syncTabToContent') {
 	                    console.group('defaultpage.syncTabToContent');
-	                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
+	                    self.mainNavBar.topTabInfos.forEach(function (tabInfo) {
 	                        console.info('tab in topTabInfos: ', tabInfo);
 	                        tabInfo.syncTabToContent();
 	                    });
@@ -163,7 +163,7 @@
 	                //Hide QuickSearch Tab Content
 	                if (request.todo == 'hideQuickSearch') {
 	                    console.group('defaultPage.hideQuickSearch.tabID:', request.tabID);
-	                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
+	                    self.mainNavBar.topTabInfos.forEach(function (tabInfo) {
 	                        if (tabInfo.tabID == request.tabID) {
 	                            console.info('defaultPage.QuickSearch.tabInfo:', tabInfo);
 	                            tabInfo.DeactivateThisTab();
@@ -175,10 +175,10 @@
 	                //get TabTitle by TabID
 	                if (request.todo == 'getTabTitle') {
 	                    console.group('getTabTitle', request.tabID);
-	                    self.topTabs.topTabInfos.forEach(function (tabInfo) {
-	                        if (tabInfo.tabID == request.tabID) {
-	                            console.log('find tabTitle:', tabInfo.tabID, tabInfo.tabTitle);
-	                            sendResponse({ tabID: tabInfo.tabID, tabTitle: tabInfo.tabTitle });
+	                    self.mainNavBar.mainNavItems.forEach(function (navItem) {
+	                        if (navItem.ID == request.tabID) {
+	                            console.log('find tabTitle:', navItem.ID, navItem.Title);
+	                            sendResponse({ tabID: navItem.ID, tabTitle: navItem.Title });
 	                        }
 	                    });
 	                    console.groupEnd();
@@ -200,7 +200,7 @@
 	            //hide QuickSearchTab & TabContent
 	            if (area == "sync" && "todo" in changes && changes.todo.newValue.indexOf('hideQuickSearch') > -1) {
 	                console.log("onTabStatusUpdate.command::", changes.todo.newValue);
-	                self.topTabs.topTabInfos.forEach(function (tabInfo) {
+	                self.mainNavBar.topTabInfos.forEach(function (tabInfo) {
 	                    if (tabInfo.tabTitle.trim() == "Quick Search") {
 	                        tabInfo.DeactivateThisTab();
 	                    }
@@ -286,162 +286,59 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	//class for top tab container
+	//Class Wrapper mainNavBar for Top Level Tabs Container - Main Navigation Bar(mainNav)
+	//Top Level Tabs Container(mainNavBar) is an HTML Elements ul Complex inside top level URL:
+	//https://bcres.paragonrels.com/ParagonLS/Default.mvc#2
+	//mainNavBar contains mainNavItem - individual topTab ui Complexes
+	//sub Class Wrapper mainNavItem for topTab ui Complex
 
-	var topTabContainerID = 'ul#tab-bg';
-	var tabContentContainerID = 'div#app_tab_switcher';
-	var activeTabClass = 'ui-tabs-selected ui-state-active';
-	var savedPropertySearches = 'iframe#tab2';
+	var mainPanelID = 'div#app_tab_switcher'; //Top Level Panel Container of TopTab mainNav & subContent Selector ID
+	var mainNavBarID = 'ul#tab-bg'; //Top Tabs Main Navigation Selector ID
+	var newMainNavItemClass = '.ui-corner-top'; //Top Tab li element class
+	var mainNavItemClass = 'li.ui-state-default.ui-corner-top'; //Top Tab li element class
+	var activeNavItemClass = 'ui-tabs-selected ui-state-active'; //Current Active Top Tab Selector Class
 
-	var TopTabInfo = exports.TopTabInfo = function () {
-	    function TopTabInfo($tab) {
-	        _classCallCheck(this, TopTabInfo);
+	//const savedPropertySearches = 'iframe#tab2';
 
-	        //$tab element is a li under ul#tab-bg:
-	        this.$tab = $tab; //keep the tab li element <li>
-	        this.$tabLink = $tab.children('a'); //keep the tab link <a>
-	        this.$tabCloseLink = $tab.children('em'); //close the tab
-	        this.$tabTitle = this.$tabLink.children('span'); //keep the tab title <span>
-	        this.tabID = this.$tabLink.attr('href'); //keep the tabID, '#tab3', '#' is reserved
-	        this.tabTitle = this.$tabTitle.text().trim(); //keep the tab title text string
-	        this.tabURL = this.$tabLink.attr('url'); //keep the tab url
-	        this.$tabContentContainer = $(tabContentContainerID).children(this.tabID); //keep the tab's content <element>
-	        this.tabClicked = false; //
-	        //find the tab Content of this tab
-	        //this.tabContent = new TabContent(this.tabID);
-	        //console.log('TopTabInfo.tabID:', this.tabID, this.tabTitle, 'TopTabInfo.tabContent:', this.$tabContentContainer);
+	var MainNavBar = function () {
+	    function MainNavBar() {
+	        _classCallCheck(this, MainNavBar);
+
+	        this.$mainNavBar = $(mainNavBarID);
+	        this.$mainNavItems = null; //set of top tap ui HTML elements
+	        this.mainNavItems = []; //set of class of mainNavItems
+	        this.curNavItem = null;
+	        this.enableOnAddNewNavItem = false; //disable onAddNewTab event in the init
+	        this.onAddNewNavItem();
+	        this.onAddNewNavItemContent();
+	        this.update();
 	        this.onClick();
+	        this.enableOnAddNewNavItem = true; //enable onAddNewTab event after the init
 	    }
+	    //events:
 
-	    _createClass(TopTabInfo, [{
-	        key: 'onClick',
-	        value: function onClick() {
-	            var self = this;
-	            //jquery add click event to anchor element a
-	            this.$tabLink.click(function () {
-	                console.log('click tab Link');
-	                self.tabClicked = true;
-	                if (self.tabTitle != 'Home') {
-	                    self.$tabContentContainer.removeAttr('style');
-	                }
-	                //self.ActiveThisTab();
-	            });
 
-	            this.$tabTitle.click(function () {
-	                console.log('click tab span-title');
-	                if (self.tabTitle != 'Home') {
-	                    self.$tabContentContainer.removeAttr('style');
-	                }
-	            });
-
-	            this.$tab.click(function () {
-	                console.log('click tab li');
-	                self.$tabContentContainer.removeAttr('style');
-	            });
-	        }
-	    }, {
-	        key: 'ActivateThisTab',
-	        value: function ActivateThisTab() {
-	            //this.$tab.addClass(activeTabClass);
-	            //this.syncTabToContent();
-	            this.$tab.addClass(activeTabClass);
-	            console.log('ActivateThisTab, title, id:', this.tabTitle, this.tabID);
-	            this.$tabContentContainer.removeClass('ui-tabs-hide');
-	        }
-	    }, {
-	        key: 'DeactivateThisTab',
-	        value: function DeactivateThisTab() {
-	            this.$tab.removeClass(activeTabClass);
-	            console.log('DeactivateThisTab, title, id:', this.tabTitle, this.tabID);
-	            this.$tabContentContainer.removeAttr('style');
-	            this.$tabContentContainer.addClass('ui-tabs-hide');
-	            //this.syncTabToContent();
-	        }
-	    }, {
-	        key: 'syncTabToContent',
-	        value: function syncTabToContent() {
-	            if (this.$tabContentContainer.inlineStyle('display') === 'block') {
-	                this.$tab.addClass(activeTabClass);
-	            } else {
-	                if (this.$tabContentContainer.hasClass('ui-tabs-hide')) {
-	                    this.$tab.removeClass(activeTabClass);
-	                } else {
-	                    //this.$tab.addClass(activeTabClass)
-	                }
-	            }
-	            console.log('syncTabToContent, title, id:', this.$tab, this.tabTitle, this.tabID);
-	        }
-
-	        // syncContentToTab() {
-	        //     if (this.tabContent.$tabContainer.inlineStyle('display') === 'block') {
-	        //         this.tabContent.$tabContainer.removeAttr('display')
-	        //     } else {
-	        //         if (!this.tabContent.$tabContainer.hasClass('ui-tabs-hide')) {
-	        //             this.tabContent.$tabContainer.addClass('ui-tabs-hide');
-	        //         }
-	        //     }
-	        // }
-
-	    }]);
-
-	    return TopTabInfo;
-	}();
-
-	// class TabContent {
-	//     constructor(tabID) {
-	//         this.$tabContainer = this.getTabContentContainer(tabID);
-	//         //console.log("TabContent is: ", this.$tabContainer);
-	//     }
-
-	//     getTabContentContainer(tabID) {
-
-	//         let $tabContentContainer = $(tabContentContainerID).children(tabID);
-	//         return $tabContentContainer;
-	//     }
-
-	//     showTabContent() {
-	//         this.$tabContainer.removeClass('ui-tabs-hide');
-	//     }
-
-	//     hideTabContent() {
-	//         this.$tabContainer.addClass('ui-tabs-hide');
-	//     }
-	// }
-
-	var TopTabs = function () {
-	    function TopTabs(tabContainerID) {
-	        _classCallCheck(this, TopTabs);
-
-	        this.$topTabsContainer = $(topTabContainerID);
-	        this.$topTabs = null;
-	        this.topTabInfos = [];
-	        this.curTab = null;
-	        this.EnableOnAddNewTab = false; //disable onAddNewTab event in the init
-	        this.onAddNewTab();
-	        this.onAddNewTabContent();
-	        this.updateTopTabInfos();
-	        this.onClick();
-	        this.EnableOnAddNewTab = true; //enable onAddNewTab event after the init
-	    }
-
-	    _createClass(TopTabs, [{
-	        key: 'onAddNewTab',
-	        value: function onAddNewTab() {
-	            //event will be triggered by adding new tab with class ui-corner-top
+	    _createClass(MainNavBar, [{
+	        key: 'onAddNewNavItem',
+	        value: function onAddNewNavItem() {
+	            //event will be triggered by adding new tab with class ".ui-corner-top" (mainNavItemClass)
 	            //goggle: jquery detecting div of certain class has been added to DOM
 	            var self = this;
-	            $.initialize(".ui-corner-top", function () {
-	                var $tab = $(this);
-	                //if added $tab is the top tab, then update the topTabInfos:
-	                if (self.EnableOnAddNewTab && $tab.parent().attr('id') == "tab-bg") {
-	                    console.warn('[Class.TopTabs]onAddNewTab===>New Tab added', $tab, $tab.parent().attr('id'));
-	                    self.updateTopTabInfos();
+	            $.initialize(newMainNavItemClass, function () {
+	                var $navItem = $(this);
+	                //if added $tab is the top tab item, then update the mainNavItem:
+	                if (self.enableOnAddNewNavItem && $navItem.parent().attr('id') == "tab-bg") {
+
+	                    var newNavItemID = $navItem.children('a').attr('href');
+	                    console.warn('[Class.TopTabs]onAddNewTab===>New Tab added, newTabID:', newNavItemID, $navItem, $navItem.parent().attr('id'));
+	                    //self.updateTopTabInfos(newTabID);
+	                    self.setCurMainNavItem(newNavItemID); //updateTopTabInfos, and set Current tab
 	                }
 	            });
 	        }
 	    }, {
-	        key: 'onAddNewTabContent',
-	        value: function onAddNewTabContent() {
+	        key: 'onAddNewNavItemContent',
+	        value: function onAddNewNavItemContent() {
 	            //event will be triggered by adding new tab with class ui-corner-top
 	            //goggle: jquery detecting div of certain class has been added to DOM
 	            var self = this;
@@ -454,10 +351,10 @@
 	                //}
 	                chrome.storage.sync.get('showTabQuickSearch', function (result) {
 	                    //console.log('Class.TopTabs.onAddNewTabContent::get showTabQuickSearch:', result.showTabQuickSearch);
-	                    self.topTabInfos.forEach(function (tabInfo) {
+	                    self.mainNavItems.forEach(function (mainNavItem) {
 	                        //console.log('tabInfo.tabTitle:', tabInfo.tabTitle)
-	                        if (tabInfo.tabTitle == 'Quick Search') {
-	                            tabInfo.DeactivateThisTab();
+	                        if (mainNavItem.tabTitle == 'Quick Search') {
+	                            mainNavItem.deactivate();
 	                        }
 	                    });
 	                });
@@ -468,40 +365,44 @@
 	        value: function onClick() {
 	            var self = this;
 	            //jquery add click event to a li element
-	            this.$topTabs.each(function (index) {
+	            this.$mainNavItems.each(function (index) {
 	                $(this).click(function (e) {
 	                    console.log('top tab clicked', e);
-	                    self.topTabInfos.forEach(function (tab) {
-	                        tab.DeactivateThisTab();
+	                    self.mainNavItems.forEach(function (navItem) {
+	                        navItem.deactivate();
 	                    });
-	                    var tabInfo = new TopTabInfo($(e.currentTarget));
-	                    console.log(tabInfo);
-	                    tabInfo.ActiveThisTab();
+	                    var navItem = new mainNavItem($(e.currentTarget));
+	                    console.log(navItem);
+	                    navItem.activate();
 	                });
 	            });
 	        }
+
+	        //methods:
+
 	    }, {
-	        key: 'updateTopTabInfos',
-	        value: function updateTopTabInfos() {
+	        key: 'update',
+	        value: function update() {
 	            var self = this;
-	            self.topTabInfos.length = 0; //clean up the array
-	            this.$topTabs = null; //clean up the $topTabs
-	            this.$topTabs = this.$topTabsContainer.children('li.ui-state-default.ui-corner-top');
-	            this.$topTabs.each(function (index) {
-	                var tabInfo = new TopTabInfo($(this));
-	                self.topTabInfos.push(tabInfo);
+	            self.mainNavItems.length = 0; //clean up the array of mainNavItem object
+	            this.$mainNavItems = null; //clean up the $topTabs HTML collection
+	            this.$mainNavItems = this.$mainNavBar.children(mainNavItemClass); //set of top tab items for navigation
+	            this.$mainNavItems.each(function (index) {
+	                var navItem = new mainNavItem($(this)); //convert each top tab element to mainNavItem Class
+	                self.mainNavItems.push(navItem); //
 	            });
 	        }
 	    }, {
-	        key: 'setCurTab',
-	        value: function setCurTab(tabID) {
-	            this.updateTopTabInfos();
-	            for (i = 0; i < this.topTabInfos.length; i++) {
-	                var thisTab = this.topTabInfos[i];
-	                if (thisTab.tabID == tabID) {
-	                    thisTab.ActiveThisTab();
+	        key: 'setCurMainNavItem',
+	        value: function setCurMainNavItem(curNavItemID) {
+	            this.update();
+	            var i;
+	            for (i = 0; i < this.mainNavItems.length; i++) {
+	                var navItem = this.mainNavItems[i];
+	                if (navItem.ID == curNavItemID) {
+	                    navItem.activate();
 	                } else {
-	                    thisTab.DeactivateThisTab();
+	                    navItem.deactivate();
 	                }
 	            }
 	        }
@@ -517,10 +418,106 @@
 
 	    }]);
 
-	    return TopTabs;
+	    return MainNavBar;
 	}();
 
-	exports.default = TopTabs;
+	exports.default = MainNavBar;
+
+	var mainNavItem = exports.mainNavItem = function () {
+	    //Class Wrapper of a top level tab ui complex, as Main Nav Item inside Main Nav Bar
+	    //parameter $navItem : Top Level Tab Element of HTML li
+	    function mainNavItem($navItem) {
+	        _classCallCheck(this, mainNavItem);
+
+	        //$navItem element is a li under ul#tab-bg:
+	        //populate the properties:
+	        this.$me = $navItem; //keep the tab li element <li>
+	        this.$contentLink = this.$me.children('a'); //keep the tab link <a>
+	        this.ID = this.$contentLink.attr('href'); //keep the tabID, '#tab3', '#' is reserved
+	        this.contentURL = this.$contentLink.attr('url'); //keep the tab url
+	        this.$closeLink = this.$me.children('em'); //close the tab
+	        this.$Title = this.$contentLink.children('span'); //keep the tab title <span>
+	        this.Title = this.$Title.text().trim(); //keep the tab title text string
+
+	        //navItem Content Element: e.g. div#tab2 or iframe#tab2
+	        this.$Content = $(mainPanelID).children(this.ID); //keep the tab's content <element>
+
+	        //events Click:
+	        this.Clicked = false; //
+	        this.onClick();
+	    }
+
+	    //events:
+
+
+	    _createClass(mainNavItem, [{
+	        key: 'onClick',
+	        value: function onClick() {
+	            var self = this;
+	            //jquery add click event to anchor element a
+	            this.$contentLink.click(function () {
+	                console.log('click top tab Link');
+	                self.Clicked = true;
+	                if (self.Title != 'Home') {
+	                    self.$Content.removeAttr('style');
+	                }
+	                //self.ActiveThisTab();
+	            });
+
+	            this.$Title.click(function () {
+	                console.log('click tab span-title');
+	                self.Clicked = true;
+	                if (self.Title != 'Home') {
+	                    self.$Content.removeAttr('style');
+	                }
+	            });
+
+	            this.$me.click(function () {
+	                console.log('click tab li');
+
+	                self.$Content.removeAttr('style');
+	            });
+	        }
+
+	        //methods:
+
+	    }, {
+	        key: 'activate',
+	        value: function activate() {
+	            //activate this nav item, show the nav item content
+	            this.$me.addClass(activeNavItemClass);
+	            console.log('ActivateThisTab, title, id:', this.Title, this.ID);
+	            this.$Content.removeClass('ui-tabs-hide');
+	        }
+	    }, {
+	        key: 'deactivate',
+	        value: function deactivate() {
+	            //deactivate this nav item, hide the nav item content
+	            this.$me.removeClass(activeNavItemClass);
+	            console.log('DeactivateThisTab, title, id:', this.Title, this.ID);
+	            if (this.Title != 'Home') {
+	                this.$Content.removeAttr('style');
+	            }
+	            this.$Content.addClass('ui-tabs-hide');
+	        }
+	    }, {
+	        key: 'syncTabToContent',
+	        value: function syncTabToContent() {
+	            if (this.$Content.inlineStyle('display') === 'block') {
+	                this.$me.addClass(activeNavItemClass);
+	            } else {
+	                if (this.$Content.hasClass('ui-tabs-hide')) {
+	                    this.$me.removeClass(activeNavItemClass);
+	                } else {
+	                    //this.$tab.addClass(activeTabClass)
+	                }
+	            }
+	            console.log('syncTabToContent, title, id:', this.$me, this.Title, this.ID);
+	        }
+	    }]);
+
+	    return mainNavItem;
+	}();
 
 /***/ }),
 /* 3 */
