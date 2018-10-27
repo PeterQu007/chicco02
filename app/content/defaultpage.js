@@ -4,7 +4,7 @@
 
 import Tabs from '../assets/scripts/modules/mlsTabs';
 import MainNavBar, { mainNavItem } from '../assets/scripts/modules/MainNavBar';
-import MainMenu from '../assets/scripts/modules/mlsMainMenu';
+import MainMenu from '../assets/scripts/modules/MainMenu';
 
 (function ($) {
     $.fn.inlineStyle = function (prop) {

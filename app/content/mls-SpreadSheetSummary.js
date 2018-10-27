@@ -1,42 +1,29 @@
-//QuickSearch Page
+//SpreadSheet Summary Page
 //show / hide as per needed
 
 import uiSummaryTable from '../assets/scripts/ui/uiSummaryTable.js';
-
 var $fx = L$();
 
-var quickSearch = {
+var spreadSheetSummary = {
 
     init: function () {
         //link to iframe's tabID
-        this.tabID = $fx.getTabID(window.frameElement.src); //prefixed with # id-sign
-        this.$tabContentContainer = $('div' + this.tabID, top.document)
+        //this.tabID = $fx.getTabID(window.frameElement.src); //prefixed with # id-sign
+        //this.$tabContentContainer = $('div' + this.tabID, top.document)
         //this.onMessage();
-        this.tabTitle = this.getTabTitle(this.tabID);
-        console.warn('tabID, tabTitle', this.tabID, this.tabTitle);
-        this.OnTabTitle();
-        this.$spreadSheet = $('#ifSpreadsheet');
-        this.$grid = $('#grid');
-        var x = $("div#dialogStats", parent.document);
-        this.uiTable.showUI(x);
-        this.uiTable.setHighPSF(250);
-        this.highLightCol25();
+        //this.tabTitle = this.getTabTitle(this.tabID);
+        //console.warn('tabID, tabTitle', this.tabID, this.tabTitle);
+        //this.OnTabTitle();
+        this.$SummaryBox = $('div#dialogStats');
+        console.warn('Summary box: ', this.$SummaryBox);
+        this.$table = new uiSummaryTable();
+        this.$table.showUI(this.$SummaryBox);
     },
 
     tabID: null,
     tabTitle: null,
-    uiTable: new uiSummaryTable(),
-    $spreadSheet: null,
-    $grid: null,
-
-    highLightCol25(){
-        var xTable = $('#grid');
-        var rows = xTable.children('tr');
-        var i;
-        for (i=1; i<rows.length; i++){
-            console.log(rows[i].nth-child(25));
-        }
-    },
+    $SummaryBox: null,
+    $table: null,
 
     OnTabTitle: function () {
         let self = this;
@@ -108,7 +95,7 @@ var quickSearch = {
 
 //entry point:
 $(function () {
-    quickSearch.init();
+    spreadSheetSummary.init();
 })
 
 //

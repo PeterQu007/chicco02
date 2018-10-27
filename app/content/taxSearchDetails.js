@@ -1,4 +1,5 @@
 // read tax details report, save the data
+const divContainerID = 'divHtmlReport';
 var curTabID = null;
 
 let taxDetails = {
@@ -22,6 +23,8 @@ let taxDetails = {
 	planNum: null,
 	reportLink: null,
 	houseType: null,
+
+	newTaxAssessRecord: false,
 
 	init: function () {
 
@@ -113,7 +116,46 @@ let taxDetails = {
 
 	},
 
-	getTaxReportDetails: function () {
+	getTaxReportDetails: function(){
+
+		var x0 = $('div#' + divContainerID).children(0).children();
+		var i;
+		for (i=0; i<=x0.length; i++){
+			if ($(x0[i]).is('div')) {
+				if (x0[i].textContent == 'Actual Totals') {
+					this.landValue = x0[i+4].textContent;
+					this.improvementValue = x0[i+5].textContent;
+					this.totalValue = x0[i+6].textContent;
+					if (this.landValue == '$0.00'){
+						this.newTaxAssessRecord=true;
+					}else{
+						this.newTaxAssessRecord=false;
+					}
+				}
+				if (x0[i].textContent == 'PlanNum'){
+					this.planNum = x0[i+9].textContent;
+				}
+				if (x0[i].textContent == 'BCA Description'){
+					this.bcaDescription = x0[i+1].textContent;
+				}
+				if (x0[i].textContent == 'BCAData Update'){
+					this.bcaDataUpdateDate = x0[i+1].textContent;
+				}
+				if (x0[i].textContent == 'Lot Size'){
+					this.lotSize = x0[i+1].textContent;
+				}
+				if (x0[i].textContent== 'BCA Description'){
+					this.bcaDescription = x0[i+1].textContent;
+				}
+				if (x0[i].textContent == 'BCAData Update'){
+					this.bcaDataUpdateDate = x0[i+1].textContent;
+				}
+			}
+			
+		}
+	},
+	//Revision 0, legacy version
+	getTaxReportDetails_R0: function () {
 		var self = this;
 	
 		var assessClass = self.getAssessClass(self.reportTitleClass);

@@ -54,9 +54,9 @@
 
 	var _MainNavBar2 = _interopRequireDefault(_MainNavBar);
 
-	var _mlsMainMenu = __webpack_require__(3);
+	var _MainMenu = __webpack_require__(3);
 
-	var _mlsMainMenu2 = _interopRequireDefault(_mlsMainMenu);
+	var _MainMenu2 = _interopRequireDefault(_MainMenu);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -80,7 +80,7 @@
 	        this.onChanged();
 	    },
 
-	    mainMenu: new _mlsMainMenu2.default(),
+	    mainMenu: new _MainMenu2.default(),
 	    tabs: new _mlsTabs2.default(),
 	    mainNavBar: null,
 

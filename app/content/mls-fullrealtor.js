@@ -3,6 +3,9 @@
 //show strata info
 //cal unit price, percent numbers
 
+//manifest matches: "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c65*"
+//production file name: MLS-FullRealtor.js
+
 'use strict'
 
 import legalDescription from '../assets/scripts/modules/LegalDescription';
@@ -54,7 +57,7 @@ var fullRealtor = {
 	lp: $('div[style="top:7px;left:571px;width:147px;height:13px;"]'),
 	sp: $('div[style="top:23px;left:571px;width:147px;height:15px;"]'),
 	lotArea: null, //lotArea from getMorePropertyInfo
-	finishedFloorArea: $('div[style="top:698px;left:120px;width:50px;height:16px;"]'),
+	finishedFloorArea: null, // from getMorePropertyInfo
 	report: $('div#divHtmlReport'),
 	pid: null, //pid from getMorePropertyInfo
 	complexOrSubdivision: null, //complex name from getMorePropertyInfo
@@ -109,6 +112,10 @@ var fullRealtor = {
 	getMorePropertyInfo: function () {
 		var self = this;
 		var listingHouseType = self.houseType.text().replace(',', '').replace(' ', '');
+		var $lotAreaAcres;
+		var $lotAreaHect;
+		var $lotAreaSqM;
+
 		switch (listingHouseType) {
 			case 'Attached':
 				self.pid = $('div[style="top:194px;left:355px;width:82px;height:15px;"]'); //P.I.D.
@@ -116,6 +123,7 @@ var fullRealtor = {
 				self.totalUnits = $('div[style="top:326px;left:659px;width:101px;height:16px;"'); //Total units in Strata
 				self.devUnits = $('div[style="top:326px;left:470px;width:95px;height:15px;"'); //Units in Development
 				self.lotArea = $('div[style="top:129px;left:355px;width:75px;height:13px;"'); //Sq. Footage
+				self.finishedFloorArea = $('div[style="top:698px;left:120px;width:50px;height:16px;"]'); //finishedFloorArea
 				break;
 			case 'Detached':
 				self.pid = $('div[style="top:198px;left:681px;width:82px;height:15px;"]'); //P.I.D.
@@ -123,6 +131,28 @@ var fullRealtor = {
 				self.lotArea = $('div[style="top:133px;left:375px;width:67px;height:13px;"'); //
 				self.devUnits = $('<div>1</div>'); // N/A for single house
 				self.totalUnits = $('<div>1</div>'); // N/A for single house
+				self.finishedFloorArea = $('div[style="top:698px;left:120px;width:50px;height:16px;"]'); //finishedFloorArea
+				break;
+			case 'Land Only':
+				self.pid = $('div[style="top:117px;left:536px;width:82px;height:15px;"]'); //P.I.D.
+				self.complexOrSubdivision = $('div[style="top:101px;left:536px;width:227px;height:15px;"]'); //Complex/Subdiv
+				self.lotArea = $('div[style="top:242px;left:687px;width:75px;height:16px;"'); // Area in Square Feet
+				$lotAreaAcres = $('div[style="top:210px;left:687px;width:75px;height:16px;"'); // Area in Acres
+				$lotAreaHect = $('div[style="top:226px;left:687px;width:75px;height:16px;"'); // Area in Hect
+				$lotAreaSqM = $('div[style="top:258px;left:687px;width:75px;height:16px;"'); // Area in Square Meters
+				if (self.lotArea.text() == '0.00'){
+					let x = $lotAreaAcres.text();
+					let lotAreaAcres = $fx.convertStringToDecimal(x, true);
+					let lotAreaInSquareFeet = lotAreaAcres * 43560;
+					let lotAreaInSquareMeters = lotAreaInSquareFeet / 10.76;
+					
+					self.lotArea.text($fx.numberWithCommas(lotAreaInSquareFeet.toFixed(0)));
+					$lotAreaSqM.text($fx.numberWithCommas(lotAreaInSquareMeters.toFixed(0)));
+				}
+				
+				self.devUnits = $('<div>1</div>'); // N/A for Land Only
+				self.totalUnits = $('<div>1</div>'); // N/A for Land Only
+				self.finishedFloorArea = $('<div>1</div>'); // N/A for Land Only
 				break;
 		}
 	},
@@ -131,9 +161,14 @@ var fullRealtor = {
 		//console.log(this.lp.text(), this.sp.text(), this.finishedFloorArea.text());
 		var listPrice = $fx.convertStringToDecimal(this.lp.text());
 		var soldPrice = $fx.convertStringToDecimal(this.sp.text());
-		var finishedFloorArea = $fx.convertStringToDecimal(this.finishedFloorArea.text());
-		var sfPriceList = listPrice / finishedFloorArea;
-		var sfPriceSold = soldPrice / finishedFloorArea;
+		var baseArea;
+		if (this.houseListingType != 'Land Only') {
+			baseArea = $fx.convertStringToDecimal(this.finishedFloorArea.text());
+		}else{
+			baseArea = $fx.convertStringToDecimal(this.lotArea.text());
+		}
+		var sfPriceList = listPrice / baseArea;
+		var sfPriceSold = soldPrice / baseArea;
 
 		this.lp.text(this.lp.text() + ' [$' + sfPriceList.toFixed(0) + '/sf]');
 		if (sfPriceSold > 0) {
@@ -396,7 +431,7 @@ var fullRealtor = {
 			var landValue = result.landValue;
 			var lotSize = result.lotSize;
 			var lotArea = $fx.convertStringToDecimal(lotSize, true);
-			var lotAreaInSquareFeet = (lotArea < 500 ? (lotArea * 43560).toFixed(0) : lotArea);
+			var lotAreaInSquareFeet = (lotArea < 500 ? (lotArea * 43560).toFixed(0) : $fx.numberWithCommas($fx.removeDecimalFraction(lotArea)));
 			var formalAddress = result.address.trim();
 			var finishedFloorArea = $fx.convertStringToDecimal(self.finishedFloorArea.text());
 			var intTotalValue = $fx.convertStringToDecimal(totalValue);

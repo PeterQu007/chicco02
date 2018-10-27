@@ -67,6 +67,7 @@
               "./temp/scripts/MLS-FullRealtor.js"],
       "css": ["./temp/content.css", "./temp/bootstrap.min.css"],
       "all_frames": true
+      // Full Realtor Report of Detached, Attached, Land Only 
     },
 
     {
@@ -78,6 +79,19 @@
               "./temp/scripts/MLS-QuickSearch.js"],
       "css": ["./temp/content.css"],
       "all_frames": true
+      // Search Results Page, SpreadSheet Table Section
+    },
+
+    {
+      "run_at": "document_end",
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Search/Results.mvc/Index/tab*?ViewSelected=*savedSearchID=*recordCount=*"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js",
+              "./assets/lib/jquery.initialize-master/jquery.initialize.js",
+              "./temp/scripts/Library.js",
+              "./temp/scripts/MLS-SpreadSheetSummary.js"],
+      "css": ["./temp/content.css"],
+      "all_frames": true
+      // Search Results Page with SpreadSheet Summary Box
     },
 
     {
@@ -94,7 +108,7 @@
     {
       "run_at": "document_end",
       "matches": ["https://bcres.paragonrels.com/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1&searchID=tab1_1"],
-      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxSearch.js"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxSearchCriteria.js"],
       "all_frames": true
       // mls Tax tab : tab_1_1 - Property Tax Search page
     },
@@ -103,7 +117,7 @@
     {
       "run_at": "document_end",
       "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=False&viewID=1&page=1&usePDF=false&searchID=tab1_1_2&showStats=false&pagingData="],
-      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxResult.js"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxSearchResult.js"],
       "all_frames": true
       // mls Tax tab: tab_1_2 - spreadsheet shows Property Tax Search Result Records, could change view from spreadsheet to TaxDetails
     },
@@ -111,7 +125,7 @@
     {
       "run_at": "document_end",
       "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/TaxReport.mvc?listingIDs=*&screenWidth=*&uniqueIDs=*&viewID=*&classID=1&usePDF=false&ShowAds=true&searchID=tab1_1_2&listingMode=0"],
-      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxDetails.js"],
+      "js": ["./assets/lib/jquery/dist/jquery.min.js","./temp/scripts/MLS-TaxSearchDetails.js"],
       "all_frames": true
       // mls Tax tab: tab_1_2 - Property Tax Details Report
     },
