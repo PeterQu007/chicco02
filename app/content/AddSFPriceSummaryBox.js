@@ -17,13 +17,29 @@ var spreadSheetSummary = {
         this.$SummaryBox = $('div#dialogStats');
         console.warn('Summary box: ', this.$SummaryBox);
         this.$table = new uiSummaryTable();
-        this.$table.showUI(this.$SummaryBox);
+        //this.$table.showUI(this.$SummaryBox);
+        //this.$loadingNotice = document.querySelector('#load_grid');
+        this.$mutationObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+              console.log(mutation);
+            });
+          });
+        this.$mutationObserver.observe(document.documentElement, {
+            attributes: true,
+            characterData: true,
+            childList: false,
+            subtree: true,
+            attributeOldValue: true,
+            characterDataOldValue: true
+          });
     },
 
     tabID: null,
     tabTitle: null,
     $SummaryBox: null,
     $table: null,
+    $mutationObserver: null,
+    //$loadingNotice: null,
 
     OnTabTitle: function () {
         let self = this;
@@ -94,8 +110,12 @@ var spreadSheetSummary = {
 }
 
 //entry point:
-$(function () {
+// $(function () {
+//     spreadSheetSummary.init();
+// })
+
+//Try window.on(load)
+$(window).on('load',function(){
+    this.console.log('document ready state:', document.readyState);
     spreadSheetSummary.init();
 })
-
-//

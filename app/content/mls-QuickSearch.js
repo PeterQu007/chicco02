@@ -20,7 +20,33 @@ var quickSearch = {
         var x = $("div#dialogStats", parent.document);
         this.uiTable.showUI(x);
         this.uiTable.setHighPSF(250);
-        this.highLightCol25();
+        var loading = document.querySelector('#grid');
+        //this.highLightCol25();
+        this.$mutationObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                //console.warn('document state:',document.readyState);
+                //console.log(mutation.target);
+                // (mutation.target.)
+                var name = mutation.attributeName;
+                var value = mutation.target.getAttribute(name);
+                //console.log('attriName, Value: ', name, value);
+                // if (value = 'none'){
+                //     var xTable = $('table#grid');
+                //     var xRows = $('table#grid tr');
+                //     console.log("current Table has rows: ", xRows.children.length-1);
+                // }
+                var x = $('table#grid tbody');
+                console.log("Table Rows currently is: ", x.children('tr').length);
+            });
+          });
+        this.$mutationObserver.observe(loading, {
+            attributes: true,
+            characterData: true,
+            childList: false,
+            subtree: true,
+            attributeOldValue: true,
+            characterDataOldValue: true
+          });
     },
 
     tabID: null,
@@ -28,6 +54,7 @@ var quickSearch = {
     uiTable: new uiSummaryTable(),
     $spreadSheet: null,
     $grid: null,
+    $mutationObserver: null,
 
     highLightCol25(){
         var xTable = $('#grid');
@@ -108,6 +135,9 @@ var quickSearch = {
 
 //entry point:
 $(function () {
+    console.log('Spreadsheet Document State:', document.readyState);
+    var $loadingNotice = document.querySelector('#load_grid');
+    console.log($loadingNotice);
     quickSearch.init();
 })
 

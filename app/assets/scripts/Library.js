@@ -28,7 +28,20 @@
             return result.toFixed(0);
         },
 
+        getRecordCount: function(url){
+            //recordCount number is between recordCount= AND &
+            //console.log("URL",url);
+            var pos = url.indexOf("recordCount=");
+            var s = url.substring(pos).replace("recordCount=","")
+            pos =s.indexOf("&");
+            var recordCount = Number(s.substring(0,pos)) ;
+            recordCount = recordCount > 0? recordCount : 0;
+            return recordCount;
+        },
+
         convertStringToDecimal: function (strNum, keepFraction) {
+            //convert Number String To Decimal number
+            //example: "$345,890.78" --> 345890
             var result = 0,
                 numbers = '';
             keepFraction = keepFraction || false;
@@ -46,8 +59,8 @@
                     numbers += strNum[i];
                 }
             }
-            result = Number(numbers);
-            return result.toFixed(keepFraction ? 2 : 0);
+            result = Number(Number(numbers).toFixed(keepFraction ? 2 : 0));
+            return result;
         },
 
         removeDecimalFraction: function (strNum) {

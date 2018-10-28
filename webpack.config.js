@@ -18,14 +18,22 @@ module.exports={
 		'MLS-Warning': './app/content/mls-Warning.js',
 		'MLS-Logout': './app/content/mls-Logout.js',
 		'MLS-Export': './app/content/mls-Logout.js',
+		//
 		'MLS-FullRealtor': './app/content/mls-FullRealtor.js',
 		'MLS-FullPublic': './app/content/mls-FullPublic.js',
+		//
 		'MLS-TaxSearchCriteria': './app/content/taxSearchCriteria.js',
 		'MLS-TaxSearchResult': './app/content/taxSearchResult.js',
 		'MLS-TaxSearchDetails': './app/content/taxSearchDetails.js',
-		'MLS-SearchBypassCriteria': './app/content/mlsSearchBypassCriteria.js',
-		'MLS-QuickSearch': './app/content/mls-QuickSearch.js',
-		'MLS-SpreadSheetSummary': './app/content/mls-SpreadSheetSummary.js'
+		//Bypass Listing Search Criteria Page when loading saved search criteria
+		'MLS-BypassListingSearchCriteria': './app/content/BypassListingSearchCriteria.js',
+		
+		//Add SquareFeet Price Summary Box to Spreadsheet View Summary Box
+		'MLS-AddSFPriceSummaryBox': './app/content/AddSFPriceSummaryBox.js',
+		//Compute Square Feet Prices
+		'MLS-ComputeSFPrices': './app/content/ComputeSFPrices.js',
+		//
+		'MLS-QuickSearch': './app/content/mls-QuickSearch.js'
 	},
 
 	output: {
