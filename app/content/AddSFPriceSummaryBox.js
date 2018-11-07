@@ -14,9 +14,10 @@ var spreadSheetSummary = {
         //this.tabTitle = this.getTabTitle(this.tabID);
         //console.warn('tabID, tabTitle', this.tabID, this.tabTitle);
         //this.OnTabTitle();
+        console.log("Add Square Feet Price SummaryBox- document url:", document.URL);
         this.$SummaryBox = $('div#dialogStats');
         console.warn('Summary box: ', this.$SummaryBox);
-        this.$table = new uiSummaryTable();
+        //this.$table = new uiSummaryTable();
         //this.$table.showUI(this.$SummaryBox);
         //this.$loadingNotice = document.querySelector('#load_grid');
         this.$mutationObserver = new MutationObserver(function(mutations) {

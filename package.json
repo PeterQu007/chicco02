@@ -19,6 +19,7 @@
   "dependencies": {
     "jquery": "^2.2.4",
     "lazysizes": "^3.0.0-rc4",
+    "mathjs": "^5.2.3",
     "normalize.css": "^4.2.0",
     "waypoints": "^4.0.1"
   },

@@ -65,6 +65,7 @@
 
         removeDecimalFraction: function (strNum) {
             var result = 0;
+            strNum = strNum.toString();
             //remove the fraction
             result = strNum.substring(0, strNum.indexOf('.') == -1 ? strNum.length : strNum.indexOf('.'));
             return result;

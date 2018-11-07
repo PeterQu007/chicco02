@@ -102,12 +102,35 @@ export default class UISummaryTable {
         this.$UITable.appendTo(container);
     }
 
-    setHighPSF(x){
+    setHighListedSFP(x){
         $(this.$UITable).find('#HighAskingPricePSF').text("$"+x);
     }
 
-    // highLightCol25(){
-    //     $('table tr > td:nth-child(2), table tr > th:nth-child(2)')
-    //         .attr('style', 'background-color:#CCF;');
-    // }
+    setHighSoldSFP(x){
+        $(this.$UITable).find('#HighSoldPricePSF').text("$"+x);
+    }
+
+    setLowListedSFP(x){
+        $(this.$UITable).find('#LowAskingPricePSF').text("$"+x);
+    }
+
+    setLowSoldSFP(x){
+        $(this.$UITable).find('#LowSoldPricePSF').text("$"+x);
+    }
+
+    setAvgListedSFP(x){
+        $(this.$UITable).find('#AverageAskingPricePSF').text("$"+x);
+    }
+
+    setAvgSoldSFP(x){
+        $(this.$UITable).find('#AverageSoldPricePSF').text("$"+x);
+    }
+   
+    setMedianListedSFP(x){
+        $(this.$UITable).find('#MedianAskingPricePSF').text("$"+x);
+    }
+
+    setMedianSoldSFP(x){
+        $(this.$UITable).find('#MedianSoldPrice').text("$"+x);
+    }
 }
