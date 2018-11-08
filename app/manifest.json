@@ -48,12 +48,12 @@
     //////////////////////////////////
     {
       //Paragon Home Tab Page (HomeTab)
-      //Function:
+      //Function: Home Page Quick Search Feature
       "run_at": "document_end",
       "matches": ["https://bcres.paragonrels.com/ParagonLS/Home/Page.mvc"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js",
               "./temp/scripts/Library.js",
-              "./temp/scripts/MLS-Data.js"],
+              "./temp/scripts/MLS-HomePageQuickSearch.js"],
       "css": ["./temp/mls.css"],
       "all_frames": true
     },

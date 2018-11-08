@@ -16,8 +16,8 @@ $(function () {
                 clearInterval(checkTimer);
                 // DO YOUR STUFF HERE.
                 $(function () {
-                    let mlsDateLow = $('#f_33_Low__1-2-3-4');
-                    let mlsDateHigh = $('#f_33_High__1-2-3-4');
+                    let mlsDateLow = $('#f_33_Low__1-2-3-4-5');
+                    let mlsDateHigh = $('#f_33_High__1-2-3-4-5');
                     // function .blur() is used to trigger PARAGON to split the mls#s
                     mlsDateLow.focus().val($fx.today).blur();
                     mlsDateHigh.focus().val($fx.today).blur();
@@ -52,7 +52,7 @@ $(function () {
                     chrome.storage.sync.set({showTabQuickSearch: false});
                 }
             }else{
-                //console.log('mls data searching ...', checkTimer);
+                console.log('mls data searching ...', checkTimer);
                 if(counter++>300){
                     clearInterval(checkTimer);
                     //console.warn('overtimed, stop checking result', counter);
@@ -87,11 +87,11 @@ $(function () {
         };
         response('mls-data got a message');
 
-        let mlsDateLow = $('#f_33_Low__1-2-3-4');
-        let mlsDateHigh = $('#f_33_High__1-2-3-4');
-        let strataPlan = $('#f_41__1-2-3-4');
-        let strataPlanHidden = $('#hdnf_41__1-2-3-4');
-        let liStrataPlan = $('div[rel="f_41__1-2-3-4"] ul li.acfb-data');
+        let mlsDateLow = $('#f_33_Low__1-2-3-4-5');
+        let mlsDateHigh = $('#f_33_High__1-2-3-4-5');
+        let strataPlan = $('#f_41__1-2-3-4-5');
+        let strataPlanHidden = $('#hdnf_41__1-2-3-4-5');
+        let liStrataPlan = $('div[rel="f_41__1-2-3-4-5"] ul li.acfb-data');
         let today = new Date();
         let day60 = new Date();
         day60.setDate(today.getDate() - 60);
@@ -106,8 +106,17 @@ $(function () {
         chrome.storage.sync.get(['strataPlan1', 'strataPlan2', 'strataPlan3', 'strataPlan4', 'complexName'], function (listing) {
             mlsDateLow.focus().val($fx.formatDate(day60)).blur();
             mlsDateHigh.focus().val($fx.formatDate(today)).blur();
-            let strataPlans = listing.strataPlan1 + ',' + listing.strataPlan2 + ',' + listing.strataPlan3 + ',' + listing.strataPlan4 + ',';
-            strataPlan.focus().val(strataPlans).blur();
+            //let strataPlans = "['" + listing.strataPlan1 + "','" + listing.strataPlan2 + "','" + listing.strataPlan3 + "','" + listing.strataPlan4 + "']";
+            let strataPlansInput =  listing.strataPlan1 + "," + listing.strataPlan2 + "," + listing.strataPlan3 + "," + listing.strataPlan4 + ",";
+            // inputHidenPID.val('');
+			// inputHidenPID.val("['" + result.PID + "']");
+            strataPlan.focus().val(strataPlansInput).blur();
+            var keydown = new KeyboardEvent("keydown", {bubbles: true, cancelable: true, keyCode: 13}); 
+            document.querySelector('#f_41__1-2-3-4-5').dispatchEvent(keydown);
+
+            //strataPlan.val('');
+            //strataPlanHidden.val('');
+            //strataPlanHidden.val(strataPlans);
             strataPlanNumber = listing.strataPlan1;
             complexName = listing.complexName;
             getCountResult(msg.showResult, msg.saveResult);

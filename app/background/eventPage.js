@@ -5,6 +5,10 @@ import database from '../assets/scripts/modules/Database';
 
 var db = new database();
 var $fx = L$();
+var newTaxYear = false;
+var d = new Date();
+var taxYear = d.getFullYear();
+taxYear = newTaxYear ? taxYear : taxYear -1 ;
 
 console.clear();
 
@@ -74,7 +78,8 @@ console.clear();
 			chrome.storage.sync.get('PID', function (result) {
 				//check database, if assess exist, send it back
 				//console.log(">>>PID is: ", result.PID);
-				db.readAssess(result.PID, function (assess) {
+				var taxID = result.PID + '-' + taxYear;
+				db.readAssess(taxID, function (assess) {
 					//console.log(">>>read from , assess is: ", assess)
 					if (!assess) {
 						//other wise , send out tax research command:

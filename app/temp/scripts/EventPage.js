@@ -56,6 +56,10 @@
 	//message passed between background - defaultpage - iframes
 
 	var $fx = L$();
+	var newTaxYear = false;
+	var d = new Date();
+	var taxYear = d.getFullYear();
+	taxYear = newTaxYear ? taxYear : taxYear - 1;
 
 	console.clear();
 
@@ -124,7 +128,8 @@
 				chrome.storage.sync.get('PID', function (result) {
 					//check database, if assess exist, send it back
 					//console.log(">>>PID is: ", result.PID);
-					db.readAssess(result.PID, function (assess) {
+					var taxID = result.PID + '-' + taxYear;
+					db.readAssess(taxID, function (assess) {
 						//console.log(">>>read from , assess is: ", assess)
 						if (!assess) {
 							//other wise , send out tax research command:
@@ -316,13 +321,14 @@
 
 		_createClass(Database, [{
 			key: 'readAssess',
-			value: function readAssess(PID, callback) {
+			value: function readAssess(taxID, callback) {
 				//console.group(">>>readAssess");
 				var self = this;
-				self.dbAssess.get(PID).then(function (doc) {
+				self.dbAssess.get(taxID).then(function (doc) {
 					var assess = self.assess = doc;
 					//console.log(">>>read the tax info in database is: ", assess);
 					assess.from = 'assess' + Math.random().toFixed(8);
+					assess.dataFromDB = true;
 					chrome.storage.sync.set(
 					// {
 					// 	landValue: doc.landValue,
@@ -344,15 +350,16 @@
 			key: 'writeAssess',
 			value: function writeAssess(assess) {
 				//console.group('writeAssess');
-				var PID = assess._id;
+				var taxID = assess._id;
 				var self = this;
+				assess.dataFromDB = true;
 				self.dbAssess.put(assess).then(function () {
-					return self.dbAssess.get(PID);
+					return self.dbAssess.get(taxID);
 				}).then(function (doc) {
 					//console.log(">>>bc assessment has been saved to db: ", doc);
 				}).catch(function (err) {
 					//console.log(">>>save bc assessment error: ", err);
-					self.dbAssess.get(PID).then(function (doc) {
+					self.dbAssess.get(taxID).then(function (doc) {
 						return self.dbAssess.remove(doc);
 					}).catch(function (err) {
 						//console.log(">>>remove bc assess error: ", err);

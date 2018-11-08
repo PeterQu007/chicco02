@@ -27,13 +27,14 @@ class Database {
 		//console.groupEnd('database constructor');
 	}
 
-	readAssess(PID, callback) {
+	readAssess(taxID, callback) {
 		//console.group(">>>readAssess");
 		var self = this;
-		self.dbAssess.get(PID).then(function (doc) {
+		self.dbAssess.get(taxID).then(function (doc) {
 			var assess = self.assess = doc;
 			//console.log(">>>read the tax info in database is: ", assess);
-			assess.from = 'assess' + Math.random().toFixed(8)
+			assess.from = 'assess' + Math.random().toFixed(8);
+			assess.dataFromDB = true;
 			chrome.storage.sync.set(
 				// {
 				// 	landValue: doc.landValue,
@@ -55,15 +56,16 @@ class Database {
 
 	writeAssess(assess) {
 		//console.group('writeAssess');
-		var PID = assess._id;
+		var taxID = assess._id;
 		var self = this;
+		assess.dataFromDB = true;
 		self.dbAssess.put(assess).then(function () {
-			return self.dbAssess.get(PID);
+			return self.dbAssess.get(taxID);
 		}).then(function (doc) {
 			//console.log(">>>bc assessment has been saved to db: ", doc);
 		}).catch(function (err) {
 			//console.log(">>>save bc assessment error: ", err);
-			self.dbAssess.get(PID).then(function (doc) {
+			self.dbAssess.get(taxID).then(function (doc) {
 				return self.dbAssess.remove(doc);
 			}).catch(function (err) {
 				//console.log(">>>remove bc assess error: ", err);

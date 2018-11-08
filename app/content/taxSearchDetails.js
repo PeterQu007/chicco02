@@ -38,10 +38,11 @@ let taxDetails = {
 			self.getTaxReportDetails();
 
 			let assess = {
-				_id: self.pid,
+				_id: self.pid + '-' + self.taxYear,
 				landValue: self.landValue,
 				improvementValue: self.improvementValue,
 				totalValue: self.totalValue,
+				PID: self.pid,
 				taxYear: self.taxYear,
 				address: self.address,
 				legal: self.legal,
@@ -52,7 +53,8 @@ let taxDetails = {
 				lotSize: self.lotSize,
 				bcaDataUpdateDate: self.bcaDataUpdateDate,
 				bcaDescription: self.bcaDescription,
-				from: 'assess' + Math.random().toFixed(8)
+				from: 'assess' + Math.random().toFixed(8),
+				dataFromDB: false 
 			};
 			chrome.storage.sync.set(assess, function () {
 				console.log('TaxDetails.bcAssessment is...', assess);
@@ -65,7 +67,7 @@ let taxDetails = {
 			});
 			chrome.runtime.sendMessage(
 				{
-					todo: 'saveTax_Pause',
+					todo: 'saveTax',
 					taxData: assess,
 				},
 				function (response) {

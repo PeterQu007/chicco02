@@ -425,7 +425,7 @@ var fullRealtor = {
 		var self = this;
 		var listPrice = $fx.convertStringToDecimal(self.lp.text());
 		var soldPrice = $fx.convertStringToDecimal(self.sp.text());
-		chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate'], function (result) {
+		chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate', 'dataFromDB'], function (result) {
 			var totalValue = result.totalValue;
 			var improvementValue = result.improvementValue;
 			var landValue = result.landValue;
@@ -447,6 +447,7 @@ var fullRealtor = {
 			var marketHouseValuePerSF = '';
 			var marketValuePerSF = '';
 			var houseType = self.houseListingType;
+			var dataFromDB = result.dataFromDB;
 			//console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
 			if (totalValue != 0) {
 				if (soldPrice > 0) {
@@ -476,7 +477,7 @@ var fullRealtor = {
 					olderTimerLotValuePerSF = 'OT Lot/SF list$' + listOldTimerPerSF + ' /bca$' + (intTotalValue / lotAreaInSquareFeet).toFixed(0).toString();
 				}
 			}
-			self.bcAssess.text('total:  ' + $fx.removeDecimalFraction(totalValue));
+			self.bcAssess.text((dataFromDB ? 'total:  ' : 'total*:  ') + $fx.removeDecimalFraction(totalValue));
 			self.bcLand.text('land:  ' + $fx.removeDecimalFraction(landValue) + landValuePerSF);
 			self.bcImprovement.text('house:' + $fx.removeDecimalFraction(improvementValue) + houseValuePerSF);
 			self.bcLand2ImprovementRatio.text(land2TotalRatio.toString() + '%L-T ' + house2TotalRatio.toString() + '%H-T ' + land2HouseRatio.toString() + 'L-H');

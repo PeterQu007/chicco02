@@ -14,7 +14,7 @@ module.exports={
 		"EventPage": './app/background/eventPage.js',
 		'@MLS-Login': './app/content/@mls-Login.js',
 		"DefaultPage": './app/content/DefaultPage.js',
-		'MLS-Data': './app/content/mls-Data.js',
+		'MLS-HomePageQuickSearch': './app/content/HomePageQuickSearch.js',
 		'MLS-Warning': './app/content/mls-Warning.js',
 		'MLS-Logout': './app/content/mls-Logout.js',
 		'MLS-Export': './app/content/mls-Logout.js',
@@ -53,7 +53,8 @@ module.exports={
 
 				loader: 'babel-loader',
 
-				query: {presets: ['es2015']},
+				query: {"compact": false, 
+						"presets": ['es2015']},
 			},
 		],
 	},
