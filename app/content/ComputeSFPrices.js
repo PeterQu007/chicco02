@@ -106,7 +106,7 @@ var computeSFPrices = {
             attributes: true,
             characterData: true,
             childList: false,
-            subtree: false,
+            subtree: true,
             attributeOldValue: true,
             characterDataOldValue: true
           });

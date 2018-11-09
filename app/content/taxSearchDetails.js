@@ -29,7 +29,7 @@ let taxDetails = {
 	init: function () {
 
 		let self = this;
-		chrome.storage.sync.get('houseType', function (result) {
+		chrome.storage.sync.get(['houseType','taxSearchRequester','taxYear'], function (result) {
 
 			self.houseType = result.houseType;
 			console.log('houseType is: ', self.houseType);
@@ -38,7 +38,7 @@ let taxDetails = {
 			self.getTaxReportDetails();
 
 			let assess = {
-				_id: self.pid + '-' + self.taxYear,
+				_id: self.pid + '-' + result.taxYear,
 				landValue: self.landValue,
 				improvementValue: self.improvementValue,
 				totalValue: self.totalValue,
@@ -53,7 +53,7 @@ let taxDetails = {
 				lotSize: self.lotSize,
 				bcaDataUpdateDate: self.bcaDataUpdateDate,
 				bcaDescription: self.bcaDescription,
-				from: 'assess' + Math.random().toFixed(8),
+				from: 'assess-'+ result.taxSearchRequester + '-' + Math.random().toFixed(8),
 				dataFromDB: false 
 			};
 			chrome.storage.sync.set(assess, function () {

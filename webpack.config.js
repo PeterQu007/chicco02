@@ -13,7 +13,7 @@ module.exports={
 		"Library": './app/assets/scripts/Library.js',
 		"EventPage": './app/background/eventPage.js',
 		'@MLS-Login': './app/content/@mls-Login.js',
-		"DefaultPage": './app/content/DefaultPage.js',
+		"HomePage": './app/content/HomePage.js',
 		'MLS-HomePageQuickSearch': './app/content/HomePageQuickSearch.js',
 		'MLS-Warning': './app/content/mls-Warning.js',
 		'MLS-Logout': './app/content/mls-Logout.js',
@@ -31,7 +31,8 @@ module.exports={
 		//Add SquareFeet Price Summary Box to Spreadsheet View Summary Box
 		'MLS-AddSFPriceSummaryBox': './app/content/AddSFPriceSummaryBox.js',
 		//Compute Square Feet Prices
-		'MLS-ComputeSFPrices': './app/content/ComputeSFPrices.js',
+		//'MLS-ComputeSFPrices': './app/content/ComputeSFPrices.js',
+		'MLS-SpreadSheetCompletion': './app/content/SpreadSheetCompletion.js',
 		//
 		'MLS-QuickSearch': './app/content/mls-QuickSearch.js'
 	},

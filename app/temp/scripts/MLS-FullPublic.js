@@ -40,20 +40,19 @@
 /******/ 	return __webpack_require__(0);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ 0:
+/******/ ([
+/* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _fullpublic;
 
-	var _LegalDescription = __webpack_require__(8);
+	var _LegalDescription = __webpack_require__(6);
 
 	var _LegalDescription2 = _interopRequireDefault(_LegalDescription);
 
-	var _AddressInfo = __webpack_require__(9);
+	var _AddressInfo = __webpack_require__(7);
 
 	var _AddressInfo2 = _interopRequireDefault(_AddressInfo);
 
@@ -471,8 +470,12 @@
 	});
 
 /***/ }),
-
-/***/ 8:
+/* 1 */,
+/* 2 */,
+/* 3 */,
+/* 4 */,
+/* 5 */,
+/* 6 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -545,8 +548,7 @@
 	exports.default = LegalDescription;
 
 /***/ }),
-
-/***/ 9:
+/* 7 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -631,5 +633,4 @@
 	exports.default = AddressInfo;
 
 /***/ })
-
-/******/ });
+/******/ ]);

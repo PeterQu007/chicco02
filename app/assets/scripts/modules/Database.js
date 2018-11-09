@@ -33,7 +33,7 @@ class Database {
 		self.dbAssess.get(taxID).then(function (doc) {
 			var assess = self.assess = doc;
 			//console.log(">>>read the tax info in database is: ", assess);
-			assess.from = 'assess' + Math.random().toFixed(8);
+			assess.from = 'assess-'+ "ForSpreadSheet-" + Math.random().toFixed(8);
 			assess.dataFromDB = true;
 			chrome.storage.sync.set(
 				// {

@@ -399,24 +399,6 @@ var fullRealtor = {
 					console.log("this: ", self);
 				}
 
-				// if (area == "sync" && "curTabID" in changes) {
-				// 	if (changes.curTabID.newValue) {
-				// 		if (changes.curTabID.oldValue) {
-				// 			//remove the old style of the div
-				// 			var oldTabID = changes.curTabID.oldValue;
-				// 			console.log("mls-fullrealtor: my old tab ID is: ", oldTabID);
-				// 			var oldDivTab = $('div' + oldTabID, top.document);
-				// 			oldDivTab.removeAttr("style");
-				// 		}
-				// 		curTabID = changes.curTabID.newValue;
-				// 		console.log("mls-fullrealtor: my tab ID is: ", curTabID);
-				// 		var divTab = $('div' + curTabID, top.document);
-				// 		var divTab1 = $('div#tab1', top.document);
-				// 		console.log(divTab);
-				// 		divTab.attr("style", "display: block!important");
-				// 		divTab1.attr("style", "display: none!important");
-				// 	}
-				// }
 			});
 		})(this);
 	},

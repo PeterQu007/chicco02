@@ -20,7 +20,11 @@ $(function () {
                     let mlsDateHigh = $('#f_33_High__1-2-3-4-5');
                     // function .blur() is used to trigger PARAGON to split the mls#s
                     mlsDateLow.focus().val($fx.today).blur();
-                    mlsDateHigh.focus().val($fx.today).blur();
+                    mlsDateHigh.focus().val($fx.today);
+                    //var keydown = new KeyboardEvent("keydown", {bubbles: true, cancelable: true, keyCode: 13}); 
+                    //document.querySelector('#f_33_High__1-2-3-4-5').dispatchEvent(keydown);
+                    let mlsCount = $('#Count');
+                    mlsCount.click();
                 });
                 //do not show search results, do not save results
                 getCountResult(false, false);

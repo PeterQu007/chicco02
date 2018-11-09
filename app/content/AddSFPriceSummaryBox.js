@@ -17,22 +17,21 @@ var spreadSheetSummary = {
         console.log("Add Square Feet Price SummaryBox- document url:", document.URL);
         this.$SummaryBox = $('div#dialogStats');
         console.warn('Summary box: ', this.$SummaryBox);
-        //this.$table = new uiSummaryTable();
-        //this.$table.showUI(this.$SummaryBox);
-        //this.$loadingNotice = document.querySelector('#load_grid');
-        this.$mutationObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-              console.log(mutation);
-            });
-          });
-        this.$mutationObserver.observe(document.documentElement, {
-            attributes: true,
-            characterData: true,
-            childList: false,
-            subtree: true,
-            attributeOldValue: true,
-            characterDataOldValue: true
-          });
+       
+        
+        // this.$mutationObserver = new MutationObserver(function(mutations) {
+        //     mutations.forEach(function(mutation) {
+        //       console.log(mutation);
+        //     });
+        //   });
+        // this.$mutationObserver.observe(document.documentElement, {
+        //     attributes: true,
+        //     characterData: true,
+        //     childList: false,
+        //     subtree: true,
+        //     attributeOldValue: true,
+        //     characterDataOldValue: true
+        //   });
     },
 
     tabID: null,

@@ -46,7 +46,7 @@
 
 	'use strict';
 
-	var _Database = __webpack_require__(4);
+	var _Database = __webpack_require__(1);
 
 	var _Database2 = _interopRequireDefault(_Database);
 
@@ -67,7 +67,7 @@
 
 		//console.log("Hello!-1");
 
-		chrome.storage.sync.set({ landValue: 0, improvementValue: 0, totalValue: 0, curTabID: null });
+		chrome.storage.sync.set({ landValue: 0, improvementValue: 0, totalValue: 0, curTabID: null, taxYear: taxYear });
 
 		chrome.browserAction.onClicked.addListener(function (activeTab) {
 
@@ -124,22 +124,30 @@
 			if (request.todo == "taxSearch") {
 				//get request to search tax info of Property with PID saved to storage
 				//console.log(">>>I got tax search command!");
-
-				chrome.storage.sync.get('PID', function (result) {
-					//check database, if assess exist, send it back
-					//console.log(">>>PID is: ", result.PID);
-					var taxID = result.PID + '-' + taxYear;
-					db.readAssess(taxID, function (assess) {
-						//console.log(">>>read from , assess is: ", assess)
-						if (!assess) {
-							//other wise , send out tax research command:
-							chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-								chrome.tabs.sendMessage(tabs[0].id, { todo: "taxSearch" });
-							});
-						}
+				try {
+					chrome.storage.sync.get('PID', function (result) {
+						//check database, if assess exist, send it back
+						//console.log(">>>PID is: ", result.PID);
+						var taxID = result.PID + '-' + taxYear;
+						var requester = request.from;
+						db.readAssess(taxID, function (assess) {
+							//console.log(">>>read from , assess is: ", assess)
+							if (!assess) {
+								//other wise , send out tax research command:
+								chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+									chrome.tabs.sendMessage(tabs[0].id, { todo: "taxSearchFor" + requester });
+								});
+							} else {
+								if (String(assess.from).indexOf("taxSearchFor" + requester) < 0) {
+									assess.from = assess.from + "taxSearchFor" + requester;
+								}
+							}
+						});
 					});
-				});
-				sendResponse(">>>tax search has been processed in eventpage: ");
+					sendResponse(">>>tax search has been processed in EventPage: ");
+				} catch (err) {
+					sendResponse(">>>tax search gets errors in EventPage: ");
+				}
 			}
 
 			if (request.todo == "searchStrataPlanSummary") {
@@ -273,10 +281,7 @@
 	})();
 
 /***/ }),
-/* 1 */,
-/* 2 */,
-/* 3 */,
-/* 4 */
+/* 1 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -327,7 +332,7 @@
 				self.dbAssess.get(taxID).then(function (doc) {
 					var assess = self.assess = doc;
 					//console.log(">>>read the tax info in database is: ", assess);
-					assess.from = 'assess' + Math.random().toFixed(8);
+					assess.from = 'assess-' + "ForSpreadSheet-" + Math.random().toFixed(8);
 					assess.dataFromDB = true;
 					chrome.storage.sync.set(
 					// {

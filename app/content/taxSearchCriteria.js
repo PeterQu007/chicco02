@@ -15,7 +15,7 @@
 
 chrome.runtime.onMessage.addListener(function (msg, sender, response) {
 
-	if(msg.todo == 'taxSearch'){
+	if(String(msg.todo).indexOf('taxSearchFor')>-1){
 
         //console.log("I am in mls-tax.js");
         //console.log("mls-tax got msg: ", msg);
@@ -39,7 +39,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
 
 				totalValue: 0,
 				landValue: 0,
-				improvementValue: 0
+				improvementValue: 0,
+				taxSearchRequester: msg.todo
 			})
 
 			btnSearch.click();
