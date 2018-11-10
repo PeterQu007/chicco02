@@ -220,7 +220,15 @@ var computeSFPrices = {
 					if (changes.from.newValue.indexOf('assess') > -1 && changes.from.newValue.indexOf('ForSpreadSheet') > -1) {
                         self.updateAssess();
                         //do next tax search:
-                        self.searchTax();
+                        //self.sleep(2000); // 90 listing records cost 7 minutes
+                        //self.sleep(1000); // 90 listing records cost 3.5 minutes
+                        //self.sleep(500); //Trigger error: Unchecked runtime.lastError: This request exceeds the MAX_WRITE_OPERATIONS_PER_HOUR quota.
+                                            //chrome-extension://lgbkgggiieaokaancjejpfbagjalaoil/_generated_background_page.html
+                        //self.sleep(800);//not work, trigger error at record No 51
+                        setTimeout(function(){
+                            this.searchTax();
+                        }.bind(self), 1000);
+                        
 					};
 					if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
 						self.updateComplexListingQuan(changes);
@@ -233,6 +241,15 @@ var computeSFPrices = {
 
 			});
 		})(this);
+    },
+
+    sleep: function(milliseconds) {
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+          if ((new Date().getTime() - start) > milliseconds){
+            break;
+          }
+        }
     },
     
     searchTax: function () {
@@ -344,38 +361,10 @@ var computeSFPrices = {
 			var marketValuePerSF = '';
 			//var houseType = self.houseListingType;
 			var dataFromDB = result.dataFromDB;
-			//console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
-			// if (totalValue != 0) {
-			// 	if (soldPrice > 0) {
-			// 		var changeValue = soldPrice - intTotalValue;
-			// 		var changeValuePercent = changeValue / intTotalValue * 100;
-			// 		marketLotValuePerSF = (soldPrice * land2TotalRatio / 100 / lotAreaInSquareFeet).toFixed(0);
-			// 		marketHouseValuePerSF = (soldPrice * house2TotalRatio / 100 / finishedFloorArea).toFixed(0);
-			// 	} else {
-			// 		var changeValue = listPrice - intTotalValue;
-			// 		var changeValuePercent = changeValue / intTotalValue * 100;
-			// 		marketLotValuePerSF = (listPrice * land2TotalRatio / 100 / lotAreaInSquareFeet).toFixed(0);
-			// 		marketHouseValuePerSF = (listPrice * house2TotalRatio / 100 / finishedFloorArea).toFixed(0);
-			// 	}
-			// }
-			// if (houseType == 'Detached') {
-			// 	var bcaLandValuePerSF = (intLandValue / lotAreaInSquareFeet).toFixed(0);
-			// 	var bcaHouseValuePerSF = (intImprovementValue / finishedFloorArea).toFixed(0);
-			// 	landValuePerSF = '[ $' + bcaLandValuePerSF.toString() + '/sf ]';
-			// 	//console.log('landValue / lotArea', intLandValue, lotAreaInSquareFeet);
-			// 	houseValuePerSF = '[ $' + bcaHouseValuePerSF.toString() + '/sf ]';
-			// 	//console.log('houseValue / finishedArea', intImprovementValue, finishedFloorArea);
-			// 	if (soldPrice > 0) {
-			// 		var soldOldTimerPerSF = (soldPrice / lotAreaInSquareFeet).toFixed(0).toString();
-			// 		olderTimerLotValuePerSF = 'OT Lot/SF sold$' + soldOldTimerPerSF + ' /bca$' + (intTotalValue / lotAreaInSquareFeet).toFixed(0).toString();
-			// 	} else {
-			// 		var listOldTimerPerSF = (listPrice / lotAreaInSquareFeet).toFixed(0).toString();
-			// 		olderTimerLotValuePerSF = 'OT Lot/SF list$' + listOldTimerPerSF + ' /bca$' + (intTotalValue / lotAreaInSquareFeet).toFixed(0).toString();
-			// 	}
-            // }
-            
+		            
             var i = 0;
             var price = 0;
+            var rowNumber = [];
             for (i=0; i<self.table.length; i++){
                 if (pid == self.table[i][4]){
                     self.table[i][5] = landValue;
@@ -383,7 +372,7 @@ var computeSFPrices = {
                     self.table[i][7] = totalValue;
                     self.table[i][10] = true; // tax done
                     price = parseInt(self.table[i][1]);
-
+                    rowNumber.push(self.table[i][0]) ;
                     if (totalValue != 0) {
                        
                         var changeValue = price - intTotalValue;
@@ -394,28 +383,24 @@ var computeSFPrices = {
                 }
             }
 
-            console.log('SpreadSheet: table & landValue=> ', self.table, landValue);
+            console.log('SpreadSheet: table & landValue=> ', /*self.table,*/ landValue, rowNumber);
 
             var x = $('table#grid tbody');
             var rows = x.children('tr');
 
             var i ;
-            for (i=1; i<rows.length; i++){
-                $($(rows[i]).children('td')[32]).text(self.table[i-1][5]);
-                $($(rows[i]).children('td')[33]).text(self.table[i-1][6]);
-                $($(rows[i]).children('td')[34]).text(self.table[i-1][7]);
-                $($(rows[i]).children('td')[35]).text(self.table[i-1][8]+'%');
+            for (i=0; i<rowNumber.length; i++){
+                var j = rowNumber[i];
+                if(self.table[j-1][10]){
+                    $($(rows[j]).children('td')[32]).text(self.table[j-1][5]);
+                    $($(rows[j]).children('td')[33]).text(self.table[j-1][6]);
+                    $($(rows[j]).children('td')[34]).text(self.table[j-1][7]);
+                    $($(rows[j]).children('td')[35]).text(self.table[j-1][8]+'%');
+                }
+                
             }
 
-			// self.bcAssess.text((dataFromDB ? 'total:  ' : 'total*:  ') + $fx.removeDecimalFraction(totalValue));
-			// self.bcLand.text('land:  ' + $fx.removeDecimalFraction(landValue) + landValuePerSF);
-			// self.bcImprovement.text('house:' + $fx.removeDecimalFraction(improvementValue) + houseValuePerSF);
-			// self.bcLand2ImprovementRatio.text(land2TotalRatio.toString() + '%L-T ' + house2TotalRatio.toString() + '%H-T ' + land2HouseRatio.toString() + 'L-H');
-			// self.valueChange.text("$" + $fx.numberWithCommas(changeValue.toFixed(0)) + " [ " + changeValuePercent.toFixed(0).toString() + '% ]   ');
-			// self.oldTimerLotValuePerSF.text(olderTimerLotValuePerSF);
-			// self.marketValuePerSF.text('Lot:$' + marketLotValuePerSF.toString() + '/SF' + ' | Impv:$' + marketHouseValuePerSF.toString() + '/SF')
-			// self.lotArea.text($fx.numberWithCommas($fx.convertStringToDecimal(lotAreaInSquareFeet, true)));
-			// self.formalAddress.text(formalAddress);
+		
 		})
 	},
 }

@@ -159,6 +159,7 @@ console.clear();
 
 			//console.log(">>>I got save tax info: ");
 			var assess = request.taxData;
+			assess._id = assess.PID + taxYear;
 			db.writeAssess(assess);
 			sendResponse(assess);
 
