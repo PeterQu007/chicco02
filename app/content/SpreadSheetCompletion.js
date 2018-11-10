@@ -17,24 +17,31 @@ var computeSFPrices = {
 
     init: function () {
         //console.clear();
-        console.log("Compute Square Feet Price- Document URL: ",document.URL)
+        console.log("Spreadsheet Document URL: ", document.URL)
         //link to iframe's tabID
         this.tabID = $fx.getTabID(document.URL); //prefixed with # id-sign
-    
+        this.tabNo = parseInt(this.tabID.replace('#tab',''));
+        var x = $('ul#tab-bg', top.document); //find the top tab panel
+        var y = x.children('li')[this.tabNo];
+        this.tabTitle = $(y).children().find('span').text().trim();
+        console.warn('tabID, tabNo, tabTitle', this.tabID, this.tabNo, this.tabTitle);
+        this.setCols(this.tabTitle);
         //tax search result also use spreadsheet, does not apply here
-        if (this.tabID != '#tab1'){
+        if (this.tabID >= '#tab3'){
             this.lockVisibility();
             this.$tabContentContainer = $('div' + this.tabID, top.document)
             //this.onMessage();
-            this.tabTitle = this.getTabTitle(this.tabID);
-            console.warn('tabID, tabTitle', this.tabID, this.tabTitle);
-            this.OnTabTitle();
+                //this.tabTitle = this.getTabTitle(this.tabID);
+                //console.warn('tabID, tabTitle', this.tabID, this.tabTitle);
+                //this.OnTabTitle();
             this.$spreadSheet = $('#ifSpreadsheet');
             this.$searchCount = $('#SearchCount', parent.document);
             this.$grid = $('#grid');
             
-            //this.recordCount = $fx.getRecordCount(parent.document.URL); // recordCount is embedded in the URL 
-            this.recordCount = parseInt(this.$searchCount.text());
+            this.recordCount = $fx.getRecordCount(parent.document.URL); // recordCount is embedded in the URL 
+            if (this.recordCount == 0){
+                this.recordCount = parseInt(this.$searchCount.text());
+            }
             console.log("record Count: ", this.recordCount);
            
             //Hook up events:
@@ -48,6 +55,7 @@ var computeSFPrices = {
     },
 
     tabID: null,
+    tabNo: 0,
     tabTitle: null,
     uiTable: new uiSummaryTable(),
     $spreadSheet: null,
@@ -57,10 +65,11 @@ var computeSFPrices = {
     recordCount: 0,
     recordPointer: 0,
     table: [],
+    cols: null,
 
     onMutation(){
         var self = this;
-        var loading = document.querySelector('#grid tbody');
+        var loading = document.querySelector('#grid tbody'); //monitor the #grid tbody, check the listing records
         var $mutationObserver = new MutationObserver(function(mutations) {
             
             mutations.forEach(function(mutation) {
@@ -74,96 +83,97 @@ var computeSFPrices = {
               
                 var x = $('table#grid tbody');
                 var rows = x.children('tr');
-                self.recordCount = parseInt(self.$searchCount.text());
-
-                console.log("Table Rows currently is: ", x.children('tr').length, "RecordCount: ", self.recordCount);
-                if (x.children('tr').length-1 == self.recordCount){
+                //self.recordCount = parseInt(self.$searchCount.text());
+          
+                if (x.children('tr').length-1 == self.recordCount){ //reach the bottom of the listing table
 
                     console.log("reach the bottom of the TABLE");
-                }
-                var x0 = $("div#dialogStats", parent.document);
-                
-                self.uiTable.showUI(x0);
-                //self.uiTable.setHighPSF(250);
-                var i;
-                var row = []; //current row
-                var col14 = []; //List Price
-                var col22 = []; //FloorArea
-                var col23 = []; //Listed / asking Price per SqFt
-                var col24 = []; //Sold Price Per SqFt
-                var col31_PID = []; //PID Column
-                var col32_LandValue = []; //Land Value Colum
-                var col33_ImprovementValue =[]; // Improvement Value 
-                var col34_TotalAssess = []; // Total Assessment Value
-                var col35_ValueChange = []; // Computed column for total value change percentage
-                var col36_PlanNum = []; // Strata Plan Number
-                var listPricePSF = []; //for listPrice Per Square Feet
-                var sumPSFListedPrice = 0; //keep the sum of listing price per sf
-                var sumPSFSoldPrice = 0; //keep the sum of sold price per sf
-                var countSoldListing = 0; //keep the count of sold listings
-                var soldPricePSF; //keep the sold price per square feet
-                var ListingPricePSF; //keep the listing price per square feet
-                for (i=1; i<rows.length; i++){ ////i=1; i<rows.length; i++
-                    //console.log(rows[i], $(rows[i]).children('td')[24]);
-                    row.push(i);
-                    var listPrice = $fx.convertStringToDecimal($(rows[i]).children('td')[14].textContent); 
-                    col14.push(listPrice);
-                    row.push(listPrice);
-                    var floorArea = $fx.convertStringToDecimal($(rows[i]).children('td')[22].textContent); 
-                    col22.push(floorArea);
-                    row.push(floorArea);
-                    
-                    ListingPricePSF = Number(Number(col14[col14.length-1]/col22[col22.length-1]).toFixed(2));
-                    sumPSFListedPrice += ListingPricePSF;
-                    listPricePSF.push(ListingPricePSF);
+                    self.recordCount = parseInt(self.$searchCount.text());
+                    console.log("Table Rows currently is: ", x.children('tr').length, "RecordCount: ", self.recordCount);
+                    var x0 = $("div#dialogStats", parent.document); // for adding the summary box
+                    self.uiTable.showUI(x0);
 
-                    var listingAskingPricePSF = $fx.convertStringToDecimal($(rows[i]).children('td')[23].textContent, true);
-                    col23.push(listingAskingPricePSF);
-                    row.push(listingAskingPricePSF);
+                    var i;
+                    var row = []; //current row
+                    var col14_ListPrice = []; //List Price
+                    var col22_FloorArea = []; //FloorArea
+                    var col23_ListingPrice = []; //Listed / asking Price per SqFt
+                    var col24_SoldPrice = []; //Sold Price Per SqFt
+                    var col31_PID = []; //PID Column
+                    var col32_LandValue = []; //Land Value Colum
+                    var col33_ImprovementValue =[]; // Improvement Value 
+                    var col34_TotalAssess = []; // Total Assessment Value
+                    var col35_ValueChange = []; // Computed column for total value change percentage
+                    var col36_PlanNum = []; // Strata Plan Number
+                    var listPricePSF = []; //for listPrice Per Square Feet
+                    var sumPSFListedPrice = 0; //keep the sum of listing price per sf
+                    var sumPSFSoldPrice = 0; //keep the sum of sold price per sf
+                    var countSoldListing = 0; //keep the count of sold listings
+                    var soldPricePSF; //keep the sold price per square feet
+                    var ListingPricePSF; //keep the listing price per square feet
+                    for (i=1; i<rows.length; i++){ ////i=1; i<rows.length; i++
+                        //console.log(rows[i], $(rows[i]).children('td')[24]);
+                        row.push(i);
+                        var listPrice = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.ListPrice].textContent); 
+                        col14_ListPrice.push(listPrice);
+                        row.push(listPrice);
+                        var floorArea = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.TotalFloorArea].textContent); 
+                        col22_FloorArea.push(floorArea);
+                        row.push(floorArea);
+                        
+                        ListingPricePSF = Number(Number(col14_ListPrice[col14_ListPrice.length-1]/col22_FloorArea[col22_FloorArea.length-1]).toFixed(2));
+                        sumPSFListedPrice += ListingPricePSF;
+                        listPricePSF.push(ListingPricePSF);
 
-                    soldPricePSF = $fx.convertStringToDecimal($(rows[i]).children('td')[24].textContent);
-                    if (soldPricePSF>0){
-                        countSoldListing++;
-                        col24.push(soldPricePSF);
-                        sumPSFSoldPrice += soldPricePSF;
-                    } 
-                    //Search PID for tax info
-                    self.recordPointer = i-1;
-                    var pid = $(rows[i]).children('td')[31].textContent;
-                    col31_PID.push(pid);
-                    row.push(pid);
-                    col32_LandValue.push(0);
-                    row.push(0);
-                    col33_ImprovementValue.push(0);
-                    row.push(0);
-                    col34_TotalAssess.push(0);
-                    row.push(0);
-                    col35_ValueChange.push(0);
-                    row.push(0);
-                    col36_PlanNum.push('');
-                    row.push(0);
-                    row.push(false);
-                    self.table.push(row);
-                    row = [];
+                        var listingAskingPricePSF = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.PricePSF].textContent, true);
+                        col23_ListingPrice.push(listingAskingPricePSF);
+                        row.push(listingAskingPricePSF);
+
+                        soldPricePSF = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.SoldPricePSF].textContent);
+                        if (soldPricePSF>0){
+                            countSoldListing++;
+                            col24_SoldPrice.push(soldPricePSF);
+                            sumPSFSoldPrice += soldPricePSF;
+                        } 
+                        //Search PID for tax info
+                        self.recordPointer = i-1;
+                        var pid = $(rows[i]).children('td')[self.cols.PID].textContent;
+                        col31_PID.push(pid);
+                        row.push(pid);
+                        col32_LandValue.push(0);
+                        row.push(0);
+                        col33_ImprovementValue.push(0);
+                        row.push(0);
+                        col34_TotalAssess.push(0);
+                        row.push(0);
+                        col35_ValueChange.push(0);
+                        row.push(0);
+                        col36_PlanNum.push('');
+                        row.push(0);
+                        row.push(false);
+                        self.table.push(row);
+                        row = [];
+                    }
+                    var avgListedSFP = (sumPSFListedPrice / self.recordCount).toFixed(0);
+                    var avgSoldSFP = (sumPSFSoldPrice / countSoldListing).toFixed(0);
+                    //console.log(col14, col22, col23, listPricePSF, col24, avgListedSFP, avgSoldSFP);
+                    console.log("SpreadSheet Table is: ",self.table);
+                    self.uiTable.setHighListedSFP(Math.max(...col23_ListingPrice).toFixed(0));
+                    self.uiTable.setHighSoldSFP(Math.max(...col24_SoldPrice).toFixed(0));
+                    self.uiTable.setLowListedSFP(Math.min(...col23_ListingPrice).toFixed(0));
+                    self.uiTable.setLowSoldSFP(Math.min(...col24_SoldPrice).toFixed(0));
+                    self.uiTable.setAvgListedSFP(avgListedSFP);
+                    self.uiTable.setAvgSoldSFP(avgSoldSFP);
+                    self.uiTable.setMedianListedSFP(math.chain(col23_ListingPrice).median().round(0).done());
+                    if (col24_SoldPrice.length ==0){
+                        col24_SoldPrice.push(0);
+                    }
+                    self.uiTable.setMedianSoldSFP(math.chain(col24_SoldPrice).median().round(0).done());
+                    self.searchTax();
                 }
-                var avgListedSFP = (sumPSFListedPrice / self.recordCount).toFixed(0);
-                var avgSoldSFP = (sumPSFSoldPrice / countSoldListing).toFixed(0);
-                //console.log(col14, col22, col23, listPricePSF, col24, avgListedSFP, avgSoldSFP);
-                console.log("SpreadSheet Table is: ",self.table);
-                self.uiTable.setHighListedSFP(Math.max(...col23).toFixed(0));
-                self.uiTable.setHighSoldSFP(Math.max(...col24).toFixed(0));
-                self.uiTable.setLowListedSFP(Math.min(...col23).toFixed(0));
-                self.uiTable.setLowSoldSFP(Math.min(...col24).toFixed(0));
-                self.uiTable.setAvgListedSFP(avgListedSFP);
-                self.uiTable.setAvgSoldSFP(avgSoldSFP);
-                self.uiTable.setMedianListedSFP(math.chain(col23).median().round(0).done());
-                if (col24.length ==0){
-                    col24.push(0);
-                }
-                self.uiTable.setMedianSoldSFP(math.chain(col24).median().round(0).done());
-                self.searchTax();
+    
             });
-          });
+        });
 
         $mutationObserver.observe(loading, {
             attributes: true,
@@ -172,7 +182,7 @@ var computeSFPrices = {
             subtree: false,
             attributeOldValue: true,
             characterDataOldValue: true
-          });
+        });
     },
 
     highLightCol25(){
@@ -184,31 +194,31 @@ var computeSFPrices = {
         }
     },
 
-    OnTabTitle: function () {
-        let self = this;
-        chrome.storage.onChanged.addListener(function (changes, area) {
+    // OnTabTitle: function () {
+    //     let self = this;
+    //     chrome.storage.onChanged.addListener(function (changes, area) {
             
-            if (area == "sync" && "todo" in changes) {
-                if (changes.todo.newValue.indexOf('getTabTitle') > -1) {
-                    console.log("command::getTabTitle:", changes.todo.newValue);
-                    chrome.storage.sync.get(['getTabTitle','from', 'showTabQuickSearch'], function (result) {
-                        self.tabTitle = result.getTabTitle;
-                        console.log("OnTabTitle.getTabTitle:", result);
-                        //showQuickSearchTab
-                        if (!result.showTabQuickSearch && result.getTabTitle.trim()=="Quick Search") {
-                            chrome.storage.sync.set(
-                                {
-                                    from: 'QuickSearch' ,
-                                    todo: 'hideQuickSearch'+ Math.random().toFixed(8),
-                                    tabID: self.tabID
-                                }
-                            )
-                        }
-                    })
-                };
-            }
-        })
-    },
+    //         if (area == "sync" && "todo" in changes) {
+    //             if (changes.todo.newValue.indexOf('getTabTitle') > -1) {
+    //                 console.log("command::getTabTitle:", changes.todo.newValue);
+    //                 chrome.storage.sync.get(['getTabTitle','from', 'showTabQuickSearch'], function (result) {
+    //                     self.tabTitle = result.getTabTitle;
+    //                     console.log("OnTabTitle.getTabTitle:", result);
+    //                     //showQuickSearchTab
+    //                     if (!result.showTabQuickSearch && result.getTabTitle.trim()=="Quick Search") {
+    //                         chrome.storage.sync.set(
+    //                             {
+    //                                 from: 'QuickSearch' ,
+    //                                 todo: 'hideQuickSearch'+ Math.random().toFixed(8),
+    //                                 tabID: self.tabID
+    //                             }
+    //                         )
+    //                     }
+    //                 })
+    //             };
+    //         }
+    //     })
+    // },
 
     OnTaxSearch: function () {
 
@@ -243,14 +253,14 @@ var computeSFPrices = {
 		})(this);
     },
 
-    sleep: function(milliseconds) {
-        var start = new Date().getTime();
-        for (var i = 0; i < 1e7; i++) {
-          if ((new Date().getTime() - start) > milliseconds){
-            break;
-          }
-        }
-    },
+    // sleep: function(milliseconds) {
+    //     var start = new Date().getTime();
+    //     for (var i = 0; i < 1e7; i++) {
+    //       if ((new Date().getTime() - start) > milliseconds){
+    //         break;
+    //       }
+    //     }
+    // },
     
     searchTax: function () {
 		
@@ -292,46 +302,46 @@ var computeSFPrices = {
 		chrome.storage.sync.set({curTabID: this.tabID});
 	},
 
-    getTabTitle: function (tabID) {
-        chrome.runtime.sendMessage({
-            todo: 'getTabTitle',
-            from: 'quickSearch',
-            tabID: tabID
-        }, function (response) {
-            //self.tabTitle = response.tabTitle;
-            //self.updateQuickSearchTabStatus();
-            console.warn('QuickSearch.getTabTitle::', response);
-            return response;
-        })
-    },
+    // getTabTitle: function (tabID) {
+    //     chrome.runtime.sendMessage({
+    //         todo: 'getTabTitle',
+    //         from: 'quickSearch',
+    //         tabID: tabID
+    //     }, function (response) {
+    //         //self.tabTitle = response.tabTitle;
+    //         //self.updateQuickSearchTabStatus();
+    //         console.warn('QuickSearch.getTabTitle::', response);
+    //         return response;
+    //     })
+    // },
 
-    getTabStatus: function () {
-        let self = this;
-        chrome.storage.sync.get('showTabQuickSearch', function (result) {
+    // getTabStatus: function () {
+    //     let self = this;
+    //     chrome.storage.sync.get('showTabQuickSearch', function (result) {
 
-            if (result.showTabQuickSearch) {
-                self.showQuickSearch();
-            } else {
-                self.hideQuickSearch();
-            }
-        })
-    },
+    //         if (result.showTabQuickSearch) {
+    //             self.showQuickSearch();
+    //         } else {
+    //             self.hideQuickSearch();
+    //         }
+    //     })
+    // },
 
-    showQuickSearch: function () {
-        chrome.runtime.sendMessage({
-            from: 'QuickSearch',
-            todo: 'showQuickSearch',
-            tabID: this.tabID
-        })
-    },
+    // showQuickSearch: function () {
+    //     chrome.runtime.sendMessage({
+    //         from: 'QuickSearch',
+    //         todo: 'showQuickSearch',
+    //         tabID: this.tabID
+    //     })
+    // },
 
-    hideQuickSearch: function () {
-        chrome.runtime.sendMessage({
-            from: 'QuickSearch',
-            todo: 'hideQuickSearch',
-            tabID: this.tabID
-        })
-    },
+    // hideQuickSearch: function () {
+    //     chrome.runtime.sendMessage({
+    //         from: 'QuickSearch',
+    //         todo: 'hideQuickSearch',
+    //         tabID: this.tabID
+    //     })
+    // },
 
     updateAssess: function () {
 		var self = this;
@@ -392,17 +402,79 @@ var computeSFPrices = {
             for (i=0; i<rowNumber.length; i++){
                 var j = rowNumber[i];
                 if(self.table[j-1][10]){
-                    $($(rows[j]).children('td')[32]).text(self.table[j-1][5]);
-                    $($(rows[j]).children('td')[33]).text(self.table[j-1][6]);
-                    $($(rows[j]).children('td')[34]).text(self.table[j-1][7]);
-                    $($(rows[j]).children('td')[35]).text(self.table[j-1][8]+'%');
+                    $($(rows[j]).children('td')[self.cols.LandValue]).text(self.table[j-1][5]);
+                    $($(rows[j]).children('td')[self.cols.improvementValue]).text(self.table[j-1][6]);
+                    $($(rows[j]).children('td')[self.cols.totalValue]).text(self.table[j-1][7]);
+                    $($(rows[j]).children('td')[self.cols.changeValuePercent]).text(self.table[j-1][8]+'%');
                 }
                 
             }
 
 		
 		})
-	},
+    },
+    
+    setCols: function(tabTitle){
+        //set Spreadsheet column position by numbers
+        this.cols=null;
+        var cols = null;
+        switch(tabTitle){
+            case 'Quick Search':
+            case 'Listing Carts':
+                cols = {
+                    Status: 8,
+                    Price: 12,
+                    ListPrice: 13,
+                    SoldPrice: 14,
+                    TotalFloorArea: 15,
+                    PricePSF: 16,
+                    SoldPricePSF: 17,
+                    PID: 22,
+                    LandValue: 23,
+                    improvementValue: 24,
+                    totalValue: 25,
+                    changeValuePercent: 26,
+                    strataPlan: 27
+                }
+                break;
+            case 'Residential Attached':
+                cols = {
+                    Status: 8,
+                    Price: 12,
+                    ListPrice: 14,
+                    SoldPrice: 18,
+                    TotalFloorArea: 22,
+                    PricePSF: 23,
+                    SoldPricePSF: 24,
+                    PID: 31,
+                    LandValue: 32,
+                    improvementValue: 33,
+                    totalValue: 34,
+                    changeValuePercent: 35,
+                    strataPlan: 36
+                }
+                break;
+            default:
+                cols = {
+                    Status: 8,
+                    Price: 12,
+                    ListPrice: 14,
+                    SoldPrice: 18,
+                    TotalFloorArea: 22,
+                    PricePSF: 23,
+                    SoldPricePSF: 24,
+                    PID: 31,
+                    LandValue: 32,
+                    improvementValue: 33,
+                    totalValue: 34,
+                    changeValuePercent: 35,
+                    strataPlan: 36
+                }
+                break;
+        }
+        this.cols = cols;
+        
+    }
 }
 
 //entry point:

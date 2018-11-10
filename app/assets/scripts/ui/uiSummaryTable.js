@@ -22,12 +22,12 @@ export default class UISummaryTable {
                                     </tr>
                                     <tr align="right">
                                         <td>
-                                            LIST PRICE / SF:
+                                            LP/SF:
                                         </td>
                                     </tr>
                                     <tr align="right">
                                         <td>
-                                            SOLD PRICE / SF:
+                                            SP/SF:
                                         </td>
                                     </tr>
                                 </tbody></table>
@@ -51,44 +51,44 @@ export default class UISummaryTable {
                                     <tr align="center">
                                         <td>
                                             <div id="HighAskingPricePSF" class="f-summary-data-box">
-                                                $548
+                                                $0
                                             </div>
                                         </td>
                                         <td>
                                             <div id="LowAskingPricePSF" class="f-summary-data-box">
-                                                $399
+                                                $0
                                             </div>
                                         </td>
                                         <td>
                                             <div id="AverageAskingPricePSF" class="f-summary-data-box">
-                                                $479
+                                                $0
                                             </div>
                                         </td>
                                         <td>
                                             <div id="MedianAskingPricePSF" class="f-summary-data-box">
-                                                $477
+                                                $0
                                             </div>
                                         </td>                                        
                                      </tr>
                                     <tr align="center">
                                         <td>
                                             <div id="HighSoldPricePSF" class="f-summary-data-box">
-                                                $500
+                                                $0
                                             </div>
                                         </td>
                                         <td>
                                             <div id="LowSoldPricePSF" class="f-summary-data-box">
-                                                $420
+                                                $0
                                             </div>
                                         </td>
                                         <td>
                                             <div id="AverageSoldPricePSF" class="f-summary-data-box">
-                                                $465
+                                                $0
                                             </div>
                                         </td>
                                         <td>
                                             <div id="MedianSoldPrice" class="f-summary-data-box">
-                                                $475
+                                                $0
                                             </div>
                                         </td>                                        
                                     </tr>

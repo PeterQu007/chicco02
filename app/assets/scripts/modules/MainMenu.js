@@ -17,6 +17,7 @@ export default class MainMenu{
         this.chkLanguage.insertAfter(this.appLeftBanner);
         this.taxSearch = $('a[url="/ParagonLS/Search/Tax.mvc?DBid=1&countyID=1"]');
         this.savedSearches = $('a[url="/ParagonLS/Search/Property.mvc/LoadSavedSearch"]');
+        this.listingCarts = $('a[url="/ParagonLS/Search/Property.mvc/ListingCarts/0?searchType=4"]');
         //console.info('New Main Menu Class works!');
         
         //add the tabs object to Main Menu.
@@ -29,6 +30,10 @@ export default class MainMenu{
 
     openSavedSearches() {
         this.savedSearches[0].click();
+    }
+
+    openListingCarts() {
+        this.listingCarts[0].click();
     }
 }
 

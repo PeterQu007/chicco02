@@ -18,6 +18,7 @@ let DefaultPage = {
         // Open frequently used tabs:
         this.mainMenu.openTaxSearch();
         this.mainMenu.openSavedSearches();
+        this.mainMenu.openListingCarts();
         this.mainNavBar = new MainNavBar();
         //console.log(this.topTabs);
         this.onMessage();
