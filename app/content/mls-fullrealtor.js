@@ -26,7 +26,8 @@ var fullRealtor = {
 		this.tabID = $fx.getTabID(window.frameElement.src);
 		console.warn('[FR]===>window.frameElement.id', this.tabID);
 		chrome.storage.sync.set({curTabID: this.tabID});
-		this.lockVisibility();
+		//this.lockVisibility();
+		this.addLock(this.tabID);
 		console.warn('[FR]===>tabContentContainer: ', this.tabContentContainer);
 		this.clearAssess();
 		this.houseListingType = this.houseType.text().replace(',', '').replace(' ', '');
@@ -108,6 +109,17 @@ var fullRealtor = {
 		divTaxSearch.attr("style", "display: none!important");
 		chrome.storage.sync.set({curTabID: this.tabID});
 	},
+
+	addLock: function(tabID) {
+        
+        chrome.runtime.sendMessage(
+            { from: 'FullRealtorReport', todo: 'addLock', tabID, tabID },
+            function (response) {
+                console.log('FullRealtorReport got tax response:', response);
+        
+            }
+        )
+    },
 
 	getMorePropertyInfo: function () {
 		var self = this;

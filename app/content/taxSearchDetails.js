@@ -25,7 +25,7 @@ let taxDetails = {
 	houseType: null,
 
 	newTaxAssessRecord: false,
-
+	
 	init: function () {
 
 		let self = this;
@@ -36,7 +36,7 @@ let taxDetails = {
 			console.log('TopPosition: ', self.ActualTotalsTopPosition);
 
 			self.getTaxReportDetails();
-
+			
 			let assess = {
 				_id: self.pid + '-' + result.taxYear,
 				landValue: self.landValue,
@@ -56,37 +56,45 @@ let taxDetails = {
 				from: 'assess-'+ result.taxSearchRequester + '-' + Math.random().toFixed(8),
 				dataFromDB: false 
 			};
+
+			if (self.newTaxAssessRecord){
+				assess.from = 'assess-'+ result.taxSearchRequester + '-TaxSearchFailed-' + Math.random().toFixed(8)
+			}
+	
 			chrome.storage.sync.set(assess, function () {
 				console.log('TaxDetails.bcAssessment is...', assess);
-				self.getReportLink(function () {
-					self.reportLink[0].click();
-					console.log("1 Current Tab When Doing Tax Search is : ", curTabID);
-					let curTabContentContainer = $('div' + curTabID, top.document);
-					curTabContentContainer.attr("style", "display:block!important");
-				});
+				// self.getReportLink(function () {
+				// 	self.reportLink[0].click();
+				// 	console.log("1 Current Tab When Doing Tax Search is : ", curTabID);
+				// 	let curTabContentContainer = $('div' + curTabID, top.document);
+				// 	curTabContentContainer.attr("style", "display:block!important");
+				// });
 			});
-			chrome.runtime.sendMessage(
-				{
-					todo: 'saveTax',
-					taxData: assess,
-				},
-				function (response) {
-					console.log('tax Data has been save to the database!');
-				}
-			);
+			if(!self.newTaxAssessRecord){
+				chrome.runtime.sendMessage(
+					{
+						todo: 'saveTax',
+						taxData: assess,
+					},
+					function (response) {
+						console.log('tax Data has been save to the database!');
+					}
+				);
+			}
+			
 		})
 	},
 
-	getReportLink: function (callback) {
-		let self = this;
-		chrome.storage.sync.get('curTabID', function (result) {
-			console.log("2 Current Tab When Doing Tax Search is : ", result.curTabID);
-			self.reportLink = $('div#app_tab_switcher a[href="' + result.curTabID + '"]', top.document);
-			console.log(self.reportLink);
-			curTabID = result.curTabID;
-			callback();
-		});
-	},
+	// getReportLink: function (callback) {
+	// 	let self = this;
+	// 	chrome.storage.sync.get('curTabID', function (result) {
+	// 		console.log("2 Current Tab When Doing Tax Search is : ", result.curTabID);
+	// 		self.reportLink = $('div#app_tab_switcher a[href="' + result.curTabID + '"]', top.document);
+	// 		console.log(self.reportLink);
+	// 		curTabID = result.curTabID;
+	// 		callback();
+	// 	});
+	// },
 
 	getAssessClass: function(reportTitleClass){
 
@@ -130,6 +138,9 @@ let taxDetails = {
 					this.totalValue = x0[i+6].textContent;
 					if (this.landValue == '$0.00'){
 						this.newTaxAssessRecord=true;
+						this.landValue = 0;
+						this.improvementValue = 0;
+						this.totalValue = 0;
 					}else{
 						this.newTaxAssessRecord=false;
 					}
@@ -153,7 +164,15 @@ let taxDetails = {
 					this.bcaDataUpdateDate = x0[i+1].textContent;
 				}
 			}
-			
+		
+		}
+		if (! this.totalValue){
+			this.newTaxAssessRecord = true;
+			this.landValue = 0;
+			this.improvementValue = 0;
+			this.totalValue = 0;
+		}else{
+			this.newTaxAssessRecord = false;
 		}
 	},
 	//Revision 0, legacy version

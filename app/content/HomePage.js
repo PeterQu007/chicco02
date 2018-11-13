@@ -2,7 +2,7 @@
 // inject to Paragon's Url: http://bcres.paragonrels.com/ParagonLS/Default.mvc*
 // the messages are passed between the defaultpage and iframes, all are the content scripts
 
-import Tabs from '../assets/scripts/modules/mlsTabs';
+//import Tabs from '../assets/scripts/modules/mlsTabs';
 import MainNavBar, { mainNavItem } from '../assets/scripts/modules/MainNavBar';
 import MainMenu from '../assets/scripts/modules/MainMenu';
 
@@ -17,8 +17,9 @@ let DefaultPage = {
     init: function () {
         // Open frequently used tabs:
         this.mainMenu.openTaxSearch();
-        this.mainMenu.openSavedSearches();
         this.mainMenu.openListingCarts();
+        this.mainMenu.openSavedSearches();
+        
         this.mainNavBar = new MainNavBar();
         //console.log(this.topTabs);
         this.onMessage();
@@ -26,7 +27,7 @@ let DefaultPage = {
     },
 
     mainMenu: new MainMenu(),
-    tabs: new Tabs(),
+    //tabs: new Tabs(),
     mainNavBar: null,
 
     onMessage() {
@@ -125,12 +126,20 @@ let DefaultPage = {
                     console.groupEnd();
                 }
 
-                //close quicksearchTab
-                // if (request.todo == 'closeQuickSearchTab') {
-                //     console.group('closeQuickSearchTab', request.from);
-                //     self.topTabs.closeQuickSearchTab();
-                //     console.groupEnd();
-                // }
+                //get TabTitle by TabID
+                if (request.todo == 'addLock') {
+                    console.group('addLock', request.tabID);
+                    // self.mainNavBar.mainNavItems.forEach(function (navItem) {
+                    //     if (navItem.ID == request.tabID) {
+                    //         console.log('find tabTitle:', navItem.ID, navItem.Title);
+                    //         sendResponse({ tabID: navItem.ID, tabTitle: navItem.Title })
+                    //     }
+                    // })
+                    self.mainNavBar.update();
+                    self.mainNavBar.addLock(request.tabID);
+                    console.groupEnd();
+                }
+
             });
         }(this));
     },

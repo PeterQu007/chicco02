@@ -231,6 +231,26 @@ console.clear();
 			});
 			//check(result); //wait for 1 sec, stop eventPage hit the exit point, send out null response
 		}
+
+		if(request.todo == "addLock"){
+			//get command from sub content script to add lock to the sub content panel
+			console.log("Command: ", request.todo, request.from, request.tabID);
+			let result = null;
+			chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, 
+					{ todo: "addLock", tabID: request.tabID }, 
+					function(response){
+						result = response;
+						console.log("addLock response:", response);
+						// chrome.storage.sync.set(
+						// 	{getTabID:result.tabID, 
+						// 	getTabTitle:result.tabTitle,
+						// 	todo: 'getTabTitle'+Math.random().toFixed(8),
+						// 	from: 'EventPage.getTabTitle'});
+						sendResponse(response);
+					})
+			});
+		}
 	});
 
 	//End of Main Function

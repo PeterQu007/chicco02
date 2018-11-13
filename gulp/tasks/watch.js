@@ -65,6 +65,7 @@ gulp.task('html', function() {
 
 gulp.task('scriptsRefresh', ['scripts'], function() {
 	browserSync.reload();
+	console.log('\x07');
 });
 
 gulp.task('default', ['watch']);

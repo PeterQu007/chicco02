@@ -28,7 +28,8 @@ var computeSFPrices = {
         this.setCols(this.tabTitle);
         //tax search result also use spreadsheet, does not apply here
         if (this.tabID >= '#tab3'){
-            this.lockVisibility();
+            //this.lockVisibility();
+            this.addLock(this.tabID);
             this.$tabContentContainer = $('div' + this.tabID, top.document)
             //this.onMessage();
                 //this.tabTitle = this.getTabTitle(this.tabID);
@@ -225,10 +226,18 @@ var computeSFPrices = {
 		(function onEvents(self) {
 
 			chrome.storage.onChanged.addListener(function (changes, area) {
-				console.log("====>Spreadsheet : got a message: !", changes);
+                console.log("====>Spreadsheet : got a message: !", changes);
+                if(self.$spreadSheet.css('display') == 'none'){
+                    return;
+                }
 				if (area == "sync" && "from" in changes) {
 					if (changes.from.newValue.indexOf('assess') > -1 && changes.from.newValue.indexOf('ForSpreadSheet') > -1) {
-                        self.updateAssess();
+                        if(changes.from.newValue.indexOf('-TaxSearchFailed')>-1){
+                            self.updateAssessWhenTaxSearchFailed();
+                        }else{
+                            self.updateAssess();
+                        }
+                        
                         //do next tax search:
                         //self.sleep(2000); // 90 listing records cost 7 minutes
                         //self.sleep(1000); // 90 listing records cost 3.5 minutes
@@ -269,7 +278,7 @@ var computeSFPrices = {
         var unTaxed = 0;
         for (i=0; i<self.table.length; i++)
             {
-                if (!self.table[i][10]){
+                if (!self.table[i][10]){ //if not yet done tax search
 
                     unTaxed = i;
                     var pid  = self.table[unTaxed][4];
@@ -300,7 +309,18 @@ var computeSFPrices = {
 		divTab.attr("style", "display: block!important");
 		divTaxSearch.attr("style", "display: none!important");
 		chrome.storage.sync.set({curTabID: this.tabID});
-	},
+    },
+    
+    addLock: function(tabID) {
+        
+        chrome.runtime.sendMessage(
+            { from: 'SpreadSheet', todo: 'addLock', tabID, tabID },
+            function (response) {
+                console.log('SpreadSheet got tax response:', response);
+        
+            }
+        )
+    },
 
     // getTabTitle: function (tabID) {
     //     chrome.runtime.sendMessage({
@@ -394,6 +414,59 @@ var computeSFPrices = {
             }
 
             console.log('SpreadSheet: table & landValue=> ', /*self.table,*/ landValue, rowNumber);
+
+            var x = $('table#grid tbody');
+            var rows = x.children('tr');
+
+            var i ;
+            for (i=0; i<rowNumber.length; i++){
+                var j = rowNumber[i];
+                if(self.table[j-1][10]){
+                    $($(rows[j]).children('td')[self.cols.LandValue]).text(self.table[j-1][5]);
+                    $($(rows[j]).children('td')[self.cols.improvementValue]).text(self.table[j-1][6]);
+                    $($(rows[j]).children('td')[self.cols.totalValue]).text(self.table[j-1][7]);
+                    $($(rows[j]).children('td')[self.cols.changeValuePercent]).text(self.table[j-1][8]+'%');
+                }
+                
+            }
+
+		
+		})
+    },
+
+    updateAssessWhenTaxSearchFailed: function () {
+		var self = this;
+		// var listPrice = $fx.convertStringToDecimal(self.lp.text());
+		// var soldPrice = $fx.convertStringToDecimal(self.sp.text());
+		chrome.storage.sync.get(['PID','totalValue', 'improvementValue', 'landValue', 'dataFromDB'], function (result) {
+            var pid = result.PID;
+            var totalValue = result.totalValue;
+			var improvementValue = result.improvementValue;
+			var landValue = result.landValue;
+		
+			var dataFromDB = result.dataFromDB;
+		            
+            var i = 0;
+            var price = 0;
+            var rowNumber = [];
+            for (i=0; i<self.table.length; i++){
+                if (pid == self.table[i][4]){
+                    self.table[i][5] = landValue;
+                    self.table[i][6] = improvementValue;
+                    self.table[i][7] = totalValue;
+                    self.table[i][10] = true; // tax done
+                    
+                    rowNumber.push(self.table[i][0]) ;
+                    
+                    var changeValue = 0;
+                    var changeValuePercent = 0;
+                    self.table[i][8] = changeValuePercent;
+                        
+                    
+                }
+            }
+
+            console.log('SpreadSheet: table & landValue FAILED=> ', /*self.table,*/ landValue, rowNumber);
 
             var x = $('table#grid tbody');
             var rows = x.children('tr');
