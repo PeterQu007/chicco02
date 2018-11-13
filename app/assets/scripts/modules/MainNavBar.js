@@ -34,7 +34,7 @@ export default class MainNavBar {
         this.enableOnAddNewNavItem = false; //disable onAddNewTab event in the init
         this.onAddNewNavItem();
         //this.onRemoveNavItem();
-        this.onAddNewSubContentPanel();
+        //this.onAddNewSubContentPanel();
         // this.update();
         this.onClick();
         this.enableOnAddNewNavItem = true; //enable onAddNewTab event after the init
@@ -125,11 +125,16 @@ export default class MainNavBar {
         this.lockedNavItem = $(null);
 
         if(removeSubPanelStyle){
-            self.$subContentPanels.each(function(){
-                if (this.id !='HomeTab'){  //do not change Home Tab
-                    this.removeAttribute('style');
+            // self.$subContentPanels.each(function(){
+            //     if (this.id !='HomeTab'){  //do not change Home Tab
+            //         this.removeAttribute('style');
+            //     }
+            // });
+            self.mainNavItems.forEach(function(item,index){
+                if(item.tabID != '#HomeTab'){
+                    item.$tabContent.removeAttr('style');
                 }
-            });
+            })
         }
        
         this.mainNavItems.forEach(function (item) {
@@ -150,6 +155,25 @@ export default class MainNavBar {
         console.log("main Nav Bar updated!");
         console.log("active nav item is: ", self.curNavItem.Title);
         console.log("locked Nav Item is: ", self.lockedNavItem.Title);
+    }
+
+    removeNavItem(tabID){
+        
+        var self = this;
+        var $removeItem = null;
+        var $removeContent = null;
+        var removeItemPosition = 0;
+
+        this.mainNavItems.forEach(function(item,index){
+            if(item.tabID == tabID){
+                $removeItem = item.$me;
+                $removeContent = item.$tabContent;
+                removeItemPosition = index;
+                self.mainNavItems.splice(index,1);
+            }
+        })
+        this.$mainNavItems.splice(removeItemPosition,1);
+        // this.$subContentPanels.splice(removeItemPosition,1);
     }
 
     addLock(tabID){
@@ -240,7 +264,8 @@ export class mainNavItem {
         let self = this;
 
         this.$closeLink.on('click', function(){
-            console.log("close a tab");
+            console.log("close a tab", self.tabID);
+            self.parent.removeNavItem(self.tabID);
             self.parent.update();
         })
     }
