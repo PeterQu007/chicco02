@@ -100,7 +100,7 @@ export default class UISummaryTable {
             </tr>
         </tbody></table></div></div>
         `);
-
+        this.tabTitle = '';
         this.onClick();
     
     }
@@ -150,59 +150,140 @@ export default class UISummaryTable {
         $(this.$UITable).find('#MedianSoldPrice').text("$"+x);
     }
 
-    ExportToExcel(mytblId){
+    ExportToExcel(tableID){
         // var htmltable= document.getElementById(mytblId);
         // var html = htmltable.outerHTML;
         // window.open('data:application/vnd.ms-excel,' + encodeURIComponent(html));
         //var htmltable = document.getElementById('#ifSpreadsheet ' + mytblId);
-        var htmltable = document.querySelector(mytblId);
-        var rows = $(htmltable).children().find('tr');
-        for(var i=0; i<rows.length; i++){
-            var row = rows[i];
-            $(row).children('td').eq(7).remove();
-            $(row).children('td').eq(6).remove();
-            $(row).children('td').eq(5).remove();
-            $(row).children('td').eq(4).remove();
-            //$(row).children('td').eq(3).remove();
-            $(row).children('td').eq(2).remove();
-            $(row).children('td').eq(1).remove();
-        }
-        var row0=$(rows[0]);
-        var colTitle = row0.children('td');
-        $(colTitle[0]).text('No');
-        $(colTitle[1]).text('MLS#');
-        $(colTitle[2]).text('Status');
-        $(colTitle[3]).text('Address');
-        $(colTitle[4]).text('Neighborhood');
-        $(colTitle[5]).text('Complex');
-        $(colTitle[6]).text('ListingPrice');
-        $(colTitle[7]).text('MLS#');
-        $(colTitle[8]).text('MLS#');
-        $(colTitle[9]).text('MLS#');
-        $(colTitle[10]).text('MLS#');
-        $(colTitle[11]).text('MLS#');
-        $(colTitle[12]).text('MLS#');
-        $(colTitle[13]).text('MLS#');
-        $(colTitle[14]).text('MLS#');
-        $(colTitle[15]).text('MLS#');
-        $(colTitle[16]).text('MLS#');
-        $(colTitle[17]).text('MLS#');
-        $(colTitle[18]).text('MLS#');
-        $(colTitle[19]).text('MLS#');
-        $(colTitle[20]).text('MLS#');
-        $(colTitle[21]).text('MLS#');
-        $(colTitle[22]).text('MLS#');
-        $(colTitle[23]).text('MLS#');
-        $(colTitle[24]).text('MLS#');
-        $(colTitle[25]).text('MLS#');
-        $(colTitle[26]).text('MLS#');
-        $(colTitle[27]).text('MLS#');
-        $(colTitle[28]).text('MLS#');
-        $(colTitle[29]).text('MLS#');
-        $(colTitle[30]).text('MLS#');
-        $(colTitle[31]).text('MLS#');
-        $(colTitle[32]).text('MLS#');
-        $(colTitle[33]).text('MLS#');
+        var htmlTable = document.querySelector(tableID);
+        var cloneTable = $(htmlTable).clone().attr('id','newClonedTable')
+        
+        var rows = $(cloneTable).children().find('tr');
+        
+        if(this.tabTitle == 'Residential Attached'){
+            for(var i=0; i<rows.length; i++){
+                var row = rows[i];
+                for(var j=71; j>35; j--){
+                    $(row).children('td').eq(j).remove();
+                }
+                $(row).children('td').eq(33).remove();
+                $(row).children('td').eq(32).remove();
+                $(row).children('td').eq(29).remove();
+                $(row).children('td').eq(28).remove();
+                $(row).children('td').eq(27).remove();
+                $(row).children('td').eq(26).remove();
+                $(row).children('td').eq(24).remove();
+                //$(row).children('td').eq(19).remove(); //Days On Market
+                $(row).children('td').eq(18).remove();
+                $(row).children('td').eq(17).remove();
+                $(row).children('td').eq(15).remove();
+                $(row).children('td').eq(14).remove();
+                $(row).children('td').eq(13).remove();
+                $(row).children('td').eq(7).remove(); //ML # with Link
+                $(row).children('td').eq(6).remove(); //Action Icons
+                $(row).children('td').eq(5).remove(); //Pcitures
+                $(row).children('td').eq(4).remove(); //Pictures NO
+                //$(row).children('td').eq(3).remove();
+                $(row).children('td').eq(2).remove(); //Hidden
+                $(row).children('td').eq(1).remove(); //Hidden
+            }
+            var row0=$(rows[0]);
+            var colTitle = row0.children('td');
+            $(colTitle[0]).text('No');
+            $(colTitle[1]).text('MLS#');
+            $(colTitle[2]).text('Status');
+            $(colTitle[3]).text('Address');
+            $(colTitle[4]).text('Neighborhood');
+            $(colTitle[5]).text('Complex');
+            $(colTitle[6]).text('ListingPrice');
+            $(colTitle[7]).text('Date');
+            $(colTitle[8]).text('DOM');
+            $(colTitle[9]).text('Bed');
+            $(colTitle[10]).text('Bath');
+            $(colTitle[11]).text('FloorArea');
+            $(colTitle[12]).text('PricePSF');
+            $(colTitle[13]).text('Year');
+            $(colTitle[14]).text('Maint.Fee');
+            $(colTitle[15]).text('PID');
+            $(colTitle[16]).text('BCA');
+            $(colTitle[17]).text('Price%');
+            $(colTitle[18]).text('MLS#');
+            $(colTitle[19]).text('MLS#');
+            $(colTitle[20]).text('MLS#');
+            $(colTitle[21]).text('MLS#');
+            $(colTitle[22]).text('MLS#');
+            $(colTitle[23]).text('MLS#');
+            $(colTitle[24]).text('MLS#');
+            $(colTitle[25]).text('MLS#');
+            $(colTitle[26]).text('MLS#');
+            $(colTitle[27]).text('MLS#');
+            $(colTitle[28]).text('MLS#');
+            $(colTitle[29]).text('MLS#');
+            $(colTitle[30]).text('MLS#');
+            $(colTitle[31]).text('MLS#');
+            $(colTitle[32]).text('MLS#');
+            $(colTitle[33]).text('MLS#');
+        };
+
+        if(this.tabTitle == 'Residential Detached'){
+            for(var i=0; i<rows.length; i++){
+                var row = rows[i];
+                for(var j=48; j>=30; j--){
+                    $(row).children('td').eq(j).remove();
+                }
+                // $(row).children('td').eq(33).remove();
+                // $(row).children('td').eq(32).remove();
+                // $(row).children('td').eq(29).remove();
+                // $(row).children('td').eq(28).remove();
+                // $(row).children('td').eq(27).remove();
+                // $(row).children('td').eq(26).remove();
+                // $(row).children('td').eq(24).remove();
+                // //$(row).children('td').eq(19).remove(); //Days On Market
+                // $(row).children('td').eq(18).remove();
+                // $(row).children('td').eq(17).remove();
+                // $(row).children('td').eq(15).remove();
+                // $(row).children('td').eq(14).remove();
+                // $(row).children('td').eq(13).remove();
+                $(row).children('td').eq(7).remove(); //ML # with Link
+                $(row).children('td').eq(6).remove(); //Action Icons
+                $(row).children('td').eq(5).remove(); //Pcitures
+                $(row).children('td').eq(4).remove(); //Pictures NO
+                //$(row).children('td').eq(3).remove();
+                $(row).children('td').eq(2).remove(); //Hidden
+                $(row).children('td').eq(1).remove(); //Hidden
+            }
+            var row0=$(rows[0]);
+            var colTitle = row0.children('td');
+            $(colTitle[0]).text('No');
+            $(colTitle[1]).text('MLS#');
+            $(colTitle[2]).text('Status');
+            $(colTitle[3]).text('Address');
+            $(colTitle[4]).text('Neighborhood');
+            $(colTitle[5]).text('District');
+            $(colTitle[6]).text('ListingPrice');
+            $(colTitle[7]).text('Date');
+            $(colTitle[8]).text('DOM');
+            $(colTitle[9]).text('Bed');
+            $(colTitle[10]).text('Bath');
+            $(colTitle[11]).text('FloorArea');
+            $(colTitle[12]).text('Year');
+            $(colTitle[13]).text('Age');
+            $(colTitle[14]).text('LotSize');
+            $(colTitle[15]).text('Kitchen');
+            $(colTitle[16]).text('ListPerSF');
+            $(colTitle[17]).text('SoldPerSF');
+            $(colTitle[18]).text('PID');
+            $(colTitle[19]).text('BCA_Land');
+            $(colTitle[20]).text('BCA_Impr.');
+            $(colTitle[21]).text('BCA_Total');
+            $(colTitle[22]).text('Change%');
+            $(colTitle[23]).text('City');
+            //$(colTitle[24]).text('MLS#');
+           
+        };
+        
+        
+        cloneTable.appendTo($(htmlTable));
 
         var tableToExcel = (function() {
             var uri = 'data:application/vnd.ms-excel;base64,'
@@ -215,8 +296,10 @@ export default class UISummaryTable {
               window.location.href = uri + base64(format(template, ctx))
             }
           })()
-        tableToExcel(mytblId, 'W3C Example Table');
-        console.log(htmltable);
+        //tableToExcel(mytblId, 'W3C Example Table');
+        tableToExcel('#newClonedTable', 'Listings Table');
+        cloneTable.remove();
+        //console.log(htmlTable);
     }
 
     

@@ -26,8 +26,9 @@ var computeSFPrices = {
         this.tabTitle = $(y).children().find('span').text().trim();
         console.warn('tabID, tabNo, tabTitle', this.tabID, this.tabNo, this.tabTitle);
         this.setCols(this.tabTitle);
+        this.uiTable.tabTitle = this.tabTitle;
         //tax search result also use spreadsheet, does not apply here
-        if (this.tabID >= '#tab3'){
+        if (this.tabID >= '#tab2'){
             //this.lockVisibility();
             this.addLock(this.tabID);
             this.$tabContentContainer = $('div' + this.tabID, top.document)
@@ -106,6 +107,7 @@ var computeSFPrices = {
                     var col34_TotalAssess = []; // Total Assessment Value
                     var col35_ValueChange = []; // Computed column for total value change percentage
                     var col36_PlanNum = []; // Strata Plan Number
+                    var colxx_LotSize = []; // lot size in square feet
                     var listPricePSF = []; //for listPrice Per Square Feet
                     var sumPSFListedPrice = 0; //keep the sum of listing price per sf
                     var sumPSFSoldPrice = 0; //keep the sum of sold price per sf
@@ -114,21 +116,28 @@ var computeSFPrices = {
                     var ListingPricePSF; //keep the listing price per square feet
                     for (i=1; i<rows.length; i++){ ////i=1; i<rows.length; i++
                         //console.log(rows[i], $(rows[i]).children('td')[24]);
-                        row.push(i);
+                        row.push(i); //col 0
                         var listPrice = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.ListPrice].textContent); 
                         col14_ListPrice.push(listPrice);
-                        row.push(listPrice);
+                        row.push(listPrice);//col 1
                         var floorArea = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.TotalFloorArea].textContent); 
                         col22_FloorArea.push(floorArea);
-                        row.push(floorArea);
+                        row.push(floorArea);//col 2
+                        if(self.tabTitle == 'Residential Attached'){
+                            var lotSize = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.lotSize].textContent); 
+                        }else{
+                            var lotSize = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.lotSize].textContent); 
+                        }
                         
+                        colxx_LotSize.push(lotSize);
+
                         ListingPricePSF = Number(Number(col14_ListPrice[col14_ListPrice.length-1]/col22_FloorArea[col22_FloorArea.length-1]).toFixed(2));
                         sumPSFListedPrice += ListingPricePSF;
                         listPricePSF.push(ListingPricePSF);
 
                         var listingAskingPricePSF = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.PricePSF].textContent, true);
                         col23_ListingPrice.push(listingAskingPricePSF);
-                        row.push(listingAskingPricePSF);
+                        row.push(listingAskingPricePSF);//col 3
 
                         soldPricePSF = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.SoldPricePSF].textContent);
                         if (soldPricePSF>0){
@@ -140,18 +149,19 @@ var computeSFPrices = {
                         self.recordPointer = i-1;
                         var pid = $(rows[i]).children('td')[self.cols.PID].textContent;
                         col31_PID.push(pid);
-                        row.push(pid);
+                        row.push(pid); //col 4
                         col32_LandValue.push(0);
-                        row.push(0);
+                        row.push(0);////col 5
                         col33_ImprovementValue.push(0);
-                        row.push(0);
+                        row.push(0); //col 6
                         col34_TotalAssess.push(0);
-                        row.push(0);
+                        row.push(0); //col 7
                         col35_ValueChange.push(0);
-                        row.push(0);
+                        row.push(0); //col 8
                         col36_PlanNum.push('');
-                        row.push(0);
-                        row.push(false);
+                        row.push(0); //col 9
+                        row.push(false); //col 10
+                        row.push(lotSize); // add lotSize for single house or land
                         self.table.push(row);
                         row = [];
                     }
@@ -290,7 +300,7 @@ var computeSFPrices = {
                             { from: 'SpreadSheet', todo: 'taxSearch' },
                             function (response) {
                                 console.log('SpreadSheet got tax response:', response);
-                        
+                                self.table[unTaxed][10]=true;
                             }
                         )
                     });
@@ -496,8 +506,8 @@ var computeSFPrices = {
             case 'Listing Carts':
                 cols = {
                     Status: 8,
-                    Price: 12,
-                    ListPrice: 13,
+                    ListPrice: 12,
+                    Price: 13,
                     SoldPrice: 14,
                     TotalFloorArea: 15,
                     PricePSF: 16,
@@ -507,7 +517,8 @@ var computeSFPrices = {
                     improvementValue: 24,
                     totalValue: 25,
                     changeValuePercent: 26,
-                    strataPlan: 27
+                    lotSize: 27,
+                    strataPlan: 28
                 }
                 break;
             case 'Residential Attached':
@@ -519,12 +530,31 @@ var computeSFPrices = {
                     TotalFloorArea: 22,
                     PricePSF: 23,
                     SoldPricePSF: 24,
+                    lotSize: 28,
                     PID: 31,
                     LandValue: 32,
                     improvementValue: 33,
                     totalValue: 34,
                     changeValuePercent: 35,
                     strataPlan: 36
+                }
+                break;
+            case 'Residential Detached':
+                cols = {
+                    Status: 8,
+                    Price: 12,
+                    ListPrice: 12,
+                    SoldPrice: 36, //
+                    TotalFloorArea: 17,
+                    PricePSF: 22,
+                    SoldPricePSF: 23,
+                    PID: 24,
+                    LandValue: 25,
+                    improvementValue: 26,
+                    totalValue: 27,
+                    changeValuePercent: 28,
+                    strataPlan: 30,
+                    lotSize: 20
                 }
                 break;
             default:

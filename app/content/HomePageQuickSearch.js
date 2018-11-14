@@ -123,7 +123,7 @@ $(function () {
             //strataPlanHidden.val(strataPlans);
             strataPlanNumber = listing.strataPlan1;
             complexName = listing.complexName;
-            getCountResult(msg.showResult, msg.saveResult);
+            getCountResult(msg.showResult && false, msg.saveResult);
         });
     });
     //console.groupEnd();

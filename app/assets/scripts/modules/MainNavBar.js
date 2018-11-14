@@ -171,6 +171,9 @@ export default class MainNavBar {
                 removeItemPosition = index;
                 self.mainNavItems.splice(index,1);
             }
+            if(item.tabID != '#HomeTab'){
+                item.$tabContent.removeAttr('style');
+            }
         })
         this.$mainNavItems.splice(removeItemPosition,1);
         // this.$subContentPanels.splice(removeItemPosition,1);

@@ -24,9 +24,9 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
       	chrome.storage.sync.get("PID",function(result){
 	
 			var inputPID = $('#f_22');
-			//var liPID = $('div[rel="f_22"] ul li.acfb-data');
+			var liPID = $('div[rel="f_22"] ul li.acfb-data');
 			var inputHidenPID = $('#hdnf_22');
-			//liPID.remove();
+			liPID.remove();
 			inputHidenPID.val('');
 			//inputHidenPID.val("['" + result.PID + "']");
 			var $count = $('#CountResult');
