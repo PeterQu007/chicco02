@@ -33,18 +33,18 @@ class Database {
 		self.dbAssess.get(taxID).then(function (doc) {
 			var assess = self.assess = doc;
 			//console.log(">>>read the tax info in database is: ", assess);
-			assess.from = 'assess-'+ "ForSpreadSheet-" + Math.random().toFixed(8);
+			assess.from = 'assess-' + Math.random().toFixed(8);
 			assess.dataFromDB = true;
-			chrome.storage.sync.set(
-				// {
-				// 	landValue: doc.landValue,
-				// 	improvementValue: doc.improvementValue,
-				// 	totalValue: doc.totalValue,
-				// 	_id: doc._id,
-				// 	from: 'assess' + Math.random().toFixed(8)
-				// }
-				assess
-			);
+			// chrome.storage.sync.set(
+			// 	// {
+			// 	// 	landValue: doc.landValue,
+			// 	// 	improvementValue: doc.improvementValue,
+			// 	// 	totalValue: doc.totalValue,
+			// 	// 	_id: doc._id,
+			// 	// 	from: 'assess' + Math.random().toFixed(8)
+			// 	// }
+			// 	assess
+			// );
 			callback(self.assess);
 		}).catch(function (err) {
 			//console.log(">>>read database error: ", err);
@@ -118,31 +118,35 @@ class Database {
 		//console.groupEnd('writeStrataPlanSummary');
 	}
 
-	readComplex(complexID, callback) {
+	readComplex(complexInfo, callback) {
 		//console.group(">>>readComplex");
 		var self = this;
-		self.dbComplex.get(complexID).then(function (doc) {
+		self.complex = complexInfo;
+		self.dbComplex.get(complexInfo._id).then(function (doc) {
 			self.complex = doc;
 			//console.log(">>>read the Complex info in database is: ", self.complex);
-			chrome.storage.sync.set({
-				complexID: doc._id,
-				complexName: doc.name+'*',
-				strataPlan: doc.strataPlan,
-				addDate: doc.addDate,
-				subArea: doc.subArea,
-				neighborhood: doc.neighborhood,
-				postcode: doc.postcode,
-				streetName: doc.streetName,
-				streetNumber: doc.streetNumber,
-				dwellingType: doc.dwellingType,
-				totalUnits: doc.totalUnits,
-				devUnits: doc.devUnits,
-				from: 'complex' + Math.random().toFixed(8)
-			});
+			// chrome.storage.sync.set({
+			// 	complexID: doc._id,
+			// 	complexName: doc.name+'*',
+			// 	strataPlan: doc.strataPlan,
+			// 	addDate: doc.addDate,
+			// 	subArea: doc.subArea,
+			// 	neighborhood: doc.neighborhood,
+			// 	postcode: doc.postcode,
+			// 	streetName: doc.streetName,
+			// 	streetNumber: doc.streetNumber,
+			// 	dwellingType: doc.dwellingType,
+			// 	totalUnits: doc.totalUnits,
+			// 	devUnits: doc.devUnits,
+			// 	from: 'complex' + Math.random().toFixed(8)
+			// });
+			self.complex.from = 'complex' + Math.random().toFixed(8);
 			callback(self.complex);
 		}).catch(function (err) {
 			//console.log(">>>read database Complex error: ", err);
-			self.complex = null;
+			//self.complex = null;
+			self.writeComplex(self.complex);
+			self.complex.from = 'complex-saved to db-' + Math.random().toFixed(8);;
 			callback(self.complex);
 		})
 		//console.groupEnd(">>>readComplex");
@@ -152,8 +156,12 @@ class Database {
 		//console.group('>>>writeComplex');
 		var complexID = complex._id;
 		var self = this;
+		var complexName =complex.name;
 		self.dbComplex.get(complexID).then(function (doc) {
 			//console.log('writeComplex...the complex EXISTS, pass writing');
+			doc['name'] = complexName;
+			self.dbComplex.put(doc);
+			return [doc, 'complex updated!']
 		}).catch(function (err) {
 			self.dbComplex.put(complex).then(function () {
 				//console.log('SAVED the complex info to database:', complex.name);

@@ -89,8 +89,11 @@ console.clear();
 							});
 						}else{
 							if(String(assess.from).indexOf("taxSearchFor"+requester)<0){
-								assess.from = assess.from + "taxSearchFor"+requester;
+								assess.from = assess.from + "-taxSearchFor"+requester;
 							}
+							chrome.storage.sync.set(
+								assess
+							);
 						}
 					});
 				});
@@ -140,12 +143,19 @@ console.clear();
 
 		if(request.todo == 'searchComplex'){
 			var complexID = request._id;
-			db.readComplex(complexID, function(complexInfo){
+			var requestFrom = '-' + request.from;
+			delete request.from;
+			var complexInfo = request;
+			db.readComplex(complexInfo, function(complexInfo){
 				//console.log('>>>read the complex info from database:', complexInfo);
-				if(complexInfo && complexInfo.complexName.length>0){
+				if(complexInfo && complexInfo.name.length>0){
+					complexInfo.from += requestFrom;
+					complexInfo.complexName = complexInfo.name;
 					chrome.storage.sync.set(complexInfo, function(){
 						//console.log('complexInfo has been updated to storage for report listeners');
 					})
+				}else{
+					//error for complexInfo
 				}
 			})
 		}

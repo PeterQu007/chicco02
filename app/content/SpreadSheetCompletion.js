@@ -159,7 +159,7 @@ var computeSFPrices = {
                         col35_ValueChange.push(0);
                         row.push(0); //col 8
                         col36_PlanNum.push('');
-                        row.push(0); //col 9
+                        row.push(""); //col 9 for PlanNum
                         row.push(false); //col 10
                         row.push(lotSize); // add lotSize for single house or land
                         self.table.push(row);
@@ -205,32 +205,6 @@ var computeSFPrices = {
         }
     },
 
-    // OnTabTitle: function () {
-    //     let self = this;
-    //     chrome.storage.onChanged.addListener(function (changes, area) {
-            
-    //         if (area == "sync" && "todo" in changes) {
-    //             if (changes.todo.newValue.indexOf('getTabTitle') > -1) {
-    //                 console.log("command::getTabTitle:", changes.todo.newValue);
-    //                 chrome.storage.sync.get(['getTabTitle','from', 'showTabQuickSearch'], function (result) {
-    //                     self.tabTitle = result.getTabTitle;
-    //                     console.log("OnTabTitle.getTabTitle:", result);
-    //                     //showQuickSearchTab
-    //                     if (!result.showTabQuickSearch && result.getTabTitle.trim()=="Quick Search") {
-    //                         chrome.storage.sync.set(
-    //                             {
-    //                                 from: 'QuickSearch' ,
-    //                                 todo: 'hideQuickSearch'+ Math.random().toFixed(8),
-    //                                 tabID: self.tabID
-    //                             }
-    //                         )
-    //                     }
-    //                 })
-    //             };
-    //         }
-    //     })
-    // },
-
     OnTaxSearch: function () {
 
 		(function onEvents(self) {
@@ -247,67 +221,53 @@ var computeSFPrices = {
                         }else{
                             self.updateAssess();
                         }
-                        
-                        //do next tax search:
-                        //self.sleep(2000); // 90 listing records cost 7 minutes
-                        //self.sleep(1000); // 90 listing records cost 3.5 minutes
-                        //self.sleep(500); //Trigger error: Unchecked runtime.lastError: This request exceeds the MAX_WRITE_OPERATIONS_PER_HOUR quota.
-                                            //chrome-extension://lgbkgggiieaokaancjejpfbagjalaoil/_generated_background_page.html
-                        //self.sleep(800);//not work, trigger error at record No 51
+                
                         setTimeout(function(){
                             this.searchTax();
                         }.bind(self), 1000);
                         
 					};
-					if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
-						self.updateComplexListingQuan(changes);
-					}
-					if (changes.from.newValue.indexOf('complex') > -1) {
-						self.updateComplexInfo();
-					}
-					
+					// if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
+					// 	self.updateComplexListingQuan(changes);
+					// }
+					// if (changes.from.newValue.indexOf('complex') > -1) {
+					// 	self.updateComplexInfo();
+					// }
 				}
 
 			});
 		})(this);
     },
 
-    // sleep: function(milliseconds) {
-    //     var start = new Date().getTime();
-    //     for (var i = 0; i < 1e7; i++) {
-    //       if ((new Date().getTime() - start) > milliseconds){
-    //         break;
-    //       }
-    //     }
-    // },
-    
     searchTax: function () {
 		
         var self = this;
         var i = 0;
         var unTaxed = 0;
         for (i=0; i<self.table.length; i++)
-            {
-                if (!self.table[i][10]){ //if not yet done tax search
+        {
+            if (!self.table[i][10]){ //if not yet done tax search
 
-                    unTaxed = i;
-                    var pid  = self.table[unTaxed][4];
-                    if (!pid) { return; };
-                    chrome.storage.sync.set({ 'PID': pid });
-                    chrome.storage.sync.get('PID', function (result) {
-                        //console.log(">>>PID saved for tax search: ", result.PID);
-                        chrome.runtime.sendMessage(
-                            { from: 'SpreadSheet', todo: 'taxSearch' },
-                            function (response) {
-                                console.log('SpreadSheet got tax response:', response);
-                                self.table[unTaxed][10]=true;
-                            }
-                        )
-                    });
-                    break;
-                }
-                    
+                unTaxed = i;
+                var pid  = self.table[unTaxed][4];
+                if (!pid) { return; };
+                chrome.storage.sync.set({ 'PID': pid });
+                chrome.storage.sync.get('PID', function (result) {
+                    //console.log(">>>PID saved for tax search: ", result.PID);
+                    chrome.runtime.sendMessage(
+                        { from: 'SpreadSheet', todo: 'taxSearch' },
+                        function (response) {
+                            console.log('SpreadSheet got tax response:', response);
+                            self.table[unTaxed][10]=true;
+                        }
+                    )
+                });
+                break;
             }
+            if (i == self.table.length-1) {
+                console.log('taxSearch done!');
+            }
+        }
 		
     },
     
@@ -332,57 +292,17 @@ var computeSFPrices = {
         )
     },
 
-    // getTabTitle: function (tabID) {
-    //     chrome.runtime.sendMessage({
-    //         todo: 'getTabTitle',
-    //         from: 'quickSearch',
-    //         tabID: tabID
-    //     }, function (response) {
-    //         //self.tabTitle = response.tabTitle;
-    //         //self.updateQuickSearchTabStatus();
-    //         console.warn('QuickSearch.getTabTitle::', response);
-    //         return response;
-    //     })
-    // },
-
-    // getTabStatus: function () {
-    //     let self = this;
-    //     chrome.storage.sync.get('showTabQuickSearch', function (result) {
-
-    //         if (result.showTabQuickSearch) {
-    //             self.showQuickSearch();
-    //         } else {
-    //             self.hideQuickSearch();
-    //         }
-    //     })
-    // },
-
-    // showQuickSearch: function () {
-    //     chrome.runtime.sendMessage({
-    //         from: 'QuickSearch',
-    //         todo: 'showQuickSearch',
-    //         tabID: this.tabID
-    //     })
-    // },
-
-    // hideQuickSearch: function () {
-    //     chrome.runtime.sendMessage({
-    //         from: 'QuickSearch',
-    //         todo: 'hideQuickSearch',
-    //         tabID: this.tabID
-    //     })
-    // },
-
     updateAssess: function () {
 		var self = this;
 		// var listPrice = $fx.convertStringToDecimal(self.lp.text());
 		// var soldPrice = $fx.convertStringToDecimal(self.sp.text());
-		chrome.storage.sync.get(['PID','totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate', 'dataFromDB'], function (result) {
+		chrome.storage.sync.get(['PID','totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate', 'planNum','dataFromDB'], function (result) {
             var pid = result.PID;
             var totalValue = result.totalValue;
 			var improvementValue = result.improvementValue;
 			var landValue = result.landValue;
-			var lotSize = result.lotSize;
+            var lotSize = result.lotSize;
+            var planNum = result.planNum;
 			var lotArea = $fx.convertStringToDecimal(lotSize, true);
 			var lotAreaInSquareFeet = (lotArea < 500 ? (lotArea * 43560).toFixed(0) : $fx.numberWithCommas($fx.removeDecimalFraction(lotArea)));
 			var formalAddress = result.address.trim();
@@ -410,6 +330,7 @@ var computeSFPrices = {
                     self.table[i][5] = landValue;
                     self.table[i][6] = improvementValue;
                     self.table[i][7] = totalValue;
+                    self.table[i][9] = planNum;
                     self.table[i][10] = true; // tax done
                     price = parseInt(self.table[i][1]);
                     rowNumber.push(self.table[i][0]) ;
@@ -436,6 +357,7 @@ var computeSFPrices = {
                     $($(rows[j]).children('td')[self.cols.improvementValue]).text(self.table[j-1][6]);
                     $($(rows[j]).children('td')[self.cols.totalValue]).text(self.table[j-1][7]);
                     $($(rows[j]).children('td')[self.cols.changeValuePercent]).text(self.table[j-1][8]+'%');
+                    $($(rows[j]).children('td')[self.cols.strataPlan]).text(self.table[j-1][9]); //Show Plan Num in the table
                 }
                 
             }
@@ -505,6 +427,7 @@ var computeSFPrices = {
             case 'Quick Search':
             case 'Listing Carts':
                 cols = {
+                    RecordNo: 0, //index 0
                     Status: 8,
                     ListPrice: 12,
                     Price: 13,
@@ -523,6 +446,7 @@ var computeSFPrices = {
                 break;
             case 'Residential Attached':
                 cols = {
+                    RecordNo: 0, //index 0
                     Status: 8,
                     Price: 12,
                     ListPrice: 14,
@@ -541,6 +465,7 @@ var computeSFPrices = {
                 break;
             case 'Residential Detached':
                 cols = {
+                    RecordNo: 0, //index 0
                     Status: 8,
                     Price: 12,
                     ListPrice: 12,
@@ -557,8 +482,28 @@ var computeSFPrices = {
                     lotSize: 20
                 }
                 break;
+                case 'Tour and Open House':
+                cols = {
+                    RecordNo: 0, //index 0
+                    Status: 20,
+                    Price: 11,
+                    ListPrice: 11,
+                    SoldPrice: 39, //No use for open house
+                    TotalFloorArea: 32,
+                    PricePSF: 22,
+                    SoldPricePSF: 39,
+                    PID: 21,
+                    LandValue: 22,
+                    improvementValue: 23,
+                    totalValue: 24,
+                    changeValuePercent: 25,
+                    strataPlan: 34,
+                    lotSize: 33
+                }
+                break;
             default:
                 cols = {
+                    RecordNo: 0, //index 0
                     Status: 8,
                     Price: 12,
                     ListPrice: 14,

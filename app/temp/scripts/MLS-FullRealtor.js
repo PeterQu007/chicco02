@@ -138,7 +138,7 @@
 		devUnits: null, //from getMorePropertyInfo
 
 		saveComplexButton: null,
-		legalDesc: null,
+		legalDesc: null, //need be inited at addStrataPlan
 		strataPlan: null, //new strataPlan field, to be added
 		formalAddress: null, //new formal Address field, to be added
 		strataPlanLink: null, //new strataPlan search link, to be added
@@ -245,7 +245,7 @@
 
 		populateUiListing: function populateUiListing() {
 			this.addMLSNo();
-			this.addStrataPlan();
+			this.addStrataPlan(); //move this operation inside updateAssessment
 			this.addComplexInfo();
 			this.addBCAssessment();
 			this.addRemarks();
@@ -256,12 +256,21 @@
 			this.uiListingInfo.mlsNo.text(mlsNO);
 		},
 
-		addStrataPlan: function addStrataPlan() {
-			var legal = this.legal.text(); //get legal description from the Report
+		addStrataPlan: function addStrataPlan(planNum) {
+
+			var legal = "";
+
+			if (planNum == undefined) {
+				legal = this.legal.text(); //get legal description from the Report
+			} else {
+				legal = planNum.toString();
+			}
+
 			var legalDesc = this.legalDesc = new _LegalDescription2.default(legal);
 			var complexName = this.complexOrSubdivision.text();
-			this.strataPlan = legalDesc.strataPlan1;
-			this.uiListingInfo.planLink.text(legalDesc.strataPlan1);
+			this.strataPlan = legalDesc.strataPlan1; //set up the strata Plan number
+
+			this.uiListingInfo.planLink.text(legalDesc.strataPlan1 + (planNum == undefined ? '' : "*"));
 
 			this.saveComplexButton = $('#saveComplexName');
 			this.strataPlanLink = $('#strataPlanLink');
@@ -306,7 +315,8 @@
 				dwellingType: dwellingType,
 				totalUnits: totalUnits,
 				devUnits: devUnits,
-				todo: complexName.length > 0 ? 'saveComplex' : 'searchComplex'
+				todo: complex != undefined ? 'saveComplex' : 'searchComplex',
+				from: "fullRealtorReport"
 			};
 
 			//console.log('===>add ComplexInfo: ', complexInfo);
@@ -421,6 +431,7 @@
 
 		saveComplexInfo: function saveComplexInfo() {
 			//console.log('save button clicked!');
+			//manually save or update complex name to the database
 			var inputName = $('#inputComplexName').val();
 			if (inputName.length > 0) {
 				this.addComplexInfo(inputName);
@@ -436,7 +447,7 @@
 				chrome.storage.onChanged.addListener(function (changes, area) {
 					console.log("====>fullrealtor: got a message: !", changes);
 					if (area == "sync" && "from" in changes) {
-						if (changes.from.newValue.indexOf('assess') > -1) {
+						if (changes.from.newValue.indexOf('assess') > -1 && changes.from.newValue.indexOf('ForListingReport') > -1) {
 							self.updateAssess();
 						};
 						if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
@@ -445,7 +456,7 @@
 							//let topTabInfo = new TopTabInfo(curTabID);
 							//topTabInfo.ActiveThisTab();
 						}
-						if (changes.from.newValue.indexOf('complex') > -1) {
+						if (changes.from.newValue.indexOf('complex') > -1 && changes.from.newValue.indexOf('fullRealtorReport') > -1) {
 							self.updateComplexInfo();
 						}
 						console.log("this: ", self);
@@ -458,7 +469,7 @@
 			var self = this;
 			var listPrice = $fx.convertStringToDecimal(self.lp.text());
 			var soldPrice = $fx.convertStringToDecimal(self.sp.text());
-			chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate', 'dataFromDB'], function (result) {
+			chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate', 'planNum', 'dataFromDB'], function (result) {
 				var totalValue = result.totalValue;
 				var improvementValue = result.improvementValue;
 				var landValue = result.landValue;
@@ -518,6 +529,11 @@
 				self.oldTimerLotValuePerSF.text(olderTimerLotValuePerSF);
 				self.marketValuePerSF.text('Lot:$' + marketLotValuePerSF.toString() + '/SF' + ' | Impv:$' + marketHouseValuePerSF.toString() + '/SF');
 				self.lotArea.text($fx.numberWithCommas($fx.convertStringToDecimal(lotAreaInSquareFeet, true)));
+				if (result.planNum) {
+					self.addStrataPlan(result.planNum);
+					//self.uiListingInfo.planNo.text('Plan Num: ' + result.planNum + '*'); //Update the strataNum
+				}
+
 				self.formalAddress.text(formalAddress);
 			});
 		},
@@ -555,15 +571,6 @@
 				self.complexOrSubdivision.text(result.complexName);
 			});
 		}
-
-		// syncTabToContent(){
-		// 	chrome.runtime.sendMessage(
-		// 		{todo: 'syncTabToContent',
-		// 		 from: 'full-realtor syncTabToContent',
-		// 		 tabID: this.tabID}
-		// 	)
-		// }
-
 
 		//star the app
 	};$(function () {
@@ -1123,8 +1130,8 @@
 	        this.complexSummary = $('<div id="complexSummary"></div>');
 	        this.complexName = $('<span id="complexName">ComplexName</span>');
 	        this.complexListingQuantity = $('<span id="listingQuantity"></span>');
-	        this.inputComplexName = $('<input name="inputComplexName" />');
-	        this.btnSaveComplexName = $('<button name="saveComplexName" class="btn btn-primary">Save</button>');
+	        this.inputComplexName = $('<input name="inputComplexName" id="inputComplexName"/>');
+	        this.btnSaveComplexName = $('<button name="saveComplexName" id="saveComplexName" class="btn btn-primary">Save</button>');
 	        //divs for BC Assessment:
 	        this.landValue = $('<div id="landValue">land value</div>');
 	        this.houseValue = $('<div id="houseValue">house value</div>');

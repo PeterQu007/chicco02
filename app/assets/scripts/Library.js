@@ -45,6 +45,7 @@
             var result = 0,
                 numbers = '';
             keepFraction = keepFraction || false;
+            strNum = strNum.toString();
             strNum = strNum.replace(/,/g, '');
             //remove the fraction
             if (!keepFraction) {

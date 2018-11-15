@@ -79,7 +79,7 @@ var fullRealtor = {
 	devUnits: null, //from getMorePropertyInfo
 
 	saveComplexButton: null,
-	legalDesc: null,
+	legalDesc: null, //need be inited at addStrataPlan
 	strataPlan: null, //new strataPlan field, to be added
 	formalAddress: null, //new formal Address field, to be added
 	strataPlanLink: null, //new strataPlan search link, to be added
@@ -190,7 +190,7 @@ var fullRealtor = {
 
 	populateUiListing: function () {
 		this.addMLSNo();
-		this.addStrataPlan();
+		this.addStrataPlan(); //move this operation inside updateAssessment
 		this.addComplexInfo();
 		this.addBCAssessment();
 		this.addRemarks();
@@ -201,12 +201,21 @@ var fullRealtor = {
 		this.uiListingInfo.mlsNo.text(mlsNO);
 	},
 
-	addStrataPlan: function () {
-		var legal = this.legal.text(); //get legal description from the Report
+	addStrataPlan: function (planNum) {
+
+		var legal = "";
+		
+		if(planNum == undefined){
+			legal = this.legal.text(); //get legal description from the Report
+		}else{
+			legal = planNum.toString();
+		}
+		
 		var legalDesc = this.legalDesc = new legalDescription(legal);
 		var complexName = this.complexOrSubdivision.text();
-		this.strataPlan = legalDesc.strataPlan1;
-		this.uiListingInfo.planLink.text(legalDesc.strataPlan1);
+		this.strataPlan = legalDesc.strataPlan1; //set up the strata Plan number
+		
+		this.uiListingInfo.planLink.text(legalDesc.strataPlan1 + (planNum == undefined ? '' : "*"));
 
 		this.saveComplexButton = $('#saveComplexName');
 		this.strataPlanLink = $('#strataPlanLink');
@@ -251,7 +260,8 @@ var fullRealtor = {
 			dwellingType: dwellingType,
 			totalUnits: totalUnits,
 			devUnits: devUnits,
-			todo: complexName.length > 0 ? 'saveComplex' : 'searchComplex'
+			todo: complex != undefined ? 'saveComplex' : 'searchComplex',
+			from: "fullRealtorReport"
 		};
 
 		//console.log('===>add ComplexInfo: ', complexInfo);
@@ -380,6 +390,7 @@ var fullRealtor = {
 
 	saveComplexInfo: function () {
 		//console.log('save button clicked!');
+		//manually save or update complex name to the database
 		var inputName = $('#inputComplexName').val();
 		if (inputName.length > 0) {
 			this.addComplexInfo(inputName);
@@ -395,7 +406,7 @@ var fullRealtor = {
 			chrome.storage.onChanged.addListener(function (changes, area) {
 				console.log("====>fullrealtor: got a message: !", changes);
 				if (area == "sync" && "from" in changes) {
-					if (changes.from.newValue.indexOf('assess') > -1) {
+					if (changes.from.newValue.indexOf('assess') > -1 && changes.from.newValue.indexOf('ForListingReport') > -1) {
 						self.updateAssess();
 					};
 					if (changes.from.newValue.indexOf('strataPlanSummary') > -1) {
@@ -405,7 +416,7 @@ var fullRealtor = {
 						//topTabInfo.ActiveThisTab();
 
 					}
-					if (changes.from.newValue.indexOf('complex') > -1) {
+					if (changes.from.newValue.indexOf('complex') > -1 && changes.from.newValue.indexOf('fullRealtorReport')>-1 ) {
 						self.updateComplexInfo();
 					}
 					console.log("this: ", self);
@@ -419,7 +430,7 @@ var fullRealtor = {
 		var self = this;
 		var listPrice = $fx.convertStringToDecimal(self.lp.text());
 		var soldPrice = $fx.convertStringToDecimal(self.sp.text());
-		chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate', 'dataFromDB'], function (result) {
+		chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate','planNum', 'dataFromDB'], function (result) {
 			var totalValue = result.totalValue;
 			var improvementValue = result.improvementValue;
 			var landValue = result.landValue;
@@ -479,6 +490,11 @@ var fullRealtor = {
 			self.oldTimerLotValuePerSF.text(olderTimerLotValuePerSF);
 			self.marketValuePerSF.text('Lot:$' + marketLotValuePerSF.toString() + '/SF' + ' | Impv:$' + marketHouseValuePerSF.toString() + '/SF')
 			self.lotArea.text($fx.numberWithCommas($fx.convertStringToDecimal(lotAreaInSquareFeet, true)));
+			if(result.planNum){
+				self.addStrataPlan(result.planNum);
+				//self.uiListingInfo.planNo.text('Plan Num: ' + result.planNum + '*'); //Update the strataNum
+			}
+			
 			self.formalAddress.text(formalAddress);
 		})
 	},
@@ -516,14 +532,6 @@ var fullRealtor = {
 			self.complexOrSubdivision.text(result.complexName);
 		})
 	},
-
-	// syncTabToContent(){
-	// 	chrome.runtime.sendMessage(
-	// 		{todo: 'syncTabToContent',
-	// 		 from: 'full-realtor syncTabToContent',
-	// 		 tabID: this.tabID}
-	// 	)
-	// }
 }
 
 //star the app

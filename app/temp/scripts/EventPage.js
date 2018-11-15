@@ -139,8 +139,9 @@
 								});
 							} else {
 								if (String(assess.from).indexOf("taxSearchFor" + requester) < 0) {
-									assess.from = assess.from + "taxSearchFor" + requester;
+									assess.from = assess.from + "-taxSearchFor" + requester;
 								}
+								chrome.storage.sync.set(assess);
 							}
 						});
 					});
@@ -190,12 +191,19 @@
 
 			if (request.todo == 'searchComplex') {
 				var complexID = request._id;
-				db.readComplex(complexID, function (complexInfo) {
+				var requestFrom = '-' + request.from;
+				delete request.from;
+				var complexInfo = request;
+				db.readComplex(complexInfo, function (complexInfo) {
 					//console.log('>>>read the complex info from database:', complexInfo);
-					if (complexInfo && complexInfo.complexName.length > 0) {
+					if (complexInfo && complexInfo.name.length > 0) {
+						complexInfo.from += requestFrom;
+						complexInfo.complexName = complexInfo.name;
 						chrome.storage.sync.set(complexInfo, function () {
 							//console.log('complexInfo has been updated to storage for report listeners');
 						});
+					} else {
+						//error for complexInfo
 					}
 				});
 			}
@@ -351,17 +359,18 @@
 				self.dbAssess.get(taxID).then(function (doc) {
 					var assess = self.assess = doc;
 					//console.log(">>>read the tax info in database is: ", assess);
-					assess.from = 'assess-' + "ForSpreadSheet-" + Math.random().toFixed(8);
+					assess.from = 'assess-' + Math.random().toFixed(8);
 					assess.dataFromDB = true;
-					chrome.storage.sync.set(
-					// {
-					// 	landValue: doc.landValue,
-					// 	improvementValue: doc.improvementValue,
-					// 	totalValue: doc.totalValue,
-					// 	_id: doc._id,
-					// 	from: 'assess' + Math.random().toFixed(8)
-					// }
-					assess);
+					// chrome.storage.sync.set(
+					// 	// {
+					// 	// 	landValue: doc.landValue,
+					// 	// 	improvementValue: doc.improvementValue,
+					// 	// 	totalValue: doc.totalValue,
+					// 	// 	_id: doc._id,
+					// 	// 	from: 'assess' + Math.random().toFixed(8)
+					// 	// }
+					// 	assess
+					// );
 					callback(self.assess);
 				}).catch(function (err) {
 					//console.log(">>>read database error: ", err);
@@ -439,31 +448,35 @@
 			}
 		}, {
 			key: 'readComplex',
-			value: function readComplex(complexID, callback) {
+			value: function readComplex(complexInfo, callback) {
 				//console.group(">>>readComplex");
 				var self = this;
-				self.dbComplex.get(complexID).then(function (doc) {
+				self.complex = complexInfo;
+				self.dbComplex.get(complexInfo._id).then(function (doc) {
 					self.complex = doc;
 					//console.log(">>>read the Complex info in database is: ", self.complex);
-					chrome.storage.sync.set({
-						complexID: doc._id,
-						complexName: doc.name + '*',
-						strataPlan: doc.strataPlan,
-						addDate: doc.addDate,
-						subArea: doc.subArea,
-						neighborhood: doc.neighborhood,
-						postcode: doc.postcode,
-						streetName: doc.streetName,
-						streetNumber: doc.streetNumber,
-						dwellingType: doc.dwellingType,
-						totalUnits: doc.totalUnits,
-						devUnits: doc.devUnits,
-						from: 'complex' + Math.random().toFixed(8)
-					});
+					// chrome.storage.sync.set({
+					// 	complexID: doc._id,
+					// 	complexName: doc.name+'*',
+					// 	strataPlan: doc.strataPlan,
+					// 	addDate: doc.addDate,
+					// 	subArea: doc.subArea,
+					// 	neighborhood: doc.neighborhood,
+					// 	postcode: doc.postcode,
+					// 	streetName: doc.streetName,
+					// 	streetNumber: doc.streetNumber,
+					// 	dwellingType: doc.dwellingType,
+					// 	totalUnits: doc.totalUnits,
+					// 	devUnits: doc.devUnits,
+					// 	from: 'complex' + Math.random().toFixed(8)
+					// });
+					self.complex.from = 'complex' + Math.random().toFixed(8);
 					callback(self.complex);
 				}).catch(function (err) {
 					//console.log(">>>read database Complex error: ", err);
-					self.complex = null;
+					//self.complex = null;
+					self.writeComplex(self.complex);
+					self.complex.from = 'complex-saved to db-' + Math.random().toFixed(8);;
 					callback(self.complex);
 				});
 				//console.groupEnd(">>>readComplex");
@@ -474,8 +487,12 @@
 				//console.group('>>>writeComplex');
 				var complexID = complex._id;
 				var self = this;
+				var complexName = complex.name;
 				self.dbComplex.get(complexID).then(function (doc) {
 					//console.log('writeComplex...the complex EXISTS, pass writing');
+					doc['name'] = complexName;
+					self.dbComplex.put(doc);
+					return [doc, 'complex updated!'];
 				}).catch(function (err) {
 					self.dbComplex.put(complex).then(function () {
 						//console.log('SAVED the complex info to database:', complex.name);

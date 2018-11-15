@@ -119,8 +119,11 @@
       //Residential Attached, Detached & Land Listing Search Results Page (Tab3/4/5_?_2), 
       //Target: SubPage iframe #ifSpreadsheet : Listing Results Spreadsheet Table
       //Function: Computing Square Feet Price Summary From the Spreadsheet Table
+      //viewID = 59 : spreadsheet view for open house search results table
+      //viewID = 1: spreadsheet view for listing search results, tax search results table
       "run_at": "document_end",
-      "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=*viewID=1*"],
+      "matches": ["https://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=*viewID=1*",
+                  "https://bcres.paragonrels.com/ParagonLS/Reports/Spreadsheet.mvc?fromSetWidth=*viewID=59*"],
       "js": ["./assets/lib/jquery/dist/jquery.min.js",
               "./assets/lib/jquery.initialize-master/jquery.initialize.js",
               "./temp/scripts/Library.js",

@@ -12,8 +12,8 @@ export default class UIListingInfo {
         this.complexSummary = $('<div id="complexSummary"></div>')
         this.complexName = $('<span id="complexName">ComplexName</span>');
         this.complexListingQuantity = $('<span id="listingQuantity"></span>');
-        this.inputComplexName = $('<input name="inputComplexName" />');
-        this.btnSaveComplexName = $('<button name="saveComplexName" class="btn btn-primary">Save</button>');
+        this.inputComplexName = $('<input name="inputComplexName" id="inputComplexName"/>');
+        this.btnSaveComplexName = $('<button name="saveComplexName" id="saveComplexName" class="btn btn-primary">Save</button>');
         //divs for BC Assessment:
         this.landValue = $('<div id="landValue">land value</div>');
         this.houseValue = $('<div id="houseValue">house value</div>');
