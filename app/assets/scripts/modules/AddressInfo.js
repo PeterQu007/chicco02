@@ -14,6 +14,7 @@ class AddressInfo {
             case 'TOWNHOUSE' :
             case 'APARTMENT' :
             case 'APARTMENT/CONDO' :
+            case 'CONDO' :
             case 'ATTACHED' :
                 houseType = 'Attached';
                 break;

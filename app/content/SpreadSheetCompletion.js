@@ -105,7 +105,7 @@ var computeSFPrices = {
 
                     var i;
                     var row = []; //current row
-                    var col14_ListPrice = []; //List Price
+                    var col14_Price = []; //List Price
                     var col22_FloorArea = []; //FloorArea
                     var col23_ListingPrice = []; //Listed / asking Price per SqFt
                     var col24_SoldPrice = []; //Sold Price Per SqFt
@@ -125,9 +125,9 @@ var computeSFPrices = {
                     for (i=1; i<rows.length; i++){ ////i=1; i<rows.length; i++
                         //console.log(rows[i], $(rows[i]).children('td')[24]);
                         row.push(i); //col 0
-                        var listPrice = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.ListPrice].textContent); 
-                        col14_ListPrice.push(listPrice);
-                        row.push(listPrice);//col 1
+                        var price = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.Price].textContent); 
+                        col14_Price.push(price);
+                        row.push(price);//col 1
                         var floorArea = $fx.convertStringToDecimal($(rows[i]).children('td')[self.cols.TotalFloorArea].textContent); 
                         col22_FloorArea.push(floorArea);
                         row.push(floorArea);//col 2
@@ -139,7 +139,7 @@ var computeSFPrices = {
                         
                         colxx_LotSize.push(lotSize);
 
-                        ListingPricePSF = Number(Number(col14_ListPrice[col14_ListPrice.length-1]/col22_FloorArea[col22_FloorArea.length-1]).toFixed(2));
+                        ListingPricePSF = Number(Number(col14_Price[col14_Price.length-1]/col22_FloorArea[col22_FloorArea.length-1]).toFixed(2));
                         sumPSFListedPrice += ListingPricePSF;
                         listPricePSF.push(ListingPricePSF);
 
@@ -259,6 +259,17 @@ var computeSFPrices = {
 
                 unTaxed = i;
                 var pid  = self.table[unTaxed][4];
+                var c = '';
+                var newPID ='';
+                //only keep numbers and dash character
+                for(var n =0 ; n<pid.length; n++){
+                    c=pid[n];
+                    if ( c == '-' ) { 
+                        newPID += c;
+                        continue; };
+                    if (parseInt(c)>=0 && parseInt(c)<=9){ newPID +=c };
+                }
+                pid = newPID;
                 if (!pid) { return; };
                 chrome.storage.sync.set({ 'PID': pid });
                 chrome.storage.sync.get('PID', function (result) {
@@ -280,6 +291,7 @@ var computeSFPrices = {
                 //Begin to search complex
                 //planNum, address, complex, houseType
                 self.searchComplex();
+                
             }
         }
 		
@@ -303,8 +315,20 @@ var computeSFPrices = {
             var i = 0;
             var price = 0;
             var rowNumber = self.rowNumber;
+  
             for (i=0; i<self.table.length; i++){
-                if (pid == self.table[i][4]){
+                var checkPID = self.table[i][4];
+                var c = '';
+                var newPID ='';
+                //only keep numbers and dash character
+                for(var n =0 ; n<checkPID.length; n++){
+                    c=checkPID[n];
+                    if ( c == '-' ) { 
+                        newPID += c;
+                        continue; };
+                    if (parseInt(c)>=0 && parseInt(c)<=9){ newPID +=c };
+                }
+                if (pid == newPID){
                     self.table[i][5] = landValue;
                     self.table[i][6] = improvementValue;
                     self.table[i][7] = totalValue;
@@ -469,6 +493,11 @@ var computeSFPrices = {
                 address = self.table[i][13];
                 complexName = self.table[i][12];
                 houseType = self.table[i][14];
+                if(houseType == 'HOUSE'){
+                    //Detached Property no need to do complex Search
+                    self.table[i][15] = true;
+                    continue;
+                }
                 if(!complexID){
                     // re do complexID
                     var isFormal = true; // this is formal address from tax search
@@ -596,8 +625,9 @@ var computeSFPrices = {
                     improvementValue: 26,
                     totalValue: 27,
                     changeValuePercent: 28,
-                    strataPlan: 30,
-                    lotSize: 20
+                    strataPlan: 33,
+                    lotSize: 20,
+                    houseType: 30
                 }
                 break;
                 case 'Tour and Open House':
