@@ -122,34 +122,52 @@ class Database {
 		//console.group(">>>readComplex");
 		var self = this;
 		self.complex = complexInfo;
-		self.dbComplex.get(complexInfo._id).then(function (doc) {
-			self.complex = doc;
-			//console.log(">>>read the Complex info in database is: ", self.complex);
-			// chrome.storage.sync.set({
-			// 	complexID: doc._id,
-			// 	complexName: doc.name+'*',
-			// 	strataPlan: doc.strataPlan,
-			// 	addDate: doc.addDate,
-			// 	subArea: doc.subArea,
-			// 	neighborhood: doc.neighborhood,
-			// 	postcode: doc.postcode,
-			// 	streetName: doc.streetName,
-			// 	streetNumber: doc.streetNumber,
-			// 	dwellingType: doc.dwellingType,
-			// 	totalUnits: doc.totalUnits,
-			// 	devUnits: doc.devUnits,
-			// 	from: 'complex' + Math.random().toFixed(8)
-			// });
-			self.complex.from = 'complex' + Math.random().toFixed(8);
-			callback(self.complex);
-		}).catch(function (err) {
-			//console.log(">>>read database Complex error: ", err);
-			//self.complex = null;
-			self.writeComplex(self.complex);
-			self.complex.from = 'complex-saved to db-' + Math.random().toFixed(8);;
-			callback(self.complex);
+
+		self.dbComplex.get(complexInfo._id, function(err, doc){
+			if(err){
+				self.writeComplex(self.complex);
+				self.complex.from = 'complex-saved to db-' + Math.random().toFixed(8);;
+				callback(self.complex);
+			}else{
+				self.complex = doc;
+				self.complex.from = 'complex' + Math.random().toFixed(8);
+				callback(self.complex);
+			}
+
 		})
-		//console.groupEnd(">>>readComplex");
+
+
+
+
+
+		// self.dbComplex.get(complexInfo._id).then(function (doc) {
+		// 	self.complex = doc;
+		// 	//console.log(">>>read the Complex info in database is: ", self.complex);
+		// 	// chrome.storage.sync.set({
+		// 	// 	complexID: doc._id,
+		// 	// 	complexName: doc.name+'*',
+		// 	// 	strataPlan: doc.strataPlan,
+		// 	// 	addDate: doc.addDate,
+		// 	// 	subArea: doc.subArea,
+		// 	// 	neighborhood: doc.neighborhood,
+		// 	// 	postcode: doc.postcode,
+		// 	// 	streetName: doc.streetName,
+		// 	// 	streetNumber: doc.streetNumber,
+		// 	// 	dwellingType: doc.dwellingType,
+		// 	// 	totalUnits: doc.totalUnits,
+		// 	// 	devUnits: doc.devUnits,
+		// 	// 	from: 'complex' + Math.random().toFixed(8)
+		// 	// });
+		// 	self.complex.from = 'complex' + Math.random().toFixed(8);
+		// 	callback(self.complex);
+		// }).catch(function (err) {
+		// 	//console.log(">>>read database Complex error: ", err);
+		// 	//self.complex = null;
+		// 	self.writeComplex(self.complex);
+		// 	self.complex.from = 'complex-saved to db-' + Math.random().toFixed(8);;
+		// 	callback(self.complex);
+		// })
+		// //console.groupEnd(">>>readComplex");
 	}
 
 	writeComplex(complex) {

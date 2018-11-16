@@ -2,59 +2,64 @@
 
 class AddressInfo {
 
-    constructor(address, houseType) {
+    constructor(address, houseType, formal) {
         address = address.replace('.', '');
-        this.streetNumber = this.getStreetNumber(address, houseType);
-        this.streetName = this.getStreetName(address, houseType);
-        this.streetType = this.getStreetType(address, houseType);
+        this.isFormalAddress = (formal == undefined ? false : formal);
+        this.houseType = houseType;
+        this.addressParts = address.split(' '); //split the address to parts array
+        //fetch unit no, then remove unit no from the addressParts Array
+        this.UnitNo = '';
+
+        switch (houseType.toUpperCase()){
+            case 'TOWNHOUSE' :
+            case 'APARTMENT' :
+            case 'APARTMENT/CONDO' :
+            case 'ATTACHED' :
+                houseType = 'Attached';
+                break;
+            default :
+                houseType = 'Detached';
+                break;
+        }
+
+        if(this.isFormalAddress){
+            if ( houseType == 'Attached' ) {
+                this.UnitNo = this.addressParts.pop();
+                this.addressParts.pop();
+            }
+        }else{
+            if ( houseType == 'Attached' ) {
+                this.UnitNo = this.addressParts.shift() ;
+            }
+        }
+     
+        this.streetNumber = this.addressParts.shift();
+        this.streetType = this.addressParts.pop();
+        this.streetName = this.addressParts.toString().replace(',','-');
+        var streetType = this.streetType.trim().toString().toUpperCase();
+        //Standard street type:
+        switch (streetType){
+            case 'AVENUE' :
+                streetType = 'AV';
+                break;
+            case 'STREET' :
+                streetType = 'ST';
+                break;
+            case 'DRIVE' :
+                streetType = 'DR';
+                break;
+            case 'BOULEVARD' :
+                streetType = 'BV';
+                break;
+        }
+        this.streetType = streetType;
+        this.formalAddress = this.streetNumber + " " + this.streetName.replace('-',' ') + " " + this.streetType;
+        if (this.UnitNo){
+            this.formalAddress = this.formalAddress + " UNIT# " + this.UnitNo;
+        }
+        this.addressID = '-' + this.streetNumber + '-' + this.streetName + '-' + this.streetType;
     }
 
-    getStreetNumber(address, houseType) {
-        //split the address
-        var addressParts = address.split(' ');
-        var partIndex = 1;
-        switch(houseType){
-            case 'Attached':
-                partIndex = 1;
-                break;
-            case 'Detached':
-                partIndex = 0;
-                break;
-        }
-        return addressParts[partIndex].trim();
-    }
-
-    getStreetName(address, houseType) {
-        var addressParts = address.split(' ');
-        var partIndex = 2;
-        switch(houseType){
-            case 'Attached':
-                partIndex = 2;
-                break;
-            case 'Detached':
-                partIndex = 1;
-                break;
-        }
-        return addressParts[partIndex].trim();
-    }
-
-    getStreetType(address, houseType) {
-        var addressParts = address.split(' ');
-        var addressType = '';
-        var partIndex = 3;
-        switch(houseType){
-            case 'Attached':
-                partIndex = 3;
-                break;
-            case 'Detached':
-                partIndex = 2;
-                break;
-        }
-        for (var i = partIndex; i < addressParts.length; i++) {
-            addressType += addressParts[i].trim()
-        }
-        return addressType;
-    }
 };
 
 export default AddressInfo;

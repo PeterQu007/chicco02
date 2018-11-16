@@ -54,19 +54,19 @@
 
 	'use strict';
 
-	var _LegalDescription = __webpack_require__(5);
+	var _LegalDescription = __webpack_require__(9);
 
 	var _LegalDescription2 = _interopRequireDefault(_LegalDescription);
 
-	var _AddressInfo = __webpack_require__(6);
+	var _AddressInfo = __webpack_require__(10);
 
 	var _AddressInfo2 = _interopRequireDefault(_AddressInfo);
 
-	var _uiListingInfo = __webpack_require__(7);
+	var _uiListingInfo = __webpack_require__(11);
 
 	var _uiListingInfo2 = _interopRequireDefault(_uiListingInfo);
 
-	var _MainNavBar = __webpack_require__(2);
+	var _MainNavBar = __webpack_require__(6);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -246,8 +246,10 @@
 		populateUiListing: function populateUiListing() {
 			this.addMLSNo();
 			this.addStrataPlan(); //move this operation inside updateAssessment
-			this.addComplexInfo();
+
 			this.addBCAssessment();
+			//this.addComplexInfo();
+
 			this.addRemarks();
 		},
 
@@ -282,12 +284,15 @@
 			this.complexListingSummary = $('#listingQuantity');
 			this.formalAddress = $('#formalAddress');
 
-			chrome.storage.sync.set({
-				strataPlan1: legalDesc.strataPlan1,
-				strataPlan2: legalDesc.strataPlan2,
-				strataPlan3: legalDesc.strataPlan3,
-				strataPlan4: legalDesc.strataPlan4
-			});
+			if (planNum != undefined) {
+				//Start PlanNum Search:
+				chrome.storage.sync.set({
+					strataPlan1: legalDesc.strataPlan1,
+					strataPlan2: legalDesc.strataPlan2,
+					strataPlan3: legalDesc.strataPlan3,
+					strataPlan4: legalDesc.strataPlan4
+				});
+			}
 		},
 
 		addComplexInfo: function addComplexInfo(complex) {
@@ -297,7 +302,7 @@
 			var postcode = self.postcode.text();
 			var dwellingType = self.dwellingType.text();
 			var complexName = complex || self.complexOrSubdivision.text().trim();
-			var address = new _AddressInfo2.default(self.address.text(), this.houseListingType); //todo list...
+			var address = new _AddressInfo2.default(self.formalAddress.text(), this.houseListingType, true); //todo list...
 			var strataPlan = self.strataPlan;
 			var totalUnits = self.totalUnits.text();
 			var devUnits = self.devUnits.text();
@@ -322,8 +327,8 @@
 			//console.log('===>add ComplexInfo: ', complexInfo);
 			chrome.runtime.sendMessage(complexInfo, function (response) {
 				if (response) {
-					self.complexName.text(response);
-					self.complexOrSubdivision.text(response);
+					self.complexName.text(response.name);
+					self.complexOrSubdivision.text(response.name);
 				}
 			});
 		},
@@ -492,6 +497,18 @@
 				var marketValuePerSF = '';
 				var houseType = self.houseListingType;
 				var dataFromDB = result.dataFromDB;
+
+				//Update PlanNum and formal Address:
+				if (result.planNum) {
+					self.addStrataPlan(result.planNum);
+					//self.uiListingInfo.planNo.text('Plan Num: ' + result.planNum + '*'); //Update the strataNum
+				}
+
+				self.formalAddress.text(formalAddress);
+				if (formalAddress) {
+					self.addComplexInfo(); //Search Complex Name
+				}
+
 				//console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
 				if (totalValue != 0) {
 					if (soldPrice > 0) {
@@ -529,12 +546,6 @@
 				self.oldTimerLotValuePerSF.text(olderTimerLotValuePerSF);
 				self.marketValuePerSF.text('Lot:$' + marketLotValuePerSF.toString() + '/SF' + ' | Impv:$' + marketHouseValuePerSF.toString() + '/SF');
 				self.lotArea.text($fx.numberWithCommas($fx.convertStringToDecimal(lotAreaInSquareFeet, true)));
-				if (result.planNum) {
-					self.addStrataPlan(result.planNum);
-					//self.uiListingInfo.planNo.text('Plan Num: ' + result.planNum + '*'); //Update the strataNum
-				}
-
-				self.formalAddress.text(formalAddress);
 			});
 		},
 
@@ -579,7 +590,11 @@
 
 /***/ }),
 /* 1 */,
-/* 2 */
+/* 2 */,
+/* 3 */,
+/* 4 */,
+/* 5 */,
+/* 6 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -942,9 +957,9 @@
 	}();
 
 /***/ }),
-/* 3 */,
-/* 4 */,
-/* 5 */
+/* 7 */,
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1017,7 +1032,7 @@
 	exports.default = LegalDescription;
 
 /***/ }),
-/* 6 */
+/* 10 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1026,83 +1041,76 @@
 	    value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	// Analyse the address information
 
-	var AddressInfo = function () {
-	    function AddressInfo(address, houseType) {
-	        _classCallCheck(this, AddressInfo);
+	var AddressInfo = function AddressInfo(address, houseType, formal) {
+	    _classCallCheck(this, AddressInfo);
 
-	        address = address.replace('.', '');
-	        this.streetNumber = this.getStreetNumber(address, houseType);
-	        this.streetName = this.getStreetName(address, houseType);
-	        this.streetType = this.getStreetType(address, houseType);
+	    address = address.replace('.', '');
+	    this.isFormalAddress = formal == undefined ? false : formal;
+	    this.houseType = houseType;
+	    this.addressParts = address.split(' '); //split the address to parts array
+	    //fetch unit no, then remove unit no from the addressParts Array
+	    this.UnitNo = '';
+
+	    switch (houseType.toUpperCase()) {
+	        case 'TOWNHOUSE':
+	        case 'APARTMENT':
+	        case 'APARTMENT/CONDO':
+	        case 'ATTACHED':
+	            houseType = 'Attached';
+	            break;
+	        default:
+	            houseType = 'Detached';
+	            break;
 	    }
 
-	    _createClass(AddressInfo, [{
-	        key: 'getStreetNumber',
-	        value: function getStreetNumber(address, houseType) {
-	            //split the address
-	            var addressParts = address.split(' ');
-	            var partIndex = 1;
-	            switch (houseType) {
-	                case 'Attached':
-	                    partIndex = 1;
-	                    break;
-	                case 'Detached':
-	                    partIndex = 0;
-	                    break;
-	            }
-	            return addressParts[partIndex].trim();
+	    if (this.isFormalAddress) {
+	        if (houseType == 'Attached') {
+	            this.UnitNo = this.addressParts.pop();
+	            this.addressParts.pop();
 	        }
-	    }, {
-	        key: 'getStreetName',
-	        value: function getStreetName(address, houseType) {
-	            var addressParts = address.split(' ');
-	            var partIndex = 2;
-	            switch (houseType) {
-	                case 'Attached':
-	                    partIndex = 2;
-	                    break;
-	                case 'Detached':
-	                    partIndex = 1;
-	                    break;
-	            }
-	            return addressParts[partIndex].trim();
+	    } else {
+	        if (houseType == 'Attached') {
+	            this.UnitNo = this.addressParts.shift();
 	        }
-	    }, {
-	        key: 'getStreetType',
-	        value: function getStreetType(address, houseType) {
-	            var addressParts = address.split(' ');
-	            var addressType = '';
-	            var partIndex = 3;
-	            switch (houseType) {
-	                case 'Attached':
-	                    partIndex = 3;
-	                    break;
-	                case 'Detached':
-	                    partIndex = 2;
-	                    break;
-	            }
-	            for (var i = partIndex; i < addressParts.length; i++) {
-	                addressType += addressParts[i].trim();
-	            }
-	            return addressType;
-	        }
-	    }]);
+	    }
 
-	    return AddressInfo;
-	}();
+	    this.streetNumber = this.addressParts.shift();
+	    this.streetType = this.addressParts.pop();
+	    this.streetName = this.addressParts.toString().replace(',', '-');
+	    var streetType = this.streetType.trim().toString().toUpperCase();
+	    //Standard street type:
+	    switch (streetType) {
+	        case 'AVENUE':
+	            streetType = 'AV';
+	            break;
+	        case 'STREET':
+	            streetType = 'ST';
+	            break;
+	        case 'DRIVE':
+	            streetType = 'DR';
+	            break;
+	        case 'BOULEVARD':
+	            streetType = 'BV';
+	            break;
+	    }
+	    this.streetType = streetType;
+	    this.formalAddress = this.streetNumber + " " + this.streetName.replace('-', ' ') + " " + this.streetType;
+	    if (this.UnitNo) {
+	        this.formalAddress = this.formalAddress + " UNIT# " + this.UnitNo;
+	    }
+	    this.addressID = '-' + this.streetNumber + '-' + this.streetName + '-' + this.streetType;
+	};
 
 	;
 
 	exports.default = AddressInfo;
 
 /***/ }),
-/* 7 */
+/* 11 */
 /***/ (function(module, exports) {
 
 	'use strict';

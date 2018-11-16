@@ -191,8 +191,10 @@ var fullRealtor = {
 	populateUiListing: function () {
 		this.addMLSNo();
 		this.addStrataPlan(); //move this operation inside updateAssessment
-		this.addComplexInfo();
+		
 		this.addBCAssessment();
+		//this.addComplexInfo();
+
 		this.addRemarks();
 	},
 
@@ -227,12 +229,16 @@ var fullRealtor = {
 		this.complexListingSummary = $('#listingQuantity');
 		this.formalAddress = $('#formalAddress');
 
-		chrome.storage.sync.set({
-			strataPlan1: legalDesc.strataPlan1,
-			strataPlan2: legalDesc.strataPlan2,
-			strataPlan3: legalDesc.strataPlan3,
-			strataPlan4: legalDesc.strataPlan4
-		});
+		if(planNum != undefined){
+			//Start PlanNum Search:
+			chrome.storage.sync.set({
+				strataPlan1: legalDesc.strataPlan1,
+				strataPlan2: legalDesc.strataPlan2,
+				strataPlan3: legalDesc.strataPlan3,
+				strataPlan4: legalDesc.strataPlan4
+			});
+		}
+		
 	},
 
 	addComplexInfo: function (complex) {
@@ -242,7 +248,7 @@ var fullRealtor = {
 		var postcode = self.postcode.text();
 		var dwellingType = self.dwellingType.text();
 		var complexName = complex || self.complexOrSubdivision.text().trim();
-		var address = new addressInfo(self.address.text(), this.houseListingType); //todo list...
+		var address = new addressInfo(self.formalAddress.text( ), this.houseListingType, true); //todo list...
 		var strataPlan = self.strataPlan;
 		var totalUnits = self.totalUnits.text();
 		var devUnits = self.devUnits.text();
@@ -269,8 +275,8 @@ var fullRealtor = {
 			complexInfo,
 			function (response) {
 				if (response) {
-					self.complexName.text(response);
-					self.complexOrSubdivision.text(response);
+					self.complexName.text(response.name);
+					self.complexOrSubdivision.text(response.name);
 				}
 			}
 		)
@@ -453,6 +459,18 @@ var fullRealtor = {
 			var marketValuePerSF = '';
 			var houseType = self.houseListingType;
 			var dataFromDB = result.dataFromDB;
+
+			//Update PlanNum and formal Address:
+			if(result.planNum){
+				self.addStrataPlan(result.planNum);
+				//self.uiListingInfo.planNo.text('Plan Num: ' + result.planNum + '*'); //Update the strataNum
+			}
+			
+			self.formalAddress.text(formalAddress);
+			if(formalAddress){
+				self.addComplexInfo(); //Search Complex Name
+			}
+
 			//console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
 			if (totalValue != 0) {
 				if (soldPrice > 0) {
@@ -490,12 +508,7 @@ var fullRealtor = {
 			self.oldTimerLotValuePerSF.text(olderTimerLotValuePerSF);
 			self.marketValuePerSF.text('Lot:$' + marketLotValuePerSF.toString() + '/SF' + ' | Impv:$' + marketHouseValuePerSF.toString() + '/SF')
 			self.lotArea.text($fx.numberWithCommas($fx.convertStringToDecimal(lotAreaInSquareFeet, true)));
-			if(result.planNum){
-				self.addStrataPlan(result.planNum);
-				//self.uiListingInfo.planNo.text('Plan Num: ' + result.planNum + '*'); //Update the strataNum
-			}
 			
-			self.formalAddress.text(formalAddress);
 		})
 	},
 

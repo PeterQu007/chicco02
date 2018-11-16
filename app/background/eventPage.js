@@ -2,6 +2,7 @@
 //message passed between background - defaultpage - iframes
 
 import database from '../assets/scripts/modules/Database';
+import { callbackify } from 'util';
 
 var db = new database();
 var $fx = L$();
@@ -9,6 +10,7 @@ var newTaxYear = false;
 var d = new Date();
 var taxYear = d.getFullYear();
 taxYear = newTaxYear ? taxYear : taxYear -1 ;
+var complexInfoSearchResult = null;
 
 console.clear();
 
@@ -128,13 +130,6 @@ console.clear();
 							})
 						});
 
-						//also sendout close quicksearchTab command
-						// chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-						// 	chrome.tabs.sendMessage(tabs[0].id, {
-						// 		todo: "closeQuickSearchTab",
-						// 		from: "EventPage::searchStrataPlanSummary"
-						// 	})
-						// });
 					}
 				});
 			});
@@ -143,21 +138,32 @@ console.clear();
 
 		if(request.todo == 'searchComplex'){
 			var complexID = request._id;
-			var requestFrom = '-' + request.from;
+			var requestFrom = request.from;
 			delete request.from;
 			var complexInfo = request;
-			db.readComplex(complexInfo, function(complexInfo){
+			
+			db.readComplex(complexInfo, function(cInfo){
 				//console.log('>>>read the complex info from database:', complexInfo);
-				if(complexInfo && complexInfo.name.length>0){
-					complexInfo.from += requestFrom;
-					complexInfo.complexName = complexInfo.name;
-					chrome.storage.sync.set(complexInfo, function(){
-						//console.log('complexInfo has been updated to storage for report listeners');
+				if(cInfo && cInfo.name.length>0){
+					cInfo.from += ('-' + requestFrom);
+					cInfo.complexName = cInfo.name;
+					chrome.storage.sync.set(cInfo, function(){
+						console.log('complexInfo is: ', cInfo);
 					})
+					/////////////////////////////////////
+					// if(requestFrom != "spreadSheetCompletion"){
+					// 	chrome.storage.sync.set(cInfo, function(){
+					// 		//console.log('complexInfo has been updated to storage for report listeners');
+					// 	})
+					// }else{
+					// 	complexInfoSearchResult = Object.assign({ }, cInfo) ;
+					// }
+					/////////////////////////////////////////
 				}else{
 					//error for complexInfo
 				}
 			})
+			//sendResponse(complexInfoSearchResult);
 		}
 
 		if(request.todo == 'saveComplex'){

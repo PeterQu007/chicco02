@@ -47,6 +47,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
 						totalValue: 0,
 						landValue: 0,
 						improvementValue: 0,
+						planNum: '',
 						taxSearchRequester: msg.todo
 					})
 					btnSearch.click();
@@ -59,6 +60,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, response) {
 						landValue: 0,
 						improvementValue: 0,
 						totalValue: 0,
+						planNum: '',
 						PID: result.PID,
 						from: 'assess-'+ msg.todo + '-TaxSearchFailed' + Math.random().toFixed(8),
 						dataFromDB: false 
