@@ -360,9 +360,9 @@ var computeSFPrices = {
             for (i=0; i<rowNumber.length; i++){
                 var j = rowNumber[i];
                 if(self.table[j-1][10]){
-                    $($(rows[j]).children('td')[self.cols.landValue]).text(self.table[j-1][5]);
-                    $($(rows[j]).children('td')[self.cols.improvementValue]).text(self.table[j-1][6]);
-                    $($(rows[j]).children('td')[self.cols.totalValue]).text(self.table[j-1][7]);
+                    $($(rows[j]).children('td')[self.cols.landValue]).text($fx.removeDecimalFraction(self.table[j-1][5]));
+                    $($(rows[j]).children('td')[self.cols.improvementValue]).text($fx.removeDecimalFraction(self.table[j-1][6]));
+                    $($(rows[j]).children('td')[self.cols.totalValue]).text($fx.removeDecimalFraction(self.table[j-1][7]));
                     $($(rows[j]).children('td')[self.cols.changeValuePercent]).text(self.table[j-1][8]+'%');
                     $($(rows[j]).children('td')[self.cols.strataPlan]).text(self.table[j-1][9]); //Show Plan Num in the table
                     $($(rows[j]).children('td')[self.cols.address]).text(self.table[j-1][13]); //Show formal address on the table
