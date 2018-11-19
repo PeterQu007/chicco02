@@ -24,6 +24,7 @@ let DefaultPage = {
         //console.log(this.topTabs);
         this.onMessage();
         this.onChanged();
+        this.post();
     },
 
     mainMenu: new MainMenu(),
@@ -157,6 +158,15 @@ let DefaultPage = {
                     }
                 })
             }
+        })
+    },
+
+    post() {
+        var title = this.mainNavBar.mainNavItems[1].Title;
+        var id = this.mainNavBar.mainNavItems[1].tabID;
+       
+        $.post('http://localhost/ChromeX/MLSHelper/app/test.php', {postTitle: title, postID: id}, function(data){
+            console.log(data);
         })
     }
 };
