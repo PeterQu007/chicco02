@@ -187,6 +187,149 @@
             //console.log('QuickSearch Page\'s tabID is:', src);
             return '#' + src; //add id sign # as prefix
         },
+
+        normalizeComplexName: function(complexName){
+            var normalizedName = '';
+            if(typeof complexName == 'string'){
+                complexName = complexName.trim();
+                var nameParts = complexName.split(' ');
+                var firstChar = '';
+                var remainingChar = '';
+                
+                for (var i = 0; i<nameParts.length; i++){
+                    nameParts[i] = nameParts[i].trim();
+                    firstChar = nameParts[i].charAt(0).toUpperCase();
+                    remainingChar = nameParts[i].slice(1).toLowerCase().trim();
+                    normalizedName += (firstChar + remainingChar + " ");
+                    
+                }
+                normalizedName = normalizedName.trim();
+            }else{
+                normalizedName = "";
+            }
+            
+            return normalizedName;
+        },
+
+        setCols: function(tabTitle){
+           
+            var cols = null;
+            switch(tabTitle){
+                case 'Quick Search':
+                case 'Listing Carts':
+                    cols = {
+                        RecordNo: 0, //index 0
+                        Status: 8,
+                        address: 9,
+                        complexName: 11,
+                        ListPrice: 12,
+                        Price: 13,
+                        SoldPrice: 14,
+                        TotalFloorArea: 15,
+                        PricePSF: 16,
+                        SoldPricePSF: 17,
+                        PID: 22,
+                        landValue: 23,
+                        improvementValue: 24,
+                        totalValue: 25,
+                        changeValuePercent: 26,
+                        lotSize: 27,
+                        strataPlan: 28,
+                        houseType: 29
+                    }
+                    break;
+                case 'Residential Attached':
+                    cols = {
+                        RecordNo: 0, //index 0
+                        Status: 8,
+                        address: 9,
+                        complexName: 11,
+                        Price: 12,
+                        ListPrice: 14,
+                        SoldPrice: 18,
+                        TotalFloorArea: 22,
+                        PricePSF: 23,
+                        SoldPricePSF: 24,
+                        lotSize: 28,
+                        PID: 31,
+                        landValue: 32,
+                        improvementValue: 33,
+                        totalValue: 34,
+                        changeValuePercent: 35,
+                        strataPlan: 36,
+                        streetAddress: 37,
+                        unitNo: 38,
+                        houseType: 42
+                    }
+                    break;
+                case 'Residential Detached':
+                    cols = {
+                        RecordNo: 0, //index 0
+                        Status: 8,
+                        address: 9,
+                        complexName: 11,
+                        Price: 12,
+                        ListPrice: 12,
+                        SoldPrice: 36, //
+                        TotalFloorArea: 17,
+                        PricePSF: 22,
+                        SoldPricePSF: 23,
+                        PID: 24,
+                        landValue: 25,
+                        improvementValue: 26,
+                        totalValue: 27,
+                        changeValuePercent: 28,
+                        strataPlan: 33,
+                        lotSize: 20,
+                        houseType: 30
+                    }
+                    break;
+                    case 'Tour and Open House':
+                    cols = {
+                        RecordNo: 0, //index 0
+                        Status: 20,
+                        Price: 11,
+                        ListPrice: 11,
+                        address: 13,
+                        complexName: 14,
+                        SoldPrice: 39, //No use for open house
+                        TotalFloorArea: 32,
+                        PricePSF: 22,
+                        SoldPricePSF: 39,
+                        PID: 21,
+                        landValue: 22,
+                        improvementValue: 23,
+                        totalValue: 24,
+                        changeValuePercent: 25,
+                        strataPlan: 34,
+                        lotSize: 33,
+                        houseType: 9
+                    }
+                    break;
+                default:
+                    cols = {
+                        RecordNo: 0, //index 0
+                        Status: 8,
+                        Price: 12,
+                        ListPrice: 14,
+                        SoldPrice: 18,
+                        TotalFloorArea: 22,
+                        PricePSF: 23,
+                        SoldPricePSF: 24,
+                        PID: 31,
+                        landValue: 32,
+                        improvementValue: 33,
+                        totalValue: 34,
+                        changeValuePercent: 35,
+                        strataPlan: 36
+                    }
+                    break;
+            }
+            return cols;
+            
+        },
+    
+
     };
 
     Library.init = function (houseType) {

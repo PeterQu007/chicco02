@@ -24,6 +24,12 @@ var fullRealtor = {
 		//$fx.getCurrentTab(curTabID);
 		//link to iframe's tabID
 		this.tabID = $fx.getTabID(window.frameElement.src);
+		
+        this.tabNo = parseInt(this.tabID.replace('#tab',''));
+        var x = $('ul#tab-bg', top.document); //find the top tab panel
+        var y = x.children('li')[this.tabNo];
+        this.tabTitle = $(y).children().find('span').text().trim();
+        console.warn('[FR]===>tabID, tabNo, tabTitle', this.tabID, this.tabNo, this.tabTitle);
 		console.warn('[FR]===>window.frameElement.id', this.tabID);
 		chrome.storage.sync.set({curTabID: this.tabID});
 		//this.lockVisibility();
@@ -67,6 +73,8 @@ var fullRealtor = {
 	realtorRemarks: $('div[style="top:860px;left:53px;width:710px;height:35px;"]'),
 	publicRemarks: $('div[style="top:897px;left:4px;width:758px;height:75px;"]'),
 	keyword: $('div#app_banner_links_left input.select2-search__field', top.document),
+	spreadsheetTable: parent.document.querySelector('#ifSpreadsheet').contentDocument.querySelector('#grid'),
+	curPage: parent.document.querySelector('#txtCurPage'),
 
 	//complex info:
 	address: $('div[style="top:4px;left:134px;width:481px;height:17px;"]'),
@@ -98,6 +106,8 @@ var fullRealtor = {
 	street: null,
 	streetNumber: null,
 	tabID: null,
+	tabNo: 0,
+	tabTitle: '',
 	tabContentContainer: null,
 
 	lockVisibility: function () {
@@ -193,7 +203,6 @@ var fullRealtor = {
 		this.addStrataPlan(); //move this operation inside updateAssessment
 		
 		this.addBCAssessment();
-		//this.addComplexInfo();
 
 		this.addRemarks();
 	},
@@ -248,14 +257,28 @@ var fullRealtor = {
 		var postcode = self.postcode.text();
 		var dwellingType = self.dwellingType.text();
 		var complexName = complex || self.complexOrSubdivision.text().trim();
-		var address = new addressInfo(self.formalAddress.text( ), this.houseListingType, true); //todo list...
+		complexName = $fx.normalizeComplexName(complexName);
+		if(typeof complexName != 'string' && complexName.length<=0){
+			console.log("ComplexName does not existed"); ////exit
+			return;
+		}
+		var addressSelect = '';
+		var isFormalAddress = true;
+		if(typeof self.formalAddress.text() =="string" && self.formalAddress.text().length > 0 ){
+			addressSelect = self.formalAddress.text();
+		}else{
+			addressSelect = self.address.text();
+			isFormalAddress = false;
+		}
+		var address = new addressInfo(addressSelect, this.houseListingType, isFormalAddress); //todo list...
 		var strataPlan = self.strataPlan;
 		var totalUnits = self.totalUnits.text();
 		var devUnits = self.devUnits.text();
 
 		var complexInfo = {
 			_id: strataPlan + '-' + address.streetNumber + '-' + address.streetName + '-' + address.streetType,
-			name: complexName,
+			name: $fx.normalizeComplexName(complexName),
+			complexName: complexName,
 			strataPlan: strataPlan,
 			addDate: $fx.getToday(),
 			subArea: subArea,
@@ -280,6 +303,9 @@ var fullRealtor = {
 				}
 			}
 		)
+
+		
+
 	},
 
 	addBCAssessment: function () {
@@ -334,11 +360,12 @@ var fullRealtor = {
 	},
 
 	searchStrataPlanSummary: function () {
-		//console.log('mls-fullrealtor.search strataPlanSummary listings: ');
+		
 		var strataPlan = this.legalDesc.strataPlan1;
 		var complexName = this.complexOrSubdivision.text();
+		complexName = $fx.normalizeComplexName(complexName); ////NORMALIZE THE COMPLEX NAME FROM THE REPORT
 		chrome.storage.sync.set({ 'strataPlan': strataPlan, 'complexName': complexName }, function (e) {
-			//console.log('mls-fullrealtor.searchComplex.callback parameters: ', e);
+			
 			chrome.runtime.sendMessage(
 				{
 					from: 'ListingReport',
@@ -347,8 +374,7 @@ var fullRealtor = {
 					saveResult: true
 				},
 				function (response) {
-					//console.log('mls-fullrealtor got search strataPlanSummary response: ', response);
-					//set the current Tab 
+				
 				}
 			)
 		});
@@ -397,11 +423,37 @@ var fullRealtor = {
 	saveComplexInfo: function () {
 		//console.log('save button clicked!');
 		//manually save or update complex name to the database
+		var self = this;
 		var inputName = $('#inputComplexName').val();
+		inputName = $fx.normalizeComplexName(inputName);
 		if (inputName.length > 0) {
 			this.addComplexInfo(inputName);
 			this.complexName.text(inputName + '*');
-			//this.complexSummary.text(inputName + '*');
+
+			var recordNo = parseInt(self.curPage.value);
+			var recordRows = $(self.spreadsheetTable).children().find('tr');
+			var recordRow = $(recordRows[recordNo]);
+			var cells = recordRow.children();
+			var cols = $fx.setCols(self.tabTitle);
+			var complexCell = cells[cols.complexName];
+			var strataPlan = cells[cols.strataPlan].textContent;
+			var streetAddress = cells[cols.streetAddress].textContent;
+			var recordRow_i = null;
+			var strataPlan_i ="";
+			var streetAddress_i = "";
+			var cells_i = null;
+			var complexCell_i = null;
+			for(var i =1; i<recordRows.length; i++){
+				recordRow_i = $(recordRows[i]);
+				cells_i = recordRow_i.children();
+				complexCell_i = cells_i[cols.complexName];
+				strataPlan_i = cells_i[cols.strataPlan].textContent;
+				streetAddress_i = cells_i[cols.streetAddress].textContent;
+				if (strataPlan == strataPlan_i && streetAddress == streetAddress_i){
+					complexCell_i.textContent = inputName;
+				}
+			};
+	
 		};
 	},
 
@@ -438,12 +490,27 @@ var fullRealtor = {
 		var soldPrice = $fx.convertStringToDecimal(self.sp.text());
 		chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate','planNum', 'dataFromDB'], function (result) {
 			var totalValue = result.totalValue;
+			var formalAddress = result.address.trim();
+			if (totalValue==0){
+				console.log("No BCA Assess Published Yet");
+				//Update PlanNum and formal Address:
+				if(result.planNum){
+					self.addStrataPlan(result.planNum);
+					//self.uiListingInfo.planNo.text('Plan Num: ' + result.planNum + '*'); //Update the strataNum
+				}
+				
+				self.formalAddress.text(formalAddress);
+				if(formalAddress){
+					self.addComplexInfo(); //Search Complex Name
+				}
+				return;
+			}
 			var improvementValue = result.improvementValue;
 			var landValue = result.landValue;
 			var lotSize = result.lotSize;
 			var lotArea = $fx.convertStringToDecimal(lotSize, true);
 			var lotAreaInSquareFeet = (lotArea < 500 ? (lotArea * 43560).toFixed(0) : $fx.numberWithCommas($fx.removeDecimalFraction(lotArea)));
-			var formalAddress = result.address.trim();
+			
 			var finishedFloorArea = $fx.convertStringToDecimal(self.finishedFloorArea.text());
 			var intTotalValue = $fx.convertStringToDecimal(totalValue);
 			var intImprovementValue = $fx.convertStringToDecimal(improvementValue);
@@ -539,10 +606,15 @@ var fullRealtor = {
 
 	updateComplexInfo: function () {
 		var self = this;
-		//console.log('update Complex info:');
+		var $inputName = $('#inputComplexName');
+		var compName = "";
+		
 		chrome.storage.sync.get('complexName', function (result) {
-			self.complexName.text(result.complexName);
-			self.complexOrSubdivision.text(result.complexName);
+			compName = $fx.normalizeComplexName(result.complexName);
+			self.complexName.text(compName);
+			self.complexOrSubdivision.text(compName);
+			$inputName.val(compName);
+	
 		})
 	},
 }

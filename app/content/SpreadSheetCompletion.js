@@ -159,6 +159,8 @@ var computeSFPrices = {
                         var complexName = $(rows[i]).children('td')[self.cols.complexName].textContent;
                         var address = $(rows[i]).children('td')[self.cols.address].textContent;
                         var houseType = $(rows[i]).children('td')[self.cols.houseType].textContent;
+                        var streetAddress = "";
+                        var unitNo = "";
                         col31_PID.push(pid);
                         row.push(pid); //col 4
                         col32_LandValue.push(0);
@@ -178,6 +180,8 @@ var computeSFPrices = {
                         row.push(houseType); //col 14: for houseType
                         row.push(false); //col 15: complexSearch Sign
                         row.push(''); //col 16: placeholder for complexID
+                        row.push(streetAddress); ////COL 17: STREET ADDRESS
+                        row.push(unitNo); ////  COL 18: UNIT NO FOR STRATA UNIT
                         self.table.push(row);
                         row = [];
                     }
@@ -307,7 +311,14 @@ var computeSFPrices = {
 			var landValue = result.landValue;
             var lotSize = result.lotSize;
             var planNum = result.planNum;
-            var formalAddress = result.address.trim();
+            var formalAddress = "";
+            var isFormalAddress = false;
+            if(typeof result.address == 'string' && result.address.trim().length >0 ){
+                formalAddress = result.address.trim();
+            }else{
+                formalAddress = "";
+            }
+           
             var aInfo = null;
             var houseType = null;
 			var intTotalValue = $fx.convertStringToDecimal(totalValue);
@@ -334,9 +345,18 @@ var computeSFPrices = {
                     self.table[i][7] = totalValue;
                     self.table[i][9] = planNum;
                     self.table[i][10] = true; // tax done, toggle the row's tax search sign
-                    self.table[i][13] = formalAddress; // formal address from tax search
+                    if(typeof formalAddress == 'string' && formalAddress.trim().length >0 ){
+                        self.table[i][13] = formalAddress; ////SET FORMAL ADDRESS TO THE ONE FROM TAX SEARCH
+                        isFormalAddress = true;
+                    }else{
+                        self.table[i][13] = (self.table[i][13]).trim();
+                        isFormalAddress = false;
+                    }
+                    var tempAddress = self.table[i][13]; ////SET TEMP ADDRESS FOR FUNCTION BELOW:
                     houseType = self.table[i][14] ; //fetch houseType
-                    aInfo = new addressInfo(formalAddress, houseType, true);
+                    aInfo = new addressInfo(tempAddress, houseType, isFormalAddress);
+                    self.table[i][17] = aInfo.streetAddress;
+                    self.table[i][18] = aInfo.UnitNo;
                     self.table[i][16] = planNum + aInfo.addressID; //complexID
                     price = parseInt(self.table[i][1]);
                     rowNumber.push(self.table[i][0]) ;
@@ -366,6 +386,8 @@ var computeSFPrices = {
                     $($(rows[j]).children('td')[self.cols.changeValuePercent]).text(self.table[j-1][8]+'%');
                     $($(rows[j]).children('td')[self.cols.strataPlan]).text(self.table[j-1][9]); //Show Plan Num in the table
                     $($(rows[j]).children('td')[self.cols.address]).text(self.table[j-1][13]); //Show formal address on the table
+                    $($(rows[j]).children('td')[self.cols.streetAddress]).text(self.table[j-1][17]); ////SHOW THE STREET ADDRESS WITHOUT UNIT#
+                    $($(rows[j]).children('td')[self.cols.unitNo]).text(self.table[j-1][18]); ////SHOW THE UNIT NO SEPARATELY
                     //Complex Name will be udpated after all tax search done
                 }
                 
@@ -473,7 +495,7 @@ var computeSFPrices = {
 		})(this);
     },
 
-    searchComplex: function (planNum, address, complexName, houseType ) {
+    searchComplex: function () {
         var self = this;
         var i = 0;
         var unSearchComplex = 0;
@@ -485,40 +507,48 @@ var computeSFPrices = {
 
         for (i=0; i<self.table.length; i++)
         {
-            if (!self.table[i][15]){ //if not yet done tax search
-                unSearchComplex = i;
-                complexID = self.table[i][16];
-                //planNum, address, complex, houseType
-                planNum = self.table[i][9];
-                address = self.table[i][13];
-                complexName = self.table[i][12];
-                houseType = self.table[i][14];
-                if(houseType == 'HOUSE'){
-                    //Detached Property no need to do complex Search
-                    self.table[i][15] = true;
-                    continue;
-                }
-                if(!complexID){
-                    // re do complexID
-                    var isFormal = true; // this is formal address from tax search
-                    var aInfo = new addressInfo(address, houseType, isFormal); //todo list...
-                    complexID = planNum + aInfo.addressID;
-                };
-                ////////////////////////////////////////////
-                var complexInfo = {
-                    _id: complexID,
-                    name: complexName,
-                    todo: 'searchComplex',
-                    from: "spreadSheetCompletion"
-                };
+            try{
 
-                chrome.runtime.sendMessage(
-                    complexInfo, function (response) {
+                if (!self.table[i][15]){ ////IF NOT YET DONE COMPLEX SEARCH BY CHECKING COMPLEX SEARCH TAG
+                    unSearchComplex = i;
+                    complexID = self.table[i][16];
+                    ////planNum, address, complex, houseType
+                    planNum = self.table[i][9];
+                    address = self.table[i][13];
+                    complexName = $fx.normalizeComplexName(self.table[i][12]);
+                    houseType = self.table[i][14];
+                    if(houseType == 'HOUSE'){
+                        ////DETACHED PROPERTY NO NEED TO DO COMPLEX SEARCH
+                        self.table[i][15] = true;
+                        continue;
                     }
-                )
-                ////////////////////////////////////////
-                break;
+                    if(!complexID){
+                        // re do complexID
+                        var isFormal = true; // this is formal address from tax search
+                        var aInfo = new addressInfo(address, houseType, isFormal); //todo list...
+                        complexID = planNum + aInfo.addressID;
+                    };
+                    ////////////////////////////////////////////
+                    var complexInfo = {
+                        _id: complexID,
+                        name: complexName,
+                        todo: 'searchComplex',
+                        from: "spreadSheetCompletion"
+                    };
+    
+                    chrome.runtime.sendMessage(
+                        complexInfo, function (response) {
+                        }
+                    )
+                    ////////////////////////////////////////
+                    break;
+                }
+
+            }catch(error){
+                console.error(error);
+                continue;
             }
+            
             if (i == self.table.length-1) {
                 console.log('complexSearch done!');
             }
@@ -531,13 +561,13 @@ var computeSFPrices = {
         chrome.storage.sync.get(['_id','name'], function (result) {
             var complexID = result._id;
             var complexName = result.name;
-		
+            complexName = $fx.normalizeComplexName(complexName);
             var i = 0;
             var rowNumber = self.rowNumber;
             for (i=0; i<self.table.length; i++){
                 if (complexID == self.table[i][16]){
                     self.table[i][12] = complexName;
-                    self.table[i][15] = true; // toggle the row's complex search sign
+                    self.table[i][15] = true; ////SETUP THE ROW'S COMPLEX SEARCH SIGN
                 }
             }
 
@@ -549,7 +579,7 @@ var computeSFPrices = {
                 var j = rowNumber[i];
                 if(self.table[j-1][15]){
                 
-                    $($(rows[j]).children('td')[self.cols.complexName]).text(self.table[j-1][12]); //Show formal address on the table
+                    $($(rows[j]).children('td')[self.cols.complexName]).text(self.table[j-1][12]); ////SHOW NORMALIZED COMPLEX NAME
          
                 }
             }
@@ -605,6 +635,8 @@ var computeSFPrices = {
                     totalValue: 34,
                     changeValuePercent: 35,
                     strataPlan: 36,
+                    streetAddress: 37,
+                    unitNo: 38,
                     houseType: 42
                 }
                 break;

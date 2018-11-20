@@ -584,8 +584,12 @@
 
 	    if (this.isFormalAddress) {
 	        if (houseType == 'Attached') {
-	            this.UnitNo = this.addressParts.pop();
-	            this.addressParts.pop();
+	            if (this.addressParts.length > 3) {
+	                this.UnitNo = this.addressParts.pop();
+	                this.addressParts.pop();
+	            } else {
+	                this.UnitNo = "TBA";
+	            }
 	        }
 	    } else {
 	        if (houseType == 'Attached') {
@@ -611,6 +615,15 @@
 	        case 'BOULEVARD':
 	            streetType = 'BV';
 	            break;
+	        case 'BYPASS':
+	            streetType = 'BP';
+	            break;
+	        case 'CRESCENT':
+	            streetType = "CR";
+	            break;
+	        default:
+	            streetType = streetType;
+	            break;
 	    }
 	    this.streetType = streetType;
 	    this.formalAddress = this.streetNumber + " " + this.streetName.replace('-', ' ') + " " + this.streetType;
@@ -618,6 +631,7 @@
 	        this.formalAddress = this.formalAddress + " UNIT# " + this.UnitNo;
 	    }
 	    this.addressID = '-' + this.streetNumber + '-' + this.streetName + '-' + this.streetType;
+	    this.streetAddress = this.streetNumber + ' ' + this.streetName + ' ' + this.streetType;
 	};
 
 	;

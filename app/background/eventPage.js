@@ -144,31 +144,33 @@ console.clear();
 			
 			db.readComplex(complexInfo, function(cInfo){
 				//console.log('>>>read the complex info from database:', complexInfo);
-				if(cInfo && cInfo.name.length>0){
-					cInfo.from += ('-' + requestFrom);
-					cInfo.complexName = cInfo.name;
+				if(cInfo){
+					if(cInfo.name.length>0){
+						cInfo.from += ('-' + requestFrom);
+						cInfo.complexName = cInfo.name;
+					}else{
+						cInfo.from += ('-' + requestFrom);
+						cInfo.complexName = "";
+					}
+					
 					chrome.storage.sync.set(cInfo, function(){
 						console.log('complexInfo is: ', cInfo);
 					})
-					/////////////////////////////////////
-					// if(requestFrom != "spreadSheetCompletion"){
-					// 	chrome.storage.sync.set(cInfo, function(){
-					// 		//console.log('complexInfo has been updated to storage for report listeners');
-					// 	})
-					// }else{
-					// 	complexInfoSearchResult = Object.assign({ }, cInfo) ;
-					// }
-					/////////////////////////////////////////
+				
 				}else{
 					//error for complexInfo
+					console.log("Complex Name does not exist in Database");
 				}
 			})
-			//sendResponse(complexInfoSearchResult);
+	
 		}
 
 		if(request.todo == 'saveComplex'){
 			var complexID = request._id;
-			db.writeComplex(request);
+			if (request.complexName.trim().length>0){
+				db.writeComplex(request);
+			}
+			
 		}
 
 		if (request.todo == "saveTax") {

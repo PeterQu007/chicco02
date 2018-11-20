@@ -195,6 +195,12 @@ export default class UISummaryTable {
                 case 'Room28Type':
                     colName = "Change%";
                     break;
+                case 'Room27Lev':
+                    colName = "Address";
+                    break;
+                case 'Room27Dim2':
+                    colName = "Unit#";
+                    break;
             }
                 
             oldHeadCells[i].textContent = colName;
@@ -229,6 +235,9 @@ export default class UISummaryTable {
                     case 'Address':
                         colName = "地址";
                         break;
+                    case 'Unit#':
+                        colName = "单元号";
+                        break;
                     case 'Status':
                         colName = "挂牌状况";
                         break;
@@ -262,15 +271,15 @@ export default class UISummaryTable {
             for(var i=0; i<rowsBody.length; i++){
                 var row = rowsBody[i];
                 $(row).height(40) ; 
-                for(var j=71; j>35; j--){
+                for(var j=71; j>=39; j--){
                     $(row).children('td').eq(j).remove();
                 }
-                $(row).children('td').eq(33).remove();
-                $(row).children('td').eq(32).remove();
+                $(row).children('td').eq(33).remove();////IMPROVEMENT VALUE
+                $(row).children('td').eq(32).remove();////LAND VALUE
                 $(row).children('td').eq(29).remove();
                 $(row).children('td').eq(28).remove();
                 $(row).children('td').eq(27).remove();
-                $(row).children('td').eq(26).remove();
+                //$(row).children('td').eq(26).remove(); ////KEEP THE AGE
                 $(row).children('td').eq(24).remove();
                 //$(row).children('td').eq(19).remove(); //Days On Market
                 $(row).children('td').eq(18).remove();
