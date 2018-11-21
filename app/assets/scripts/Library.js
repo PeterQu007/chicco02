@@ -243,7 +243,10 @@
                         RecordNo: 0, //index 0
                         Status: 8,
                         address: 9,
+                        subArea: 48,
+                        neighborhood: 10,
                         complexName: 11,
+                        postcode: 54,
                         Price: 12,
                         ListPrice: 14,
                         SoldPrice: 18,

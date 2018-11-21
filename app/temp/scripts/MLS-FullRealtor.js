@@ -54,11 +54,11 @@
 
 	'use strict';
 
-	var _LegalDescription = __webpack_require__(9);
+	var _LegalDescription = __webpack_require__(10);
 
 	var _LegalDescription2 = _interopRequireDefault(_LegalDescription);
 
-	var _AddressInfo = __webpack_require__(10);
+	var _AddressInfo = __webpack_require__(9);
 
 	var _AddressInfo2 = _interopRequireDefault(_AddressInfo);
 
@@ -1030,79 +1030,6 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	// get strata plan number
-
-	var strataPlanPrefix = ['EPS', 'BCS', 'LMS', 'BCP', 'LMP', 'NWS', 'EPP', 'PLAN', 'PL', 'NW'];
-
-	var LegalDescription = function () {
-		function LegalDescription(legal) {
-			_classCallCheck(this, LegalDescription);
-
-			this.legal = legal.replace(/\./g, ' ');
-			this.strataPlan1 = '';
-			this.strataPlan2 = '';
-			this.strataPlan3 = '';
-			this.strataPlan4 = '';
-			this.LotNumber = '';
-			this.blockNumber = '';
-			this.ldNumber = '';
-			this.secNumber = '';
-			this.rngNumber = '';
-
-			this.getNumbers(this.legal);
-		}
-
-		_createClass(LegalDescription, [{
-			key: 'getNumbers',
-			value: function getNumbers(legal) {
-
-				for (var j = 0; j < strataPlanPrefix.length; j++) {
-					var start = legal.indexOf(strataPlanPrefix[j]);
-					if (start >= 0) {
-
-						var subPlan = legal.substring(start + strataPlanPrefix[j].length).trim();
-
-						var plan = '';
-
-						for (var i = 0; i < subPlan.length; i++) {
-
-							if (!isNaN(subPlan[i])) {
-								plan += subPlan[i];
-							} else {
-								break;
-							}
-						}
-						this.strataPlan1 = strataPlanPrefix[j] + plan.trim();
-						this.strataPlan2 = strataPlanPrefix[j] + plan.trim() + ' ';
-						this.strataPlan3 = strataPlanPrefix[j] + ' ' + plan.trim();
-						this.strataPlan4 = strataPlanPrefix[j] + ' ' + plan.trim() + ' ';
-						return;
-					}
-				}
-
-				this.strataPlan1 = 'strata plan not found';
-			}
-		}]);
-
-		return LegalDescription;
-	}();
-
-	exports.default = LegalDescription;
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 
@@ -1182,12 +1109,86 @@
 	        this.formalAddress = this.formalAddress + " UNIT# " + this.UnitNo;
 	    }
 	    this.addressID = '-' + this.streetNumber + '-' + this.streetName + '-' + this.streetType;
-	    this.streetAddress = this.streetNumber + ' ' + this.streetName + ' ' + this.streetType;
+	    this.streetAddress = this.streetNumber + ' ' + this.streetName.replace('-', ' ') + ' ' + this.streetType;
+	    this.googleSearchLink = "http://www.google.com/search?q=" + this.streetAddress.split(' ').join('+');
 	};
 
 	;
 
 	exports.default = AddressInfo;
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	// get strata plan number
+
+	var strataPlanPrefix = ['EPS', 'BCS', 'LMS', 'BCP', 'LMP', 'NWS', 'EPP', 'PLAN', 'PL', 'NW'];
+
+	var LegalDescription = function () {
+		function LegalDescription(legal) {
+			_classCallCheck(this, LegalDescription);
+
+			this.legal = legal.replace(/\./g, ' ');
+			this.strataPlan1 = '';
+			this.strataPlan2 = '';
+			this.strataPlan3 = '';
+			this.strataPlan4 = '';
+			this.LotNumber = '';
+			this.blockNumber = '';
+			this.ldNumber = '';
+			this.secNumber = '';
+			this.rngNumber = '';
+
+			this.getNumbers(this.legal);
+		}
+
+		_createClass(LegalDescription, [{
+			key: 'getNumbers',
+			value: function getNumbers(legal) {
+
+				for (var j = 0; j < strataPlanPrefix.length; j++) {
+					var start = legal.indexOf(strataPlanPrefix[j]);
+					if (start >= 0) {
+
+						var subPlan = legal.substring(start + strataPlanPrefix[j].length).trim();
+
+						var plan = '';
+
+						for (var i = 0; i < subPlan.length; i++) {
+
+							if (!isNaN(subPlan[i])) {
+								plan += subPlan[i];
+							} else {
+								break;
+							}
+						}
+						this.strataPlan1 = strataPlanPrefix[j] + plan.trim();
+						this.strataPlan2 = strataPlanPrefix[j] + plan.trim() + ' ';
+						this.strataPlan3 = strataPlanPrefix[j] + ' ' + plan.trim();
+						this.strataPlan4 = strataPlanPrefix[j] + ' ' + plan.trim() + ' ';
+						return;
+					}
+				}
+
+				this.strataPlan1 = 'strata plan not found';
+			}
+		}]);
+
+		return LegalDescription;
+	}();
+
+	exports.default = LegalDescription;
 
 /***/ }),
 /* 11 */

@@ -72,7 +72,8 @@ class AddressInfo {
             this.formalAddress = this.formalAddress + " UNIT# " + this.UnitNo;
         }
         this.addressID = '-' + this.streetNumber + '-' + this.streetName + '-' + this.streetType;
-        this.streetAddress = this.streetNumber + ' ' + this.streetName + ' ' + this.streetType;
+        this.streetAddress = this.streetNumber + ' ' + this.streetName.replace('-',' ') + ' ' + this.streetType;
+        this.googleSearchLink = "http://www.google.com/search?q=" + this.streetAddress.split(' ').join('+');
     }
 
 };

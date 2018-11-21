@@ -1,12 +1,14 @@
-// UI element: Extra Summary Table
+//// UI ELEMENT: Extra Summary Table
+import addressInfo from '../modules/AddressInfo';
+var $fx = L$();
 
 export default class UISummaryTable {
     constructor(){
         this.$UITable = $(`<div id = "SummaryFunctionBox" style = 'top: 30px; left: 850px; position: absolute'>
         <div id ="divExport"  >
-            <button type="button" id="btnExport" style = "position: absolute; width: 60px; z-index: 999" >Export</button>
-            <button type="button" id="btnAssess" style = "top: 20px; width: 60px; position: absolute; z-index: 999" >Assess</button>
-            <button type="button" id="btnComplex" style = "top: 40px; width: 60px; position: absolute; z-index: 999" >Complex</button>
+            <button type="button" id="btnExport" title="Export to Excel" style = "position: absolute; width: 60px; z-index: 999" >Exp</button>
+            <button type="button" id="btnAssess" title="Update BCA Assess" style = "top: 20px; width: 60px; position: absolute; z-index: 999" >Bca</button>
+            <button type="button" id="btnComplex" title="Update Complex Name" style = "top: 40px; width: 60px; position: absolute; z-index: 999" >Cpx</button>
         </div>
         <div id = "SummaryBox" style = 'top: 0px; position: absolute'>
 
@@ -104,16 +106,27 @@ export default class UISummaryTable {
         `);
         this.tabTitle = '';
         this.language = $('div#reportlanguage input', top.document);
-        this.onClick();
+        this.complex = $('div#app_banner_links_left input.select2-search__field', top.document);
+        this.onExportClick();
+        this.onComplexClick();
     
     }
 
-    onClick(){
+    onExportClick(){
         
         var self = this;
         $(this.$UITable.children().find('#btnExport')).click(function(){
             //console.log('export');
             this.ExportToExcel('#grid');
+        }.bind(self))
+    }
+
+    onComplexClick(){
+        
+        var self = this;
+        $(this.$UITable.children().find('#btnComplex')).click(function(){
+            //console.log('export');
+            this.saveComplexInfo(self.tabTitle);
         }.bind(self))
     }
 
@@ -363,6 +376,168 @@ export default class UISummaryTable {
         cloneTable.remove();
         
     }
+
+    saveComplexInfo(tabTitle) {
+		
+        ////MANUALLY SAVE OR UPDATE COMPLEX NAME TO THE DATABASE
+        ////RECORD NO HAS TO BE LOOK UP THE CHECKED ONE IN THE TABLE 
+        var self = this;
+        var cols = $fx.setCols(tabTitle);
+		var complexName = self.complex.val();
+        complexName = $fx.normalizeComplexName(complexName); ////NORMALIZED THE COMPLEX NAME
+        if(complexName.length == 0){
+            console.warn("NOT INPUT A VALID COMPLEX NAME");
+            return;
+        }
+        ////SEARCH CHECKED RECORD NO
+        var recordNo = 0;
+        var recordRow_i = null;
+        var strataPlan_i ="";
+        var streetAddress_i = "";
+        var cells_i = null;
+        var complexCell_i = null;
+        var recordNo_i=0;
+        var recordCheckbox_i = null;
+        var htmlTable = document.querySelector('#grid');
+        var recordRows = $(htmlTable).children().find('tr');
+    
+        for(var i =1; i<recordRows.length; i++){
+            recordRow_i = $(recordRows[i]); ////LOOP ALL THE ROWS IN THE TABLE
+            cells_i = recordRow_i.children();
+            recordNo_i = cells_i[cols.RecordNo];
+            recordCheckbox_i = $(cells_i[1]).children('input[type="checkbox"]'); ////HARDWIRED THE COL NO 1 TO THE CHECKBOX COLUMN
+            if($(recordCheckbox_i).prop("checked") == true){
+                recordNo = recordNo_i.textContent;
+                break;
+            }
+        };
+        if (recordNo == 0) {
+            console.warn("No Record Selected!");
+            return;
+        }
+
+        ////UPDATE THE COMPLEX NAME IN THE SPREAD SHEET
+        var recordRow = $(recordRows[recordNo]); ////FETCH THE SELECTED ROW AND ITS CELLS
+        var cells = recordRow.children();
+       
+        var strataPlan = cells[cols.strataPlan].textContent;
+        var streetAddress = cells[cols.streetAddress].textContent;
+      
+        for(var i =1; i<recordRows.length; i++){
+            recordRow_i = $(recordRows[i]); ////LOOP ALL THE ROWS IN THE TABLE
+            cells_i = recordRow_i.children();
+            recordNo_i = cells_i[cols.RecordNo];
+            recordCheckbox_i = $(cells_i[2]).children().find('input[type="checkbox'); ////HARDWIRED THE COL NO 2 TO THE CHECKBOX COLUMN
+            complexCell_i = cells_i[cols.complexName];
+            strataPlan_i = cells_i[cols.strataPlan].textContent;
+            streetAddress_i = cells_i[cols.streetAddress].textContent;
+            if (strataPlan == strataPlan_i && streetAddress == streetAddress_i){
+                complexCell_i.textContent = complexName;
+            }
+        };
+
+        ////SAVE THE COMPLEX.INFO INTO THE DATABASE
+		if (complexName.length > 0) {
+            ////PREPARE THE FIELDS FOR THE COMPLEX.INFO OBJECT
+            var subArea = cells[cols.subArea].textContent;
+            var neighborhood = cells[cols.neighborhood].textContent;
+            var postcode = cells[cols.postcode].textContent;
+            var houseType = cells[cols.houseType].textContent;
+            var formalAddress = cells[cols.address].textContent;
+            var isFormalAddress = true;
+            var address = new addressInfo(formalAddress, houseType, isFormalAddress); 
+            var strataPlan = cells[cols.strataPlan].textContent;
+            var totalUnits = 0;
+            var devUnits = 0;
+            
+            ////ASSEMBLE THE COMPLEX INFO OBJECT
+            var complexInfo = {
+                _id: strataPlan + '-' + address.streetNumber + '-' + address.streetName + '-' + address.streetType,
+                name: complexName,
+                complexName: complexName,
+                strataPlan: strataPlan,
+                addDate: $fx.getToday(),
+                subArea: subArea,
+                neighborhood: neighborhood,
+                postcode: postcode,
+                streetNumber: address.streetNumber,
+                streetName: address.streetName +' '+ address.streetType,
+                dwellingType: houseType,
+                totalUnits: totalUnits,
+                devUnits: devUnits,
+                todo: "saveComplex",
+                from: "uiSummaryTable"
+            }
+
+            ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
+            chrome.runtime.sendMessage(
+                complexInfo, function (response) {
+                }
+            )
+
+            ////FEEDBACK THE INPUT AREA WITH ADDED STAR SIGN
+            this.complex.val(complexName + '*'); 
+
+		};
+	}
+
+    // addComplexInfo(complex) {
+    //     var self = this;
+    //     ////PREPARE THE INFORMATION FIELDS FOR THE COMPLEX.INFO OBJECT
+    //     ////FETCH ALL THE INFORMTION FROM THE SELECTED ROW
+	// 	var subArea = self.subArea.text();
+	// 	var neighborhood = self.neighborhood.text();
+	// 	var postcode = self.postcode.text();
+	// 	var dwellingType = self.dwellingType.text();
+	// 	var complexName = complex || self.complexOrSubdivision.text().trim();
+	// 	complexName = $fx.normalizeComplexName(complexName);
+	// 	if(typeof complexName != 'string' && complexName.length<=0){
+	// 		console.log("ComplexName does not existed"); ////exit
+	// 		return;
+	// 	}
+	// 	var addressSelect = '';
+	// 	var isFormalAddress = true;
+	// 	if(typeof self.formalAddress.text() =="string" && self.formalAddress.text().length > 0 ){
+	// 		addressSelect = self.formalAddress.text();
+	// 	}else{
+	// 		addressSelect = self.address.text();
+	// 		isFormalAddress = false;
+	// 	}
+	// 	var address = new addressInfo(addressSelect, this.houseListingType, isFormalAddress); 
+	// 	var strataPlan = self.strataPlan;
+	// 	var totalUnits = self.totalUnits.text();
+	// 	var devUnits = self.devUnits.text();
+    //     ////ASSEMBLE THE COMPLEX INFO OBJECT
+	// 	var complexInfo = {
+	// 		_id: strataPlan + '-' + address.streetNumber + '-' + address.streetName + '-' + address.streetType,
+	// 		name: $fx.normalizeComplexName(complexName),
+	// 		complexName: complexName,
+	// 		strataPlan: strataPlan,
+	// 		addDate: $fx.getToday(),
+	// 		subArea: subArea,
+	// 		neighborhood: neighborhood,
+	// 		postcode: postcode,
+	// 		streetNumber: address.streetNumber,
+	// 		streetName: address.streetName + address.streetType,
+	// 		dwellingType: dwellingType,
+	// 		totalUnits: totalUnits,
+	// 		devUnits: devUnits,
+	// 		todo: "saveComplex",
+	// 		from: "spreadSheet"
+    //     }
+
+    //     ////SEND 'SAVE.COMPLEX' REQUEST TO BACKGROUND PAGE
+	// 	chrome.runtime.sendMessage(
+	// 		complexInfo,
+	// 		function (response) {
+	// 			if (response) {
+	// 				self.complexName.text(response.name);
+	// 				self.complexOrSubdivision.text(response.name);
+	// 			}
+	// 		}
+	// 	)
+    // }
+        
 
     
 }

@@ -72,6 +72,7 @@ var computeSFPrices = {
     rowNumber: [], //for table col 0 , keep the listing row number of spreadsheet
     tableComplex: [], //for complexName search
     cols: null,
+    keyword: $('div#app_banner_links_left input.select2-search__field', top.document),
 
     onMutation(){
         //populate the table / tableComplex
@@ -303,7 +304,8 @@ var computeSFPrices = {
 
     updateAssess: function () {
 		var self = this;
-	
+        var aInfo = null;
+
 		chrome.storage.sync.get(['PID','totalValue', 'improvementValue', 'landValue', 'lotSize', 'address', 'bcaDataUpdateDate', 'planNum','dataFromDB'], function (result) {
             var pid = result.PID;
             var totalValue = result.totalValue;
@@ -319,7 +321,7 @@ var computeSFPrices = {
                 formalAddress = "";
             }
            
-            var aInfo = null;
+            ;
             var houseType = null;
 			var intTotalValue = $fx.convertStringToDecimal(totalValue);
         
@@ -373,25 +375,34 @@ var computeSFPrices = {
 
             console.log('SpreadSheet: table & landValue=> ', /*self.table,*/ landValue, rowNumber);
 
-            var x = $('table#grid tbody');
-            var rows = x.children('tr');
-
-            var i ;
-            for (i=0; i<rowNumber.length; i++){
-                var j = rowNumber[i];
-                if(self.table[j-1][10]){
-                    $($(rows[j]).children('td')[self.cols.landValue]).text($fx.removeDecimalFraction(self.table[j-1][5]));
-                    $($(rows[j]).children('td')[self.cols.improvementValue]).text($fx.removeDecimalFraction(self.table[j-1][6]));
-                    $($(rows[j]).children('td')[self.cols.totalValue]).text($fx.removeDecimalFraction(self.table[j-1][7]));
-                    $($(rows[j]).children('td')[self.cols.changeValuePercent]).text(self.table[j-1][8]+'%');
-                    $($(rows[j]).children('td')[self.cols.strataPlan]).text(self.table[j-1][9]); //Show Plan Num in the table
-                    $($(rows[j]).children('td')[self.cols.address]).text(self.table[j-1][13]); //Show formal address on the table
-                    $($(rows[j]).children('td')[self.cols.streetAddress]).text(self.table[j-1][17]); ////SHOW THE STREET ADDRESS WITHOUT UNIT#
-                    $($(rows[j]).children('td')[self.cols.unitNo]).text(self.table[j-1][18]); ////SHOW THE UNIT NO SEPARATELY
-                    //Complex Name will be udpated after all tax search done
-                }
+            // var x = $('table#grid tbody');
+            // var rows = x.children('tr');
+            // var addressLink = $('<a id="addressLink" href="http://www.google.com/search?q=Google+tutorial+create+link">' +
+            //                                             'Google tutorial create link' +
+            //                                         '</a> ');
+            // var addressText = "";
+            // var i ;
+            // for (i=0; i<rowNumber.length; i++){
+            //     var j = rowNumber[i];
+            //     if(self.table[j-1][10]){
+            //         $($(rows[j]).children('td')[self.cols.landValue]).text($fx.removeDecimalFraction(self.table[j-1][5]));
+            //         $($(rows[j]).children('td')[self.cols.improvementValue]).text($fx.removeDecimalFraction(self.table[j-1][6]));
+            //         $($(rows[j]).children('td')[self.cols.totalValue]).text($fx.removeDecimalFraction(self.table[j-1][7]));
+            //         $($(rows[j]).children('td')[self.cols.changeValuePercent]).text(self.table[j-1][8]+'%');
+            //         $($(rows[j]).children('td')[self.cols.strataPlan]).text(self.table[j-1][9]); //Show Plan Num in the table
+                    
+            //         addressText = self.table[j-1][13];
+            //         $($(rows[j]).children('td')[self.cols.address]).text(addressText); 
+            //         // aInfo = new addressInfo(addressText, $($(rows[j]).children('td')[self.cols.houseType]).text(), true);
+            //         // addressLink.attr("href",aInfo.googleSearchLink);
+            //         // addressLink.text(aInfo.formalAddress);
+            //         // addressLink.appendTo($($(rows[j]).children('td')[self.cols.address])); ////ADD A GOOGEL ADDRESS SEARCH ANCHOR
+            //         $($(rows[j]).children('td')[self.cols.streetAddress]).text(self.table[j-1][17]); ////SHOW THE STREET ADDRESS WITHOUT UNIT#
+            //         $($(rows[j]).children('td')[self.cols.unitNo]).text(self.table[j-1][18]); ////SHOW THE UNIT NO SEPARATELY
+            //         //Complex Name will be udpated after all tax search done
+            //     }
                 
-            }
+            // }
 
 		
 		})
@@ -452,7 +463,7 @@ var computeSFPrices = {
             var rows = x.children('tr');
 
             var i ;
-            for (i=0; i<rowNumber.length; i++){
+            for (i=1; i<rows.length; i++){
                 var j = rowNumber[i];
                 if(self.table[j-1][10]){
                     $($(rows[j]).children('td')[self.cols.landValue]).text(self.table[j-1][5]);
@@ -570,18 +581,46 @@ var computeSFPrices = {
                     self.table[i][15] = true; ////SETUP THE ROW'S COMPLEX SEARCH SIGN
                 }
             }
+            //////////////////////////////////////////////////////////////////////
+            // var x = $('table#grid tbody');
+            // var rows = x.children('tr');
 
+            // i = 0 ;
+            // for (i=0; i<rowNumber.length; i++){
+            //     var j = rowNumber[i];
+            //     if(self.table[j-1][15]){
+                
+            //         $($(rows[j]).children('td')[self.cols.complexName]).text(self.table[j-1][12]); ////SHOW NORMALIZED COMPLEX NAME
+         
+            //     }
+            // }
+            ////////////////////////////////////////////////////////////////////
             var x = $('table#grid tbody');
             var rows = x.children('tr');
-
-            i = 0 ;
+            var addressLink = $('<a id="addressLink" href="http://www.google.com/search?q=Google+tutorial+create+link">' +
+                                                        'Google tutorial create link' +
+                                                    '</a> ');
+            var addressText = "";
+            var i ;
             for (i=0; i<rowNumber.length; i++){
                 var j = rowNumber[i];
                 if(self.table[j-1][15]){
-                
+                    $($(rows[j]).children('td')[self.cols.landValue]).text($fx.removeDecimalFraction(self.table[j-1][5]));
+                    $($(rows[j]).children('td')[self.cols.improvementValue]).text($fx.removeDecimalFraction(self.table[j-1][6]));
+                    $($(rows[j]).children('td')[self.cols.totalValue]).text($fx.removeDecimalFraction(self.table[j-1][7]));
+                    $($(rows[j]).children('td')[self.cols.changeValuePercent]).text(self.table[j-1][8]+'%');
+                    $($(rows[j]).children('td')[self.cols.strataPlan]).text(self.table[j-1][9]); //Show Plan Num in the table
+                    $($(rows[j]).children('td')[self.cols.address]).text(""); 
+                    addressText = self.table[j-1][13];
+                    aInfo = new addressInfo(addressText, $($(rows[j]).children('td')[self.cols.houseType]).text(), true);
+                    addressLink.attr("href",aInfo.googleSearchLink);
+                    addressLink.text(aInfo.formalAddress);
+                    addressLink.appendTo($($(rows[j]).children('td')[self.cols.address])); ////ADD A GOOGEL ADDRESS SEARCH ANCHOR
+                    $($(rows[j]).children('td')[self.cols.streetAddress]).text(self.table[j-1][17]); ////SHOW THE STREET ADDRESS WITHOUT UNIT#
+                    $($(rows[j]).children('td')[self.cols.unitNo]).text(self.table[j-1][18]); ////SHOW THE UNIT NO SEPARATELY
                     $($(rows[j]).children('td')[self.cols.complexName]).text(self.table[j-1][12]); ////SHOW NORMALIZED COMPLEX NAME
-         
                 }
+                
             }
 		})
     },
