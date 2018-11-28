@@ -3,7 +3,8 @@ import addressInfo from '../modules/AddressInfo';
 var $fx = L$();
 
 export default class UISummaryTable {
-    constructor(){
+    constructor(parent){
+        this.parent = parent;
         this.$UITable = $(`<div id = "SummaryFunctionBox" style = 'top: 30px; left: 850px; position: absolute'>
         <div id ="divExport"  >
             <button type="button" id="btnExport" title="Export to Excel" style = "position: absolute; width: 60px; z-index: 999" >Exp</button>
@@ -109,7 +110,16 @@ export default class UISummaryTable {
         this.complex = $('div#app_banner_links_left input.select2-search__field', top.document);
         this.onExportClick();
         this.onComplexClick();
-    
+        this.onAssessClick();
+    }
+
+    onAssessClick(){
+        
+        var self = this;
+        $(this.$UITable.children().find('#btnAssess')).click(function(){
+            //console.log('export');
+            this.ContinueTaxSearch('#grid');
+        }.bind(self))
     }
 
     onExportClick(){
@@ -164,6 +174,11 @@ export default class UISummaryTable {
 
     setMedianSoldSFP(x){
         $(this.$UITable).find('#MedianSoldPrice').text("$"+x);
+    }
+
+    ContinueTaxSearch(tableID){
+        console.log("ContinueTaxSearch");
+        this.parent.searchTax();
     }
 
     ExportToExcel(tableID){
@@ -284,7 +299,7 @@ export default class UISummaryTable {
             for(var i=0; i<rowsBody.length; i++){
                 var row = rowsBody[i];
                 $(row).height(40) ; 
-                for(var j=71; j>=39; j--){
+                for(var j=72; j>=39; j--){
                     $(row).children('td').eq(j).remove();
                 }
                 $(row).children('td').eq(33).remove();////IMPROVEMENT VALUE
@@ -315,7 +330,7 @@ export default class UISummaryTable {
             for(var i=0; i<rowsBody.length; i++){
                 var row = rowsBody[i];
                 $(row).height(40) ; 
-                for(var j=50; j>=30; j--){
+                for(var j=51; j>=32; j--){
                     $(row).children('td').eq(j).remove();
                 }
              
@@ -358,6 +373,42 @@ export default class UISummaryTable {
            
         };
 
+        if(this.tabTitle == 'Market Monitor' || this.tabTitle == 'Listing Carts'){
+            for(var i=0; i<rowsBody.length; i++){
+                var row = rowsBody[i];
+                if(!$fx.inGreatVanArea($(row).children('td').eq(32).text())){
+                    $(row).remove();
+                }else{
+                    $(row).height(40) ; 
+                    // for(var j=72; j>=41; j--){
+                    //     $(row).children('td').eq(j).remove();
+                    // }
+                    $(row).children('td').eq(33).remove();////LAST CELL FOR CSS CLASS
+                    // $(row).children('td').eq(32).remove();////LAND VALUE
+                    $(row).children('td').eq(29).remove();
+                    $(row).children('td').eq(28).remove();
+                    //$(row).children('td').eq(27).remove(); ////KEEP THE LOT SIZE
+                    //$(row).children('td').eq(26).remove(); ////KEEP THE AGE
+                    $(row).children('td').eq(24).remove();
+                    //$(row).children('td').eq(19).remove(); //Days On Market
+                    //$(row).children('td').eq(18).remove(); ////KEEP THE YEAR BUILT
+                    $(row).children('td').eq(17).remove();
+                    $(row).children('td').eq(15).remove();
+                    $(row).children('td').eq(14).remove();
+                    $(row).children('td').eq(13).remove();
+                    $(row).children('td').eq(7).remove(); //ML # with Link
+                    $(row).children('td').eq(6).remove(); //Action Icons
+                    $(row).children('td').eq(5).remove(); //Pcitures
+                    $(row).children('td').eq(4).remove(); //Pictures NO
+                    //$(row).children('td').eq(3).remove();
+                    $(row).children('td').eq(2).remove(); //Hidden
+                    $(row).children('td').eq(1).remove(); //Hidden
+                }
+               
+                
+            }
+        }
+
         cloneTable.appendTo($(htmlTable));
 
         var tableToExcel = (function() {
@@ -370,7 +421,8 @@ export default class UISummaryTable {
               var ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}
               window.location.href = uri + base64(format(template, ctx))
             }
-          })()
+          })();
+
         
         tableToExcel('#newClonedTable', 'Listings Table');
         cloneTable.remove();

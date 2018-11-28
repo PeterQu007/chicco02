@@ -1,4 +1,6 @@
-// read tax details report, save the data
+////READ TAX DETAILS REPORT
+////SAVE TAX DATA TO DATABASE 
+
 const divContainerID = 'divHtmlReport';
 var curTabID = null;
 
@@ -132,6 +134,21 @@ let taxDetails = {
 		var i;
 		for (i=0; i<=x0.length; i++){
 			if ($(x0[i]).is('div')) {
+				if(x0[i].textContent == 'Prop Address'){
+					this.address = x0[i+1].textContent;
+					if(x0[i+2].textContent != 'Jurisdiction'){
+						this.address += x0[i+2].textContent;
+					}
+				}
+				if(x0[i].textContent == 'PropertyID'){
+					this.pid = x0[i+1].textContent;
+				}
+				if(x0[i].textContent == 'Tax Year'){
+					this.taxYear = x0[i+1].textContent;
+				}
+				if(x0[i].textContent == 'Gross Taxes'){
+					this.grossTaxes = x0[i+1].textContent;
+				}
 				if (x0[i].textContent == 'Actual Totals') {
 					this.landValue = x0[i+4].textContent;
 					this.improvementValue = x0[i+5].textContent;

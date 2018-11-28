@@ -83,6 +83,10 @@
 			//$fx.getCurrentTab(curTabID);
 			//link to iframe's tabID
 			this.tabID = $fx.getTabID(window.frameElement.src);
+			if (this.tabID == "#") {
+				this.tabID = $fx.getTabID(parent.document.URL);
+				this.subTabID = $fx.getSubTabID(parent.document.URL);
+			}
 
 			this.tabNo = parseInt(this.tabID.replace('#tab', ''));
 			var x = $('ul#tab-bg', top.document); //find the top tab panel
@@ -90,6 +94,14 @@
 			this.tabTitle = $(y).children().find('span').text().trim();
 			console.warn('[FR]===>tabID, tabNo, tabTitle', this.tabID, this.tabNo, this.tabTitle);
 			console.warn('[FR]===>window.frameElement.id', this.tabID);
+			//this.spreadsheetTable = parent.document.querySelector('#ifSpreadsheet').contentDocument.querySelector('#grid');
+			try {
+				this.spreadsheetTable = top.document.querySelector(this.subTabID).contentDocument.querySelector('#ifSpreadsheet').contentDocument.querySelector('#grid');
+			} catch (err) {
+				console.log("FR=> Could not Find SpreadSheet Table!");
+				this.spreadsheetTable = null;
+			}
+
 			chrome.storage.sync.set({ curTabID: this.tabID });
 			//this.lockVisibility();
 			this.addLock(this.tabID);
@@ -99,6 +111,25 @@
 			$fx.setHouseType(this.houseListingType);
 			this.getMorePropertyInfo(); //get pid, complexName, lotArea, etc.
 			this.calculateSFPrice();
+			////CHANGE THE MODEL.BOX WIDTH
+			if (!!parent.document.getElementById('cboxOverlay')) {
+				try {
+					var colorbox = parent.document.getElementById('colorbox');
+					colorbox.style.width = "975px";
+					var cboxWrapper = parent.document.getElementById('cboxWrapper');
+					cboxWrapper.style.width = "975px";
+					var cboxTopCenter = parent.document.getElementById('cboxTopCenter');
+					cboxTopCenter.style.width = "930px";
+					var cboxBottomCenter = parent.document.getElementById('cboxBottomCenter');
+					cboxBottomCenter.style.width = "930px";
+					var cboxTopCenter = parent.document.getElementById('cboxContent');
+					cboxTopCenter.style.width = "930px";
+					var cboxBottomCenter = parent.document.getElementById('cboxLoadedContent');
+					cboxBottomCenter.style.width = "930px";
+				} catch (err) {
+					console.log("ReShape the display box failed!", err);
+				}
+			}
 
 			//create extra listing info UI:
 			this.uiListingInfo.showUI(this.report);
@@ -132,7 +163,7 @@
 		realtorRemarks: $('div[style="top:860px;left:53px;width:710px;height:35px;"]'),
 		publicRemarks: $('div[style="top:897px;left:4px;width:758px;height:75px;"]'),
 		keyword: $('div#app_banner_links_left input.select2-search__field', top.document),
-		spreadsheetTable: parent.document.querySelector('#ifSpreadsheet').contentDocument.querySelector('#grid'),
+		spreadsheetTable: null,
 		curPage: parent.document.querySelector('#txtCurPage'),
 
 		//complex info:
@@ -165,6 +196,7 @@
 		street: null,
 		streetNumber: null,
 		tabID: null,
+		subTabID: null,
 		tabNo: 0,
 		tabTitle: '',
 		tabContentContainer: null,
@@ -458,13 +490,18 @@
 		saveComplexInfo: function saveComplexInfo() {
 			//console.log('save button clicked!');
 			//manually save or update complex name to the database
+
 			var self = this;
 			var inputName = $('#inputComplexName').val();
 			inputName = $fx.normalizeComplexName(inputName);
 			if (inputName.length > 0) {
 				this.addComplexInfo(inputName);
 				this.complexName.text(inputName + '*');
-
+				////PUSH THE COMPLEX NAME INTO THE SPREADSHEET
+				if (self.spreadsheetTable == null) {
+					console.log("FR=> No Spreadsheet Table Found, Do not Save Complex.info");
+					return;
+				}
 				var recordNo = parseInt(self.curPage.value);
 				var recordRows = $(self.spreadsheetTable).children().find('tr');
 				var recordRow = $(recordRows[recordNo]);
@@ -531,7 +568,13 @@
 						//self.uiListingInfo.planNo.text('Plan Num: ' + result.planNum + '*'); //Update the strataNum
 					}
 
-					self.formalAddress.text(formalAddress);
+					self.formalAddress.text("");
+					var adrLink = $('<a id="addressLink" target="_blank" href="https://www.google.com/search?q=Google+tutorial+create+link">' + 'Google tutorial create link' + '</a> ');
+					var adrInfo = new _AddressInfo2.default(formalAddress, 'auto', true);
+					adrLink.attr('href', adrInfo.googleSearchLink);
+					adrLink.text(adrInfo.formalAddress);
+					adrLink.appendTo(self.formalAddress);
+
 					if (formalAddress) {
 						self.addComplexInfo(); //Search Complex Name
 					}
@@ -1035,16 +1078,18 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	// Analyse the address information
+	//// ANALYSE THE CIVIC ADDRESS INFORMATION
+	//// NORMALIZE THE ADDRESS IF IT IS NOT A FORMAL.BCA.ADDRESS
 
 	var AddressInfo = function AddressInfo(address, houseType, formal) {
 	    _classCallCheck(this, AddressInfo);
 
 	    address = address.replace('.', '');
 	    this.isFormalAddress = formal == undefined ? false : formal;
-	    this.houseType = houseType;
-	    this.addressParts = address.split(' '); //split the address to parts array
-	    //fetch unit no, then remove unit no from the addressParts Array
+	    this.houseType = houseType ? houseType : "AUTO";
+	    houseType = this.houseType;
+	    this.addressParts = address.split(' '); ////SPLIT THE ADDRESS TO PARTS.ARRAY
+	    ////LOOK FOR UNIT NO, THEN REMOVE THE UNIT.NO FROM THE ADDRESS.PARTS.ARRAY
 	    this.UnitNo = '';
 
 	    switch (houseType.toUpperCase()) {
@@ -1055,11 +1100,20 @@
 	        case 'ATTACHED':
 	            houseType = 'Attached';
 	            break;
+	        case 'AUTO':
+	            ////HOUSE TYPE COULD BE TOLD FROM IF THERE IS A UNIT NO OR NOT
+	            if (address.indexOf('UNIT#') > -1) {
+	                houseType = 'Attached';
+	            } else {
+	                houseType = 'Detached';
+	            }
+	            break;
 	        default:
 	            houseType = 'Detached';
 	            break;
 	    }
-
+	    this.houseType = houseType;
+	    ////FORMAL.ADDRESS IS FROM THE BC.ASSESSMENT RESULT
 	    if (this.isFormalAddress) {
 	        if (houseType == 'Attached') {
 	            if (this.addressParts.length > 3) {
@@ -1071,15 +1125,19 @@
 	        }
 	    } else {
 	        if (houseType == 'Attached') {
-	            this.UnitNo = this.addressParts.shift();
+	            if (this.addressParts.length > 3) {
+	                this.UnitNo = this.addressParts.shift();
+	            } else {
+	                this.UnitNo = "TBA";
+	            }
 	        }
 	    }
 
 	    this.streetNumber = this.addressParts.shift();
-	    this.streetType = this.addressParts.pop();
+	    this.streetType = this.addressParts.pop(); ////STREET, AVENUE, BOULEVARD, HIGHWAY...
 	    this.streetName = this.addressParts.toString().replace(',', '-');
 	    var streetType = this.streetType.trim().toString().toUpperCase();
-	    //Standard street type:
+	    ////STANDARDIZE THE STREET.TYPE TO ABBREVIATIONS: ST, AV, BV, HW, CR, ...
 	    switch (streetType) {
 	        case 'AVENUE':
 	            streetType = 'AV';
@@ -1104,13 +1162,20 @@
 	            break;
 	    }
 	    this.streetType = streetType;
+	    ////GET FORMAL.BCA.ADDRESS
 	    this.formalAddress = this.streetNumber + " " + this.streetName.replace('-', ' ') + " " + this.streetType;
 	    if (this.UnitNo) {
 	        this.formalAddress = this.formalAddress + " UNIT# " + this.UnitNo;
 	    }
+	    ////GET ADDRESS.ID FOR STRATA.PLAN.ID
 	    this.addressID = '-' + this.streetNumber + '-' + this.streetName + '-' + this.streetType;
+	    ////GET STREET.ADDRESS WITHOUT UNIT.NO
 	    this.streetAddress = this.streetNumber + ' ' + this.streetName.replace('-', ' ') + ' ' + this.streetType;
-	    this.googleSearchLink = "http://www.google.com/search?q=" + this.streetAddress.split(' ').join('+');
+	    ////GET GOOGLE.SEARCH.LINK FOR COMPLEX.NAME FORM BC.CONDOS.COM
+	    this.googleSearchLink = "https://www.google.com/search?q=" + this.streetAddress.split(' ').join('+');
+	    if (this.houseType != 'Detached') {
+	        this.googleSearchLink += "+\"BCCONDOS\"+BUILDING+INFO";
+	    }
 	};
 
 	;

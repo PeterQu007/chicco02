@@ -188,6 +188,21 @@
             return '#' + src; //add id sign # as prefix
         },
 
+        getSubTabID: function(str){
+            let src, start, end;
+            src = str;
+            start = src.indexOf('searchID=');
+            src = src.substring(start);
+            //console.log(src);
+            if (src.indexOf('&') > -1) {
+                end = src.indexOf('&');
+                src = src.substring(0, end);
+            };
+            start = src.indexOf('=tab');
+            src = src.substring(start + 1);
+            return '#' + src; //add id sign # as prefix
+        },
+
         normalizeComplexName: function(complexName){
             var normalizedName = '';
             if(typeof complexName == 'string'){
@@ -332,7 +347,16 @@
             
         },
     
-
+        inGreatVanArea: function(city){
+            var cities = ["City"/*FOR KEEPING THE TABLE HEAD*/, "Vancouver", "Burnaby", "Richmond", 
+                            "Coquitlam", "Port Moody", "Maple Ridge", "Surrey", "New Westminster", "Pitt Meadows",
+                            "Langley", "Port Coquitlam", "Delta", "North Vancouver", "West Vancouver"]
+            if(cities.includes(city)) {
+                return true;
+            }else{
+                return false;
+            }
+        }
     };
 
     Library.init = function (houseType) {

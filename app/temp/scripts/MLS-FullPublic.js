@@ -483,16 +483,18 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	// Analyse the address information
+	//// ANALYSE THE CIVIC ADDRESS INFORMATION
+	//// NORMALIZE THE ADDRESS IF IT IS NOT A FORMAL.BCA.ADDRESS
 
 	var AddressInfo = function AddressInfo(address, houseType, formal) {
 	    _classCallCheck(this, AddressInfo);
 
 	    address = address.replace('.', '');
 	    this.isFormalAddress = formal == undefined ? false : formal;
-	    this.houseType = houseType;
-	    this.addressParts = address.split(' '); //split the address to parts array
-	    //fetch unit no, then remove unit no from the addressParts Array
+	    this.houseType = houseType ? houseType : "AUTO";
+	    houseType = this.houseType;
+	    this.addressParts = address.split(' '); ////SPLIT THE ADDRESS TO PARTS.ARRAY
+	    ////LOOK FOR UNIT NO, THEN REMOVE THE UNIT.NO FROM THE ADDRESS.PARTS.ARRAY
 	    this.UnitNo = '';
 
 	    switch (houseType.toUpperCase()) {
@@ -503,11 +505,20 @@
 	        case 'ATTACHED':
 	            houseType = 'Attached';
 	            break;
+	        case 'AUTO':
+	            ////HOUSE TYPE COULD BE TOLD FROM IF THERE IS A UNIT NO OR NOT
+	            if (address.indexOf('UNIT#') > -1) {
+	                houseType = 'Attached';
+	            } else {
+	                houseType = 'Detached';
+	            }
+	            break;
 	        default:
 	            houseType = 'Detached';
 	            break;
 	    }
-
+	    this.houseType = houseType;
+	    ////FORMAL.ADDRESS IS FROM THE BC.ASSESSMENT RESULT
 	    if (this.isFormalAddress) {
 	        if (houseType == 'Attached') {
 	            if (this.addressParts.length > 3) {
@@ -519,15 +530,19 @@
 	        }
 	    } else {
 	        if (houseType == 'Attached') {
-	            this.UnitNo = this.addressParts.shift();
+	            if (this.addressParts.length > 3) {
+	                this.UnitNo = this.addressParts.shift();
+	            } else {
+	                this.UnitNo = "TBA";
+	            }
 	        }
 	    }
 
 	    this.streetNumber = this.addressParts.shift();
-	    this.streetType = this.addressParts.pop();
+	    this.streetType = this.addressParts.pop(); ////STREET, AVENUE, BOULEVARD, HIGHWAY...
 	    this.streetName = this.addressParts.toString().replace(',', '-');
 	    var streetType = this.streetType.trim().toString().toUpperCase();
-	    //Standard street type:
+	    ////STANDARDIZE THE STREET.TYPE TO ABBREVIATIONS: ST, AV, BV, HW, CR, ...
 	    switch (streetType) {
 	        case 'AVENUE':
 	            streetType = 'AV';
@@ -552,13 +567,20 @@
 	            break;
 	    }
 	    this.streetType = streetType;
+	    ////GET FORMAL.BCA.ADDRESS
 	    this.formalAddress = this.streetNumber + " " + this.streetName.replace('-', ' ') + " " + this.streetType;
 	    if (this.UnitNo) {
 	        this.formalAddress = this.formalAddress + " UNIT# " + this.UnitNo;
 	    }
+	    ////GET ADDRESS.ID FOR STRATA.PLAN.ID
 	    this.addressID = '-' + this.streetNumber + '-' + this.streetName + '-' + this.streetType;
+	    ////GET STREET.ADDRESS WITHOUT UNIT.NO
 	    this.streetAddress = this.streetNumber + ' ' + this.streetName.replace('-', ' ') + ' ' + this.streetType;
-	    this.googleSearchLink = "http://www.google.com/search?q=" + this.streetAddress.split(' ').join('+');
+	    ////GET GOOGLE.SEARCH.LINK FOR COMPLEX.NAME FORM BC.CONDOS.COM
+	    this.googleSearchLink = "https://www.google.com/search?q=" + this.streetAddress.split(' ').join('+');
+	    if (this.houseType != 'Detached') {
+	        this.googleSearchLink += "+\"BCCONDOS\"+BUILDING+INFO";
+	    }
 	};
 
 	;

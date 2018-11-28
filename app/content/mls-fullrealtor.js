@@ -24,6 +24,10 @@ var fullRealtor = {
 		//$fx.getCurrentTab(curTabID);
 		//link to iframe's tabID
 		this.tabID = $fx.getTabID(window.frameElement.src);
+		if(this.tabID == "#"){
+			this.tabID = $fx.getTabID(parent.document.URL);
+			this.subTabID = $fx.getSubTabID(parent.document.URL);
+		}
 		
         this.tabNo = parseInt(this.tabID.replace('#tab',''));
         var x = $('ul#tab-bg', top.document); //find the top tab panel
@@ -31,6 +35,14 @@ var fullRealtor = {
         this.tabTitle = $(y).children().find('span').text().trim();
         console.warn('[FR]===>tabID, tabNo, tabTitle', this.tabID, this.tabNo, this.tabTitle);
 		console.warn('[FR]===>window.frameElement.id', this.tabID);
+		//this.spreadsheetTable = parent.document.querySelector('#ifSpreadsheet').contentDocument.querySelector('#grid');
+		try{
+			this.spreadsheetTable = top.document.querySelector(this.subTabID).contentDocument.querySelector('#ifSpreadsheet').contentDocument.querySelector('#grid');
+		}catch(err){
+			console.log("FR=> Could not Find SpreadSheet Table!");
+			this.spreadsheetTable = null;
+		}
+		
 		chrome.storage.sync.set({curTabID: this.tabID});
 		//this.lockVisibility();
 		this.addLock(this.tabID);
@@ -40,7 +52,28 @@ var fullRealtor = {
 		$fx.setHouseType(this.houseListingType);
 		this.getMorePropertyInfo(); //get pid, complexName, lotArea, etc.
 		this.calculateSFPrice();
-
+		////CHANGE THE MODEL.BOX WIDTH
+		if(!!parent.document.getElementById('cboxOverlay')){
+			try{
+				var colorbox = parent.document.getElementById('colorbox');
+				colorbox.style.width = "975px";
+				var cboxWrapper = parent.document.getElementById('cboxWrapper');
+				cboxWrapper.style.width = "975px";
+				var cboxTopCenter = parent.document.getElementById('cboxTopCenter');
+				cboxTopCenter.style.width = "930px";
+				var cboxBottomCenter = parent.document.getElementById('cboxBottomCenter');
+				cboxBottomCenter.style.width = "930px";
+				var cboxTopCenter = parent.document.getElementById('cboxContent');
+				cboxTopCenter.style.width = "930px";
+				var cboxBottomCenter = parent.document.getElementById('cboxLoadedContent');
+				cboxBottomCenter.style.width = "930px";
+			}
+			catch(err){
+				console.log("ReShape the display box failed!", err);
+			}
+		
+		}
+		
 		//create extra listing info UI:
 		this.uiListingInfo.showUI(this.report);
 		this.populateUiListing();
@@ -73,7 +106,7 @@ var fullRealtor = {
 	realtorRemarks: $('div[style="top:860px;left:53px;width:710px;height:35px;"]'),
 	publicRemarks: $('div[style="top:897px;left:4px;width:758px;height:75px;"]'),
 	keyword: $('div#app_banner_links_left input.select2-search__field', top.document),
-	spreadsheetTable: parent.document.querySelector('#ifSpreadsheet').contentDocument.querySelector('#grid'),
+	spreadsheetTable: null,
 	curPage: parent.document.querySelector('#txtCurPage'),
 
 	//complex info:
@@ -106,6 +139,7 @@ var fullRealtor = {
 	street: null,
 	streetNumber: null,
 	tabID: null,
+	subTabID: null,
 	tabNo: 0,
 	tabTitle: '',
 	tabContentContainer: null,
@@ -423,13 +457,18 @@ var fullRealtor = {
 	saveComplexInfo: function () {
 		//console.log('save button clicked!');
 		//manually save or update complex name to the database
+		
 		var self = this;
 		var inputName = $('#inputComplexName').val();
 		inputName = $fx.normalizeComplexName(inputName);
 		if (inputName.length > 0) {
 			this.addComplexInfo(inputName);
 			this.complexName.text(inputName + '*');
-
+			////PUSH THE COMPLEX NAME INTO THE SPREADSHEET
+			if(self.spreadsheetTable == null){
+				console.log("FR=> No Spreadsheet Table Found, Do not Save Complex.info");
+				return;
+			}
 			var recordNo = parseInt(self.curPage.value);
 			var recordRows = $(self.spreadsheetTable).children().find('tr');
 			var recordRow = $(recordRows[recordNo]);
@@ -499,7 +538,15 @@ var fullRealtor = {
 					//self.uiListingInfo.planNo.text('Plan Num: ' + result.planNum + '*'); //Update the strataNum
 				}
 				
-				self.formalAddress.text(formalAddress);
+				self.formalAddress.text("");
+				var adrLink = $('<a id="addressLink" target="_blank" href="https://www.google.com/search?q=Google+tutorial+create+link">' +
+											'Google tutorial create link' +
+										'</a> ');
+				var adrInfo = new addressInfo(formalAddress,'auto',true);
+				adrLink.attr('href', adrInfo.googleSearchLink );
+				adrLink.text(adrInfo.formalAddress);
+				adrLink.appendTo(self.formalAddress);
+
 				if(formalAddress){
 					self.addComplexInfo(); //Search Complex Name
 				}

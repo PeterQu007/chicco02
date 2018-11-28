@@ -86,9 +86,19 @@ console.clear();
 						//console.log(">>>read from , assess is: ", assess)
 						if (!assess) {
 							//other wise , send out tax research command:
-							chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-								chrome.tabs.sendMessage(tabs[0].id, { todo: "taxSearchFor"+requester })
-							});
+							try{
+								chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+									try{
+										chrome.tabs.sendMessage(tabs[0].id, { todo: "taxSearchFor"+requester })
+									}catch(err){
+										console.error("taxSearch Errors in Background: ", err);
+									}
+									
+								});
+							}catch(err){
+								console.error("taxSearch Errors: ", err);
+							}
+							
 						}else{
 							if(String(assess.from).indexOf("taxSearchFor"+requester)<0){
 								assess.from = assess.from + "-taxSearchFor"+requester;
