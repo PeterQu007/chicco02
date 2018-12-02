@@ -3,65 +3,66 @@
 // bundle the modules
 // transpile es6 to es5
 
-let path=require('path');
-let webpack=require('webpack');
+let path = require("path");
+let webpack = require("webpack");
 
-module.exports={
+module.exports = {
+  entry: {
+    app: "./app/app.js",
+    Library: "./app/assets/scripts/Library.js",
+    EventPage: "./app/background/eventPage.js",
+    "@MLS-Login": "./app/content/@mls-Login.js",
+    HomePage: "./app/content/HomePage.js",
+    "MLS-HomePageQuickSearch": "./app/content/HomePageQuickSearch.js",
+    "MLS-Warning": "./app/content/mls-Warning.js",
+    "MLS-Logout": "./app/content/mls-Logout.js",
+    "MLS-Export": "./app/content/mls-Logout.js",
+    //
+    "MLS-FullRealtor": "./app/content/mls-FullRealtor.js",
+    "MLS-FullPublic": "./app/content/mls-FullPublic.js",
+    //
+    "MLS-TaxSearchCriteria": "./app/content/taxSearchCriteria.js",
+    "MLS-TaxSearchResult": "./app/content/taxSearchResult.js",
+    "MLS-TaxSearchDetails": "./app/content/taxSearchDetails.js",
+    //Bypass Listing Search Criteria Page when loading saved search criteria
+    "MLS-BypassListingSearchCriteria":
+      "./app/content/BypassListingSearchCriteria.js",
 
-	entry: {
-		"app": './app/app.js',
-		"Library": './app/assets/scripts/Library.js',
-		"EventPage": './app/background/eventPage.js',
-		'@MLS-Login': './app/content/@mls-Login.js',
-		"HomePage": './app/content/HomePage.js',
-		'MLS-HomePageQuickSearch': './app/content/HomePageQuickSearch.js',
-		'MLS-Warning': './app/content/mls-Warning.js',
-		'MLS-Logout': './app/content/mls-Logout.js',
-		'MLS-Export': './app/content/mls-Logout.js',
-		//
-		'MLS-FullRealtor': './app/content/mls-FullRealtor.js',
-		'MLS-FullPublic': './app/content/mls-FullPublic.js',
-		//
-		'MLS-TaxSearchCriteria': './app/content/taxSearchCriteria.js',
-		'MLS-TaxSearchResult': './app/content/taxSearchResult.js',
-		'MLS-TaxSearchDetails': './app/content/taxSearchDetails.js',
-		//Bypass Listing Search Criteria Page when loading saved search criteria
-		'MLS-BypassListingSearchCriteria': './app/content/BypassListingSearchCriteria.js',
-		
-		//Add SquareFeet Price Summary Box to Spreadsheet View Summary Box
-		'MLS-AddSFPriceSummaryBox': './app/content/AddSFPriceSummaryBox.js',
-		//Compute Square Feet Prices
-		//'MLS-ComputeSFPrices': './app/content/ComputeSFPrices.js',
-		'MLS-SpreadSheetCompletion': './app/content/SpreadSheetCompletion.js',
-		//
-		'MLS-QuickSearch': './app/content/mls-QuickSearch.js'
-	},
+    //Add SquareFeet Price Summary Box to Spreadsheet View Summary Box
+    "MLS-AddSFPriceSummaryBox": "./app/content/AddSFPriceSummaryBox.js",
+    //Compute Square Feet Prices
+    //'MLS-ComputeSFPrices': './app/content/ComputeSFPrices.js',
+    "MLS-SpreadSheetCompletion": "./app/content/SpreadSheetCompletion.js",
+    //
+    "MLS-QuickSearch": "./app/content/mls-QuickSearch.js"
+    //'REACT-BTN': './app/content/btnAdd.js'
+  },
 
-	output: {
-		path: './app/temp/scripts',
-		filename: '[name].js',
-	},
+  output: {
+    path: "./app/temp/scripts",
+    filename: "[name].js"
+  },
 
-	// integrid babel with webpack
-	// transpile js files
-	module: {
-		loaders: [
-			{
-				// "test" is commonly used to match the file extension
-				test: /\.js$/,
+  // integrid babel with webpack
+  // transpile js files
+  module: {
+    loaders: [
+      {
+        // "test" is commonly used to match the file extension
+        test: /\.jsx?$/,
 
-				exclude: /node_modules/,
+        exclude: /node_modules/,
 
-				loader: 'babel-loader',
+        loader: "babel-loader",
 
-				query: {"compact": false, 
-						"presets": ['es2015']},
-			},
-		],
-	},
+        query: { compact: false, presets: ["react", "es2015"] }
+      }
+    ]
+  },
 
-	// resolveLoader: { 
-	//	//root: path.join(__dirname, "node_modules") 
-	//	modules: ['node_modules', path.join(__dirname, "node_modules") ]
-	// }
+  optimization: {
+    removeAvailableModules: false,
+    removeEmptyChunks: false,
+    splitChunks: false
+  }
 };

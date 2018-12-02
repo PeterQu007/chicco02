@@ -348,7 +348,7 @@
         },
     
         inGreatVanArea: function(city){
-            var cities = ["City"/*FOR KEEPING THE TABLE HEAD*/, "Vancouver", "Burnaby", "Richmond", 
+            var cities = ["City"/*FOR KEEPING THE TABLE HEAD*/, "Vancouver", "Burnaby", "Richmond", "White Rock",
                             "Coquitlam", "Port Moody", "Maple Ridge", "Surrey", "New Westminster", "Pitt Meadows",
                             "Langley", "Port Coquitlam", "Delta", "North Vancouver", "West Vancouver"]
             if(cities.includes(city)) {

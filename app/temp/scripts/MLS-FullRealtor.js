@@ -54,15 +54,15 @@
 
 	'use strict';
 
-	var _LegalDescription = __webpack_require__(10);
+	var _LegalDescription = __webpack_require__(13);
 
 	var _LegalDescription2 = _interopRequireDefault(_LegalDescription);
 
-	var _AddressInfo = __webpack_require__(9);
+	var _AddressInfo = __webpack_require__(10);
 
 	var _AddressInfo2 = _interopRequireDefault(_AddressInfo);
 
-	var _uiListingInfo = __webpack_require__(11);
+	var _uiListingInfo = __webpack_require__(14);
 
 	var _uiListingInfo2 = _interopRequireDefault(_uiListingInfo);
 
@@ -1067,7 +1067,8 @@
 /***/ }),
 /* 7 */,
 /* 8 */,
-/* 9 */
+/* 9 */,
+/* 10 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1183,7 +1184,9 @@
 	exports.default = AddressInfo;
 
 /***/ }),
-/* 10 */
+/* 11 */,
+/* 12 */,
+/* 13 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -1256,7 +1259,7 @@
 	exports.default = LegalDescription;
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports) {
 
 	'use strict';

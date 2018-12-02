@@ -49,11 +49,11 @@
 
 	var _fullpublic;
 
-	var _LegalDescription = __webpack_require__(10);
+	var _LegalDescription = __webpack_require__(13);
 
 	var _LegalDescription2 = _interopRequireDefault(_LegalDescription);
 
-	var _AddressInfo = __webpack_require__(9);
+	var _AddressInfo = __webpack_require__(10);
 
 	var _AddressInfo2 = _interopRequireDefault(_AddressInfo);
 
@@ -472,7 +472,7 @@
 
 /***/ }),
 
-/***/ 9:
+/***/ 10:
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -589,7 +589,7 @@
 
 /***/ }),
 
-/***/ 10:
+/***/ 13:
 /***/ (function(module, exports) {
 
 	'use strict';

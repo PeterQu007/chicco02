@@ -164,7 +164,7 @@ var computeSFPrices = {
                         var complexName = $(rows[i]).children('td')[self.cols.complexName].textContent;
                         var address = $(rows[i]).children('td')[self.cols.address].textContent;
                         var houseType = $(rows[i]).children('td')[self.cols.houseType].textContent;
-                        var streetAddress = "";
+                        var streetAddress = $(rows[i]).children('td')[self.cols.address].textContent;
                         var unitNo = "";
                         var city = "";
                         col31_PID.push(pid);
@@ -403,7 +403,8 @@ var computeSFPrices = {
     updateAssessWhenTaxSearchFailed: function () {
     ////FOR NO BC.TAX.RECORD
     ////BC.TAX.RECORD SHOWS TAX.VALUE = 0
-		var self = this;
+        var self = this;
+        
 	
         chrome.storage.sync.get(['PID','totalValue', 'improvementValue', 
                                  'landValue', 'address', 
@@ -442,6 +443,11 @@ var computeSFPrices = {
                         self.table[i][16] = /*planNum need to get from legalDescription */planNum + aInfo.addressID; //complexID
                     }
                     
+                   
+                    self.table[i][14] = aInfo.houseType;
+                    self.table[i][17] = aInfo.streetAddress;
+                    self.table[i][18] = aInfo.UnitNo;
+
                     self.table[i][13] = formalAddress; // formal address from tax search
                     price = parseInt(self.table[i][1]);
 
@@ -458,7 +464,7 @@ var computeSFPrices = {
             var x = $('table#grid tbody');
             var rows = x.children('tr');
             var rowNo = self.rowNumber[self.rowNumber.length-1];
-            $($(rows[rowNo]).children('td')[self.cols.address]).text(self.table[rowNo-1][17] + "**");
+            $($(rows[rowNo]).children('td')[self.cols.address]).text(self.table[rowNo-1][13] + "^");
 		})
     },
 
@@ -588,27 +594,36 @@ var computeSFPrices = {
         var addressText = "";
         var i ;
         for (i=0; i<rowNumber.length; i++){
-            var j = rowNumber[i];
-            
+        var j = rowNumber[i];
+            var t = $fx.convertStringToDecimal(self.table[j-1][7]);
+            if(t>0){
                 $($(rows[j]).children('td')[self.cols.landValue]).text($fx.removeDecimalFraction(self.table[j-1][5]));
                 $($(rows[j]).children('td')[self.cols.improvementValue]).text($fx.removeDecimalFraction(self.table[j-1][6]));
                 $($(rows[j]).children('td')[self.cols.totalValue]).text($fx.removeDecimalFraction(self.table[j-1][7]));
                 $($(rows[j]).children('td')[self.cols.changeValuePercent]).text(self.table[j-1][8]+'%');
-                $($(rows[j]).children('td')[self.cols.strataPlan]).text(self.table[j-1][9]); //Show Plan Num in the table
-                $($(rows[j]).children('td')[self.cols.address]).text(""); 
-                addressText = self.table[j-1][13];
-                aInfo = new addressInfo(addressText, $($(rows[j]).children('td')[self.cols.houseType]).text(), true);
-                var addressLink = $('<a id="addressLink" target="_blank" href="https://www.google.com/search?q=Google+tutorial+create+link">' +
-                                                    'Google tutorial create link' +
-                                                '</a> ');
-                addressLink.attr("href",aInfo.googleSearchLink);
-                addressLink.text(aInfo.formalAddress);
-                addressLink.appendTo($($(rows[j]).children('td')[self.cols.address])); ////ADD A GOOGLE ADDRESS SEARCH ANCHOR
-                $($(rows[j]).children('td')[self.cols.streetAddress]).text(self.table[j-1][17]); ////SHOW THE STREET ADDRESS WITHOUT UNIT#
-                $($(rows[j]).children('td')[self.cols.unitNo]).text(self.table[j-1][18]); ////SHOW THE UNIT NO SEPARATELY
+            }else{
+                ////IF TOTAL.VALUE == 0, THEN DO NOT SHOW ANY NUMBER
+                $($(rows[j]).children('td')[self.cols.landValue]).text("");
+                $($(rows[j]).children('td')[self.cols.improvementValue]).text("");
+                $($(rows[j]).children('td')[self.cols.totalValue]).text("");
+                $($(rows[j]).children('td')[self.cols.changeValuePercent]).text("");
+            }
+    
+            $($(rows[j]).children('td')[self.cols.strataPlan]).text(self.table[j-1][9]); //Show Plan Num in the table
+            $($(rows[j]).children('td')[self.cols.address]).text(""); 
+            addressText = self.table[j-1][13];
+            aInfo = new addressInfo(addressText, $($(rows[j]).children('td')[self.cols.houseType]).text(), true);
+            var addressLink = $('<a id="addressLink" target="_blank" href="https://www.google.com/search?q=Google+tutorial+create+link">' +
+                                                'Google tutorial create link' +
+                                            '</a> ');
+            addressLink.attr("href",aInfo.googleSearchLink);
+            addressLink.text(aInfo.formalAddress);
+            addressLink.appendTo($($(rows[j]).children('td')[self.cols.address])); ////ADD A GOOGLE ADDRESS SEARCH ANCHOR
+            $($(rows[j]).children('td')[self.cols.streetAddress]).text(self.table[j-1][17]); ////SHOW THE STREET ADDRESS WITHOUT UNIT#
+            $($(rows[j]).children('td')[self.cols.unitNo]).text(self.table[j-1][18]); ////SHOW THE UNIT NO SEPARATELY
+            if((self.table[j-1][12]).trim()){
                 $($(rows[j]).children('td')[self.cols.complexName]).text(self.table[j-1][12]); ////SHOW NORMALIZED COMPLEX NAME
-            
-            
+            }
         }
     },
     /////////////////////////////////////////////////////////////////////////////
@@ -666,7 +681,8 @@ var computeSFPrices = {
                     strataPlan: 36,
                     streetAddress: 37,
                     unitNo: 38,
-                    houseType: 42
+                    houseType: 42,
+                    city: 43
                 }
                 break;
             case 'Residential Detached':
@@ -688,6 +704,7 @@ var computeSFPrices = {
                     changeValuePercent: 28,
                     strataPlan: 33,
                     lotSize: 20,
+                    city: 29,
                     houseType: 30
                 }
                 break;
@@ -697,11 +714,12 @@ var computeSFPrices = {
                     Status: 20,
                     Price: 11,
                     ListPrice: 11,
+                    PricePSF: 12,
                     address: 13,
                     complexName: 14,
+                    city: 16,
                     SoldPrice: 39, //No use for open house
                     TotalFloorArea: 32,
-                    PricePSF: 22,
                     SoldPricePSF: 39,
                     PID: 21,
                     landValue: 22,
