@@ -8,6 +8,14 @@ export default class UISummaryTable {
   constructor(parent) {
     this.parent = parent;
     this.tabTitle = "";
+    this.sumValues = {
+      index: 1,
+      high: 0,
+      low: 0,
+      ave: 0,
+      med: 0,
+      total: 0
+    };
     this.$UITable = $(`<div id = "SummaryFunctionBox" style = 'top: 30px; left: 850px; position: absolute'>
                             <div id = "sumButtonsContainer" style = "z-index: 999" ></div>
                             <div id = "sumBannersContainer" style = 'top: 0px; left: 60px; position: absolute'></div>
@@ -26,13 +34,18 @@ export default class UISummaryTable {
       <SumBoxButtons tabTitle={this.tabTitle} parent={this.parent} />,
       btnContainer
     );
-    ReactDOM.render(<SumBoxBanners />, bannerContainer);
+    ReactDOM.render(
+      <SumBoxBanners sumValues={this.sumValues} />,
+      bannerContainer
+    );
   }
 
   setHighListedSFP(x) {
-    $(this.$UITable)
-      .find("#HighAskingPricePSF")
-      .text("$" + x);
+    // $(this.$UITable)
+    //   .find("#HighAskingPricePSF")
+    //   .text("$" + x);
+    this.sumValues.high = x;
+    this.sumValues.index = 1;
   }
 
   setHighSoldSFP(x) {

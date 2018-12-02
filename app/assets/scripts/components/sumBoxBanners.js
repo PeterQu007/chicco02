@@ -5,6 +5,7 @@ import SumBoxBanner from "./sumBoxBanner";
 class sumBoxBanners extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       banners: [
         {
@@ -14,7 +15,8 @@ class sumBoxBanners extends React.Component {
           low: "Low",
           ave: "Ave",
           med: "Med",
-          total: "Total"
+          total: "Total",
+          sumValues: []
         },
         {
           id: "sumBoxBanner1",
@@ -23,7 +25,8 @@ class sumBoxBanners extends React.Component {
           low: "LowAskingPricePSF",
           ave: "AverageAskingPricePSF",
           med: "MedianAskingPricePSF",
-          total: "TotalAskingPSF"
+          total: "TotalAskingPSF",
+          sumValues: []
         },
         {
           id: "sumBoxBanner2",
@@ -32,10 +35,13 @@ class sumBoxBanners extends React.Component {
           low: "LowSoldPricePSF",
           ave: "AverageSoldPricePSF",
           med: "MedianSoldPrice",
-          total: "TotalSoldPSF"
+          total: "TotalSoldPSF",
+          sumValues: []
         }
-      ]
+      ],
+      sumValues: []
     };
+    this.setState({ sumValues: props.sumValues });
   }
 
   render() {
@@ -43,7 +49,11 @@ class sumBoxBanners extends React.Component {
       <table style={{ padding: 0 }}>
         <tbody>
           {this.state.banners.map(banner => (
-            <SumBoxBanner key={banner.id} banner={banner} />
+            <SumBoxBanner
+              key={banner.id}
+              banner={banner}
+              sumValues={this.state.sumValues}
+            />
           ))}
         </tbody>
       </table>

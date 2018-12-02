@@ -10,6 +10,14 @@ class SumBoxBanner extends React.Component {
       med: 0,
       total: 0
     };
+    switch (props.sumValues.index) {
+      case 1:
+        this.setState({ high: props.sumValues.high });
+        break;
+      case 2:
+        this.setState({ high: props.sumValues.high });
+        break;
+    }
   }
   render() {
     let { banner } = this.props;
@@ -26,7 +34,7 @@ class SumBoxBanner extends React.Component {
               <span>{banner.high}</span>
             ) : (
               <div id={banner.high} className={boxClass}>
-                {this.state.hight}
+                {this.state.high}
               </div>
             )}
           </td>

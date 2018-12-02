@@ -3,10 +3,14 @@
 // bundle the modules
 // transpile es6 to es5
 
-let path = require("path");
-let webpack = require("webpack");
-
 module.exports = {
+  mode: "development",
+  watch: true,
+  watchOptions: {
+    aggregateTimeout: 300,
+    poll: 1000,
+    ignored: /node_modules/
+  },
   entry: {
     app: "./app/app.js",
     Library: "./app/assets/scripts/Library.js",
@@ -39,23 +43,22 @@ module.exports = {
   },
 
   output: {
-    path: "./app/temp/scripts",
-    filename: "[name].js"
+    path: __dirname + "/app/temp/scripts", // writes to disk: ./dist/app.js, ./dist/search.js
+    filename: "[name].js",
+    pathinfo: false
   },
 
   // integrid babel with webpack
   // transpile js files
   module: {
-    loaders: [
+    rules: [
       {
         // "test" is commonly used to match the file extension
-        test: /\.jsx?$/,
-
+        test: /\.js$/,
         exclude: /node_modules/,
-
-        loader: "babel-loader",
-
-        query: { compact: false, presets: ["react", "es2015"] }
+        use: {
+          loader: "babel-loader"
+        }
       }
     ]
   },
