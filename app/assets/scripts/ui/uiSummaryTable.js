@@ -2,92 +2,170 @@
 "use strict";
 
 import SumBoxButtons from "../components/sumBoxButtons";
-import SumBoxBanners from "../components/sumBoxBanners";
+import SumBoxPanels from "../components/sumBoxPanels";
+var $fx = L$();
 
 export default class UISummaryTable {
   constructor(parent) {
     this.parent = parent;
     this.tabTitle = "";
-    this.sumValues = {
-      index: 1,
-      high: 0,
-      low: 0,
-      ave: 0,
-      med: 0,
-      total: 0
+
+    this.state = {
+      panels: [
+        {
+          id: "sumBoxPanel0",
+          labels: {
+            name: "Name",
+            high: "High",
+            low: "Low",
+            ave: "Ave",
+            med: "Med",
+            count: "Count"
+          },
+          values: {
+            name: "",
+            high: 0,
+            low: 0,
+            ave: 0,
+            med: 0,
+            count: 0
+          }
+        },
+        {
+          id: "sumBoxPanel1",
+          labels: {
+            name: "LP/SF",
+            high: "HighAskingPricePSF",
+            low: "LowAskingPricePSF",
+            ave: "AverageAskingPricePSF",
+            med: "MedianAskingPricePSF",
+            count: "TotalAskingPSF"
+          },
+          values: {
+            high: 0,
+            low: 0,
+            ave: 0,
+            med: 0,
+            count: 0
+          }
+        },
+        {
+          id: "sumBoxPanel2",
+          labels: {
+            name: "SP/SF",
+            high: "HighSoldPricePSF",
+            low: "LowSoldPricePSF",
+            ave: "AverageSoldPricePSF",
+            med: "MedianSoldPrice",
+            count: "TotalSoldPSF"
+          },
+          values: {
+            high: 0,
+            low: 0,
+            ave: 0,
+            med: 0,
+            count: 0
+          }
+        }
+      ]
     };
     this.$UITable = $(`<div id = "SummaryFunctionBox" style = 'top: 30px; left: 850px; position: absolute'>
-                            <div id = "sumButtonsContainer" style = "z-index: 999" ></div>
-                            <div id = "sumBannersContainer" style = 'top: 0px; left: 60px; position: absolute'></div>
+                            <div id = "sumButtonContainer" style = "z-index: 999" ></div>
+                            <div id = "sumPanelContainer" style = 'top: 0px; left: 60px; position: absolute'></div>
+                            <div id = "sumPanelBCAChangeContainer" style = 'top: 0px; left: 320px; position: absolute'></div>
+                            <div id = "sumPanelBCAContainer" style = 'top: 0px; left: 560px; position: absolute'></div>
                         </div>`);
+  }
+
+  handleClick(panel) {
+    console.log("click handled in summary box", panel);
+    const tempPanel = panel;
+    tempPanel.labels.high = "HIGH";
   }
 
   showUI(container) {
     this.$UITable.appendTo(container);
 
-    const btnContainer = parent.document.querySelector("#sumButtonsContainer");
-    const bannerContainer = parent.document.querySelector(
-      "#sumBannersContainer"
-    );
-
+    const btnContainer = parent.document.querySelector("#sumButtonContainer");
     ReactDOM.render(
       <SumBoxButtons tabTitle={this.tabTitle} parent={this.parent} />,
       btnContainer
     );
-    ReactDOM.render(
-      <SumBoxBanners sumValues={this.sumValues} />,
-      bannerContainer
-    );
+
+    this.render(1);
+    //registerServiceWorker();
   }
 
-  setHighListedSFP(x) {
-    // $(this.$UITable)
-    //   .find("#HighAskingPricePSF")
-    //   .text("$" + x);
-    this.sumValues.high = x;
-    this.sumValues.index = 1;
+  setSumValue(id, key, value, unit) {
+    this.state.panels[id].values[key] = Number.isFinite(parseInt(value))
+      ? unit == "%"
+        ? value + "%"
+        : "$" + value
+      : 0;
   }
 
-  setHighSoldSFP(x) {
-    $(this.$UITable)
-      .find("#HighSoldPricePSF")
-      .text("$" + x);
+  setSumValues(id, sumValues, count, unit) {
+    var sumValues = {
+      high: sumValues.length == 0 ? 0 : Math.max(...sumValues).toFixed(0),
+      low: sumValues.length == 0 ? 0 : Math.min(...sumValues).toFixed(0),
+      ave: sumValues.length == 0 ? 0 : $fx.mean(sumValues),
+      med: sumValues.length == 0 ? 0 : $fx.median(sumValues)
+    };
+    for (var key in sumValues) {
+      this.setSumValue(id, key, sumValues[key], unit);
+    }
+    this.state.panels[id].values["count"] = parseInt(count);
   }
 
-  setLowListedSFP(x) {
-    $(this.$UITable)
-      .find("#LowAskingPricePSF")
-      .text("$" + x);
-  }
-
-  setLowSoldSFP(x) {
-    $(this.$UITable)
-      .find("#LowSoldPricePSF")
-      .text("$" + x);
-  }
-
-  setAvgListedSFP(x) {
-    $(this.$UITable)
-      .find("#AverageAskingPricePSF")
-      .text("$" + x);
-  }
-
-  setAvgSoldSFP(x) {
-    $(this.$UITable)
-      .find("#AverageSoldPricePSF")
-      .text("$" + x);
-  }
-
-  setMedianListedSFP(x) {
-    $(this.$UITable)
-      .find("#MedianAskingPricePSF")
-      .text("$" + x);
-  }
-
-  setMedianSoldSFP(x) {
-    $(this.$UITable)
-      .find("#MedianSoldPrice")
-      .text("$" + x);
+  render(id) {
+    switch (id) {
+      case 1:
+        this.state.panels[0].labels.name = "$PSF";
+        const panelContainer = parent.document.querySelector(
+          "#sumPanelContainer"
+        );
+        ReactDOM.render(
+          <SumBoxPanels
+            key={id}
+            panels={this.state.panels}
+            onClick={this.handleClick}
+          />,
+          panelContainer
+        );
+        break;
+      case 2:
+        this.state.panels[0].labels.name = "BCA%";
+        this.state.panels[1].labels.name = "L:%";
+        this.state.panels[2].labels.name = "S:%";
+        const panelBCAChangeContainer = parent.document.querySelector(
+          "#sumPanelBCAChangeContainer"
+        );
+        ReactDOM.render(
+          <SumBoxPanels
+            key={id}
+            panels={this.state.panels}
+            onClick={this.handleClick}
+          />,
+          panelBCAChangeContainer
+        );
+        break;
+      case 3:
+        this.state.panels[0].labels.name = "BCA";
+        this.state.panels[1].labels.name = "L:$B";
+        this.state.panels[2].labels.name = "S:$B";
+        const panelBCAContainer = parent.document.querySelector(
+          "#sumPanelBCAContainer"
+        );
+        ReactDOM.render(
+          <SumBoxPanels
+            key={id}
+            panels={this.state.panels}
+            onClick={this.handleClick}
+          />,
+          panelBCAContainer
+        );
+        break;
+    }
   }
 }
 
@@ -833,3 +911,53 @@ export default class UISummaryTable {
             </tr>
         </tbody></table> */
 }
+
+//   setHighListedSFP(x) {
+//     // $(this.$UITable)
+//     //   .find("#HighAskingPricePSF")
+//     //   .text("$" + x);
+//     this.state.panels[1].values.high = x;
+//   }
+
+//   setHighSoldSFP(x) {
+//     // $(this.$UITable)
+//     //   .find("#HighSoldPricePSF")
+//     //   .text("$" + x);
+//     this.state.panels[2].values.high = x;
+//   }
+
+//   setLowListedSFP(x) {
+//     $(this.$UITable)
+//       .find("#LowAskingPricePSF")
+//       .text("$" + x);
+//   }
+
+//   setLowSoldSFP(x) {
+//     $(this.$UITable)
+//       .find("#LowSoldPricePSF")
+//       .text("$" + x);
+//   }
+
+//   setAvgListedSFP(x) {
+//     $(this.$UITable)
+//       .find("#AverageAskingPricePSF")
+//       .text("$" + x);
+//   }
+
+//   setAvgSoldSFP(x) {
+//     $(this.$UITable)
+//       .find("#AverageSoldPricePSF")
+//       .text("$" + x);
+//   }
+
+//   setMedianListedSFP(x) {
+//     $(this.$UITable)
+//       .find("#MedianAskingPricePSF")
+//       .text("$" + x);
+//   }
+
+//   setMedianSoldSFP(x) {
+//     $(this.$UITable)
+//       .find("#MedianSoldPrice")
+//       .text("$" + x);
+//   }

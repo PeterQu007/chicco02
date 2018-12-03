@@ -11,7 +11,7 @@
 
 import uiSummaryTable from "../assets/scripts/ui/uiSummaryTable.js";
 import addressInfo from "../assets/scripts/modules/AddressInfo";
-import * as math from "../assets/lib/mathjs/math.min.js";
+//import * as math from "../assets/lib/mathjs/math.min.js";
 
 var $fx = L$(); //add library module
 
@@ -34,7 +34,8 @@ var computeSFPrices = {
       this.tabNo,
       this.tabTitle
     );
-    this.setCols(this.tabTitle); ////COLUMNS FROM DIFFERENT SPREADSHEET.TABLES
+    //this.setCols(this.tabTitle); ////COLUMNS FROM DIFFERENT SPREADSHEET.TABLES
+    this.cols = $fx.setCols(this.tabTitle);
     this.uiTable.tabTitle = this.tabTitle; ////SUMMARY.TABLE FOR AVERAGE SQUARE.FEET.PRICES
     ////BC.TAX.SEARCH IS SET TO TAB1, ITS SEARCH.RESULT ALSO USE SPREADSHEET.VIEW, SHOULD NOT BE INCLUDED HERE
     if (this.tabID >= "#tab2") {
@@ -137,8 +138,8 @@ var computeSFPrices = {
           var row = []; //current row
           var col14_Price = []; //List Price
           var col22_FloorArea = []; //FloorArea
-          var col23_ListingPrice = []; //Listed / asking Price per SqFt
-          var col24_SoldPrice = []; //Sold Price Per SqFt
+          var col23_ActivePricePSF = []; //Listed / asking Price per SqFt
+          var col24_SoldPricePSF = []; //Sold Price Per SqFt
           var col31_PID = []; //PID Column
           var col32_LandValue = []; //Land Value Colum
           var col33_ImprovementValue = []; // Improvement Value
@@ -147,25 +148,29 @@ var computeSFPrices = {
           var col36_PlanNum = []; // Strata Plan Number
           var col_LotSize = []; // lot size in square feet
           var listPricePSF = []; //for listPrice Per Square Feet
-          var sumPSFListedPrice = 0; //keep the sum of listing price per sf
+          var sumPSFListedPrice = 0;
+          var sumPSFActivePrice = 0; //keep the sum of listing price per sf
           var sumPSFSoldPrice = 0; //keep the sum of sold price per sf
           var countSoldListing = 0; //keep the count of sold listings
+          var countActiveListing = 0; ////KEEP THE COUNT OF ACTIVE LISTINGS
           var soldPricePSF; //keep the sold price per square feet
-          var ListingPricePSF; //keep the listing price per square feet
+          var listingPricePSF; //keep the listing price per square feet
+          var status; ////KEEP THE LISTING STATUS
           for (i = 1; i < rows.length; i++) {
             ////i=1; i<rows.length; i++
             //console.log(rows[i], $(rows[i]).children('td')[24]);
-            row.push(i); //col 0
+            row.push(i); ////COL 0: ROW.NO
+            status = $(rows[i]).children("td")[self.cols.status].textContent;
             var price = $fx.convertStringToDecimal(
               $(rows[i]).children("td")[self.cols.Price].textContent
             );
             col14_Price.push(price);
-            row.push(price); //col 1
+            row.push(price); ////COL 1: PRICE
             var floorArea = $fx.convertStringToDecimal(
               $(rows[i]).children("td")[self.cols.TotalFloorArea].textContent
             );
             col22_FloorArea.push(floorArea);
-            row.push(floorArea); //col 2
+            row.push(floorArea); ////COL 2: FLOOR.AREA
             if (self.tabTitle == "Residential Attached") {
               var lotSize = $fx.convertStringToDecimal(
                 $(rows[i]).children("td")[self.cols.lotSize].textContent
@@ -176,31 +181,41 @@ var computeSFPrices = {
               );
             }
             col_LotSize.push(lotSize);
-
-            ListingPricePSF = Number(
+            listingPricePSF = Number(
               Number(
                 col14_Price[col14_Price.length - 1] /
                   col22_FloorArea[col22_FloorArea.length - 1]
               ).toFixed(2)
             );
-            sumPSFListedPrice += ListingPricePSF;
-            listPricePSF.push(ListingPricePSF);
-
-            var listingAskingPricePSF = $fx.convertStringToDecimal(
-              $(rows[i]).children("td")[self.cols.PricePSF].textContent,
-              true
-            );
-            col23_ListingPrice.push(listingAskingPricePSF);
-            row.push(listingAskingPricePSF); //col 3
-
-            soldPricePSF = $fx.convertStringToDecimal(
-              $(rows[i]).children("td")[self.cols.SoldPricePSF].textContent
-            );
-            if (soldPricePSF > 0) {
-              countSoldListing++;
-              col24_SoldPrice.push(soldPricePSF);
-              sumPSFSoldPrice += soldPricePSF;
+            sumPSFListedPrice += listingPricePSF;
+            listPricePSF.push(listingPricePSF);
+            row.push(listingPricePSF); ////COL 3: LISTING.ASKING.PRICE.PER.SQUARE.FEET?????????????????
+            ////ACTIVE LISTING VS SOLD LISTING
+            switch (status) {
+              case "A":
+                ////Added Status Control: Only Select Active Listing for ListingPrice
+                var activePricePSF = $fx.convertStringToDecimal(
+                  $(rows[i]).children("td")[self.cols.PricePSF].textContent,
+                  true
+                );
+                if (activePricePSF > 0) {
+                  countActiveListing++;
+                  col23_ActivePricePSF.push(activePricePSF);
+                  sumPSFActivePrice += activePricePSF;
+                }
+                break;
+              case "S":
+                soldPricePSF = $fx.convertStringToDecimal(
+                  $(rows[i]).children("td")[self.cols.SoldPricePSF].textContent
+                );
+                if (soldPricePSF > 0) {
+                  countSoldListing++;
+                  col24_SoldPricePSF.push(soldPricePSF); ////SOLD.PRICE.PER.SQUARE.FEET
+                  sumPSFSoldPrice += soldPricePSF; ////TOTAL.SOLD.PRICE.PER.SQUARE.FEET
+                }
+                break;
             }
+
             ////LOOK FOR PID FOR TAX.SEARCH
             //self.recordPointer = i-1;
             var pid = $(rows[i]).children("td")[self.cols.PID].textContent;
@@ -215,17 +230,17 @@ var computeSFPrices = {
             var unitNo = "";
             var city = "";
             col31_PID.push(pid);
-            row.push(pid); //col 4
+            row.push(pid); ////COL 4: PID
             col32_LandValue.push(0);
-            row.push(0); ////col 5
+            row.push(0); ////COL 5: LAND.VALUE
             col33_ImprovementValue.push(0);
-            row.push(0); //col 6
+            row.push(0); ////COL 6: IMPROVEMENT.VALUE
             col34_TotalAssess.push(0);
-            row.push(0); //col 7
+            row.push(0); ////COL 7: TOTAL.ASSESS
             col35_ValueChange.push(0);
-            row.push(0); //col 8
+            row.push(0); ////COL8: VALUE.CHANGE
             col36_PlanNum.push("");
-            row.push(""); //col 9 for PlanNum
+            row.push(""); ////COL9: PLAN.NUM
             row.push(false); //col 10 : taxSearch Sign
             row.push(lotSize); // col 11 : add lotSize for single house or land
             row.push(complexName); //col 12: for complex Name
@@ -237,42 +252,26 @@ var computeSFPrices = {
             row.push(unitNo); ////  COL 18: UNIT NO FOR STRATA UNIT
             city = $(rows[i]).children("td")[self.cols.city].textContent;
             row.push(city); //// COL 19: CITY OF GREAT VANCOUVER
+            row.push(status); ////COL 20: LISTING STATUS
             self.table.push(row); ////ADD THE ROW TO THE TABLE
             row = []; ////INIT THE ROW
           }
-          var avgListedSFP = (sumPSFListedPrice / self.recordCount).toFixed(0);
-          var avgSoldSFP = (sumPSFSoldPrice / countSoldListing).toFixed(0);
-          //console.log(col14, col22, col23, listPricePSF, col24, avgListedSFP, avgSoldSFP);
-          //console.log("SpreadSheet Table is: ",self.table);
-          ////POPULATE THE SQUARE.FEET.PRICE SUMMARY BOX
-          self.uiTable.setHighListedSFP(
-            Math.max(...col23_ListingPrice).toFixed(0)
+          // var avgListedSFP = (sumPSFListedPrice / self.recordCount).toFixed(0);
+          // var avgSoldSFP = (sumPSFSoldPrice / countSoldListing).toFixed(0);
+          self.uiTable.setSumValues(
+            /*id for panel 1*/ 1,
+            col23_ActivePricePSF,
+            countActiveListing,
+            "$"
           );
-          self.uiTable.setHighSoldSFP(Math.max(...col24_SoldPrice).toFixed(0));
-          self.uiTable.setLowListedSFP(
-            Math.min(...col23_ListingPrice).toFixed(0)
+          self.uiTable.setSumValues(
+            /*id for panel 2*/ 2,
+            col24_SoldPricePSF,
+            countSoldListing,
+            "$"
           );
-          self.uiTable.setLowSoldSFP(Math.min(...col24_SoldPrice).toFixed(0));
-          self.uiTable.setAvgListedSFP(avgListedSFP);
-          self.uiTable.setAvgSoldSFP(avgSoldSFP);
-          self.uiTable.setMedianListedSFP(
-            math
-              .chain(col23_ListingPrice)
-              .median()
-              .round(0)
-              .done()
-          );
-          if (col24_SoldPrice.length == 0) {
-            col24_SoldPrice.push(0);
-          }
-          self.uiTable.setMedianSoldSFP(
-            math
-              .chain(col24_SoldPrice)
-              .median()
-              .round(0)
-              .done()
-          );
-          ////START TO DO TAX.SEARCH
+          self.uiTable.render(1);
+
           for (var i = 0; i < self.table.length; i++) {
             if (!$fx.inGreatVanArea(self.table[i][19])) {
               ////IF IS NOT GREAT VAN CITIES, PASSED TAX SEARCH
@@ -708,6 +707,12 @@ var computeSFPrices = {
     var x = $("table#grid tbody");
     var rows = x.children("tr");
     var rowNumber = self.rowNumber;
+    var assessSold = [];
+    var assessChangeSold = [];
+    var assessActive = [];
+    var assessChangeActive = [];
+    var countActiveListing = 0;
+    var countSoldListing = 0;
     var aInfo = null;
     var addressLink = $(
       '<a id="addressLink" target="_blank" href="https://www.google.com/search?q=Google+tutorial+create+link">' +
@@ -719,6 +724,7 @@ var computeSFPrices = {
     for (i = 0; i < rowNumber.length; i++) {
       var j = rowNumber[i];
       var t = $fx.convertStringToDecimal(self.table[j - 1][7]);
+      const status = self.table[j - 1][20];
       if (t > 0) {
         $($(rows[j]).children("td")[self.cols.landValue]).text(
           $fx.removeDecimalFraction(self.table[j - 1][5])
@@ -732,12 +738,41 @@ var computeSFPrices = {
         $($(rows[j]).children("td")[self.cols.changeValuePercent]).text(
           self.table[j - 1][8] + "%"
         );
+
+        switch (status) {
+          case "A":
+            assessActive.push($fx.convertStringToDecimal(self.table[j - 1][7]));
+            assessChangeActive.push(
+              $fx.convertStringToDecimal(self.table[j - 1][8])
+            );
+            countActiveListing++;
+            break;
+          case "S":
+            assessSold.push($fx.convertStringToDecimal(self.table[j - 1][7]));
+            assessChangeSold.push(
+              $fx.convertStringToDecimal(self.table[j - 1][8])
+            );
+            countSoldListing++;
+            break;
+        }
       } else {
         ////IF TOTAL.VALUE == 0, THEN DO NOT SHOW ANY NUMBER
         $($(rows[j]).children("td")[self.cols.landValue]).text("");
         $($(rows[j]).children("td")[self.cols.improvementValue]).text("");
         $($(rows[j]).children("td")[self.cols.totalValue]).text("");
         $($(rows[j]).children("td")[self.cols.changeValuePercent]).text("");
+        switch (status) {
+          case "A":
+            assessActive.push(null);
+            assessChangeActive.push(null);
+            countActiveListing++;
+            break;
+          case "S":
+            assessSold.push(null);
+            assessChangeSold.push(null);
+            countSoldListing++;
+            break;
+        }
       }
 
       $($(rows[j]).children("td")[self.cols.strataPlan]).text(
@@ -770,133 +805,60 @@ var computeSFPrices = {
         ); ////SHOW NORMALIZED COMPLEX NAME
       }
     }
+
+    var maxChange = Math.max(...assessChangeActive);
+    var minChange = Math.min(...assessChangeActive);
+    for (var i = 0; i < self.table.length; i++) {
+      if (self.table[i][8] == maxChange) {
+        $(rows[i + 1]).css("color", "red");
+      }
+      if (self.table[i][8] == minChange) {
+        $(rows[i + 1]).css("color", "blue");
+      }
+    }
+
+    maxChange = Math.max(...assessChangeSold);
+    minChange = Math.min(...assessChangeSold);
+    for (var i = 0; i < self.table.length; i++) {
+      if (self.table[i][8] == maxChange) {
+        $(rows[i + 1]).css("color", "red");
+      }
+      if (self.table[i][8] == minChange) {
+        $(rows[i + 1]).css("color", "blue");
+      }
+    }
+
+    self.uiTable.setSumValues(
+      /*id for panel 1*/ 1,
+      assessChangeActive,
+      countActiveListing,
+      "%"
+    );
+    self.uiTable.setSumValues(
+      /*id for panel 2*/ 2,
+      assessChangeSold,
+      countSoldListing,
+      "%"
+    );
+    self.uiTable.render(2);
+
+    self.uiTable.setSumValues(
+      /*id for panel 1*/ 1,
+      assessActive,
+      countActiveListing,
+      "$"
+    );
+    self.uiTable.setSumValues(
+      /*id for panel 2*/ 2,
+      assessSold,
+      countSoldListing,
+      "$"
+    );
+    self.uiTable.render(3);
   },
   /////////////////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////////////////
-  setCols: function(tabTitle) {
-    //set Spreadsheet column position by numbers
-    this.cols = null;
-    var cols = null;
-    switch (tabTitle) {
-      case "Quick Search":
-      case "Listing Carts":
-      case "Market Monitor":
-        cols = {
-          RecordNo: 0, //index 0
-          Status: 8,
-          address: 9,
-          complexName: 11,
-          ListPrice: 12,
-          Price: 13,
-          SoldPrice: 14,
-          TotalFloorArea: 15,
-          PricePSF: 16,
-          SoldPricePSF: 17,
-          PID: 22,
-          landValue: 23,
-          improvementValue: 24,
-          totalValue: 25,
-          changeValuePercent: 26,
-          lotSize: 27,
-          strataPlan: 28,
-          houseType: 30,
-          prevPrice: 31,
-          city: 32
-        };
-        break;
-      case "Residential Attached":
-        cols = {
-          RecordNo: 0, //index 0
-          Status: 8,
-          address: 9,
-          complexName: 11,
-          Price: 12,
-          ListPrice: 14,
-          SoldPrice: 18,
-          TotalFloorArea: 22,
-          PricePSF: 23,
-          SoldPricePSF: 24,
-          lotSize: 28,
-          PID: 31,
-          landValue: 32,
-          improvementValue: 33,
-          totalValue: 34,
-          changeValuePercent: 35,
-          strataPlan: 36,
-          streetAddress: 37,
-          unitNo: 38,
-          houseType: 42,
-          city: 43
-        };
-        break;
-      case "Residential Detached":
-        cols = {
-          RecordNo: 0, //index 0
-          Status: 8,
-          address: 9,
-          complexName: 31,
-          Price: 12,
-          ListPrice: 12,
-          SoldPrice: 36, //
-          TotalFloorArea: 17,
-          PricePSF: 22,
-          SoldPricePSF: 23,
-          PID: 24,
-          landValue: 25,
-          improvementValue: 26,
-          totalValue: 27,
-          changeValuePercent: 28,
-          strataPlan: 33,
-          lotSize: 20,
-          city: 29,
-          houseType: 30
-        };
-        break;
-      case "Tour and Open House":
-        cols = {
-          RecordNo: 0, //index 0
-          Status: 20,
-          Price: 11,
-          ListPrice: 11,
-          PricePSF: 12,
-          address: 13,
-          complexName: 14,
-          city: 16,
-          SoldPrice: 39, //No use for open house
-          TotalFloorArea: 32,
-          SoldPricePSF: 39,
-          PID: 21,
-          landValue: 22,
-          improvementValue: 23,
-          totalValue: 24,
-          changeValuePercent: 25,
-          strataPlan: 34,
-          lotSize: 33,
-          houseType: 9
-        };
-        break;
-      default:
-        cols = {
-          RecordNo: 0, //index 0
-          Status: 8,
-          Price: 12,
-          ListPrice: 14,
-          SoldPrice: 18,
-          TotalFloorArea: 22,
-          PricePSF: 23,
-          SoldPricePSF: 24,
-          PID: 31,
-          landValue: 32,
-          improvementValue: 33,
-          totalValue: 34,
-          changeValuePercent: 35,
-          strataPlan: 36
-        };
-        break;
-    }
-    this.cols = cols;
-  },
 
   addLock: function(tabID) {
     chrome.runtime.sendMessage(
@@ -906,6 +868,129 @@ var computeSFPrices = {
       }
     );
   }
+  // setCols: function(tabTitle) {
+  //   //set Spreadsheet column position by numbers
+  //   this.cols = null;
+  //   var cols = null;
+  //   switch (tabTitle) {
+  //     case "Quick Search":
+  //     case "Listing Carts":
+  //     case "Market Monitor":
+  //       cols = {
+  //         RecordNo: 0, //index 0
+  //         Status: 8,
+  //         address: 9,
+  //         complexName: 11,
+  //         ListPrice: 12,
+  //         Price: 13,
+  //         SoldPrice: 14,
+  //         TotalFloorArea: 15,
+  //         PricePSF: 16,
+  //         SoldPricePSF: 17,
+  //         PID: 22,
+  //         landValue: 23,
+  //         improvementValue: 24,
+  //         totalValue: 25,
+  //         changeValuePercent: 26,
+  //         lotSize: 27,
+  //         strataPlan: 28,
+  //         houseType: 30,
+  //         prevPrice: 31,
+  //         city: 32
+  //       };
+  //       break;
+  //     case "Residential Attached":
+  //       cols = {
+  //         RecordNo: 0, //index 0
+  //         Status: 8,
+  //         address: 9,
+  //         complexName: 11,
+  //         Price: 12,
+  //         ListPrice: 14,
+  //         SoldPrice: 18,
+  //         TotalFloorArea: 22,
+  //         PricePSF: 23,
+  //         SoldPricePSF: 24,
+  //         lotSize: 28,
+  //         PID: 31,
+  //         landValue: 32,
+  //         improvementValue: 33,
+  //         totalValue: 34,
+  //         changeValuePercent: 35,
+  //         strataPlan: 36,
+  //         streetAddress: 37,
+  //         unitNo: 38,
+  //         houseType: 42,
+  //         city: 43
+  //       };
+  //       break;
+  //     case "Residential Detached":
+  //       cols = {
+  //         RecordNo: 0, //index 0
+  //         Status: 8,
+  //         address: 9,
+  //         complexName: 31,
+  //         Price: 12,
+  //         ListPrice: 12,
+  //         SoldPrice: 36, //
+  //         TotalFloorArea: 17,
+  //         PricePSF: 22,
+  //         SoldPricePSF: 23,
+  //         PID: 24,
+  //         landValue: 25,
+  //         improvementValue: 26,
+  //         totalValue: 27,
+  //         changeValuePercent: 28,
+  //         strataPlan: 33,
+  //         lotSize: 20,
+  //         city: 29,
+  //         houseType: 30
+  //       };
+  //       break;
+  //     case "Tour and Open House":
+  //       cols = {
+  //         RecordNo: 0, //index 0
+  //         Status: 20,
+  //         Price: 11,
+  //         ListPrice: 11,
+  //         PricePSF: 12,
+  //         address: 13,
+  //         complexName: 14,
+  //         city: 16,
+  //         SoldPrice: 39, //No use for open house
+  //         TotalFloorArea: 32,
+  //         SoldPricePSF: 39,
+  //         PID: 21,
+  //         landValue: 22,
+  //         improvementValue: 23,
+  //         totalValue: 24,
+  //         changeValuePercent: 25,
+  //         strataPlan: 34,
+  //         lotSize: 33,
+  //         houseType: 9
+  //       };
+  //       break;
+  //     default:
+  //       cols = {
+  //         RecordNo: 0, //index 0
+  //         Status: 8,
+  //         Price: 12,
+  //         ListPrice: 14,
+  //         SoldPrice: 18,
+  //         TotalFloorArea: 22,
+  //         PricePSF: 23,
+  //         SoldPricePSF: 24,
+  //         PID: 31,
+  //         landValue: 32,
+  //         improvementValue: 33,
+  //         totalValue: 34,
+  //         changeValuePercent: 35,
+  //         strataPlan: 36
+  //       };
+  //       break;
+  //   }
+  //   this.cols = cols;
+  // },
 };
 
 //entry point:
@@ -919,3 +1004,83 @@ $(function() {
 //////////////////////////////////////////////////////////////////////////////
 //////////////                  Recycle Code            //////////////////////
 /////////////////////////////////////////////////////////////////////////////
+
+//console.log(col14, col22, col23, listPricePSF, col24, avgListedSFP, avgSoldSFP);
+//console.log("SpreadSheet Table is: ",self.table);
+////POPULATE THE SQUARE.FEET.PRICE SUMMARY BOX
+// self.uiTable.setHighListedSFP(
+//   Math.max(...col23_ListingPrice).toFixed(0)
+// );
+// self.uiTable.setSumValues(
+//   1,
+//   Math.max(...col23_ListingPrice).toFixed(0),
+//   "high"
+// );
+//self.uiTable.setHighSoldSFP(Math.max(...col24_SoldPrice).toFixed(0));
+// self.uiTable.setSumValues(
+//   2,
+//   Math.max(...col24_SoldPrice).toFixed(0),
+//   "high"
+// );
+
+// var listArray =
+//   col23_ListingPrice.length == 0
+//     ? col23_ListingPrice.push(0, 0)
+//     : col23_ListingPrice;
+// var sumValues = {
+//   high: Math.max(...col23_ListingPrice).toFixed(0),
+//   low: Math.min(...col23_ListingPrice).toFixed(0),
+//   ave: avgListedSFP,
+//   // med: math
+//   //   .chain(
+//   //     col23_ListingPrice.lenght == 0
+//   //       ? col23_ListingPrice.push(0)
+//   //       : col23_ListingPrice
+//   //   )
+//   //   .median()
+//   //   .round(0)
+//   //   .done(),
+//   med: $fx.median(listArray),
+//   total: 0
+// };
+// var sumValues = {
+//   high: Math.max(...col24_SoldPrice).toFixed(0),
+//   low: Math.min(...col24_SoldPrice).toFixed(0),
+//   ave: avgSoldSFP,
+//   // med: math
+//   //   .chain(
+//   //     col24_SoldPrice.length == 0
+//   //       ? col24_SoldPrice.push(0)
+//   //       : col24_SoldPrice
+//   //   )
+//   //   .median()
+//   //   .round(0)
+//   //   .done(),
+//   med: col24_SoldPrice.length == 0 ? 0 : $fx.median(col24_SoldPrice),
+//   total: 0
+// };
+//var soldArray = col24_SoldPrice
+// self.uiTable.setLowListedSFP(
+//   Math.min(...col23_ListingPrice).toFixed(0)
+// );
+// self.uiTable.setLowSoldSFP(Math.min(...col24_SoldPrice).toFixed(0));
+// self.uiTable.setAvgListedSFP(avgListedSFP);
+// self.uiTable.setAvgSoldSFP(avgSoldSFP);
+// self.uiTable.setMedianListedSFP(
+//   math
+//     .chain(col23_ListingPrice)
+//     .median()
+//     .round(0)
+//     .done()
+// );
+// if (col24_SoldPrice.length == 0) {
+//   col24_SoldPrice.push(0);
+// }
+// self.uiTable.setMedianSoldSFP(
+//   math
+//     .chain(col24_SoldPrice)
+//     .median()
+//     .round(0)
+//     .done()
+// );
+////START TO DO TAX.SEARCH
