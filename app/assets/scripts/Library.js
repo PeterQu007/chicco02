@@ -45,6 +45,7 @@
       //convert Number String To Decimal number
       //example: "$345,890.78" --> 345890
       var result = 0,
+        sign = "",
         numbers = "";
       keepFraction = keepFraction || false;
 
@@ -68,15 +69,14 @@
         strNum.indexOf(" ") == -1 ? strNum.length : strNum.indexOf(" ")
       );
       if (strNum[0] === "-") {
-        numbers += strNum[0];
-      } else {
-        for (var i = 0, len = strNum.length; i < len; ++i) {
-          if (!isNaN(strNum[i]) || strNum[i] === ".") {
-            numbers += strNum[i];
-          }
+        sign = strNum[0];
+      }
+      for (var i = 0, len = strNum.length; i < len; ++i) {
+        if (!isNaN(strNum[i]) || strNum[i] === ".") {
+          numbers += strNum[i];
         }
       }
-
+      numbers = sign + numbers;
       result = Number(Number(numbers).toFixed(keepFraction ? 2 : 0));
       return result;
     },

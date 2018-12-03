@@ -382,6 +382,8 @@ var computeSFPrices = {
       if (i == self.table.length - 1) {
         console.log("taxSearch done!");
         ////START TO SEARCH COMPLEX.NAME
+        this.updateSpreadsheet();
+        ////UPDATE THE STATS
         var i = 0;
         for (i = 0; i < self.table.length; i++) {
           var planNum = self.table[i][9];
@@ -763,13 +765,13 @@ var computeSFPrices = {
         $($(rows[j]).children("td")[self.cols.changeValuePercent]).text("");
         switch (status) {
           case "A":
-            assessActive.push(null);
-            assessChangeActive.push(null);
+            // assessActive.push(null);
+            // assessChangeActive.push(null);
             countActiveListing++;
             break;
           case "S":
-            assessSold.push(null);
-            assessChangeSold.push(null);
+            // assessSold.push(null);
+            // assessChangeSold.push(null);
             countSoldListing++;
             break;
         }
@@ -805,7 +807,6 @@ var computeSFPrices = {
         ); ////SHOW NORMALIZED COMPLEX NAME
       }
     }
-
     var maxChange = Math.max(...assessChangeActive);
     var minChange = Math.min(...assessChangeActive);
     for (var i = 0; i < self.table.length; i++) {
