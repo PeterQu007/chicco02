@@ -47,6 +47,7 @@
       var result = 0,
         numbers = "";
       keepFraction = keepFraction || false;
+
       strNum = strNum.toString();
       strNum = strNum.replace(/,/g, "");
       //remove the fraction
@@ -66,17 +67,16 @@
         0,
         strNum.indexOf(" ") == -1 ? strNum.length : strNum.indexOf(" ")
       );
-      for (var i = 0, len = strNum.length; i < len; ++i) {
-        if ((i = 0)) {
-          if (!isNaN(strNum[0]) || strNum[0] == "-") {
-            numbers += strNum[i];
-          }
-        } else {
+      if (strNum[0] === "-") {
+        numbers += strNum[0];
+      } else {
+        for (var i = 0, len = strNum.length; i < len; ++i) {
           if (!isNaN(strNum[i]) || strNum[i] === ".") {
             numbers += strNum[i];
           }
         }
       }
+
       result = Number(Number(numbers).toFixed(keepFraction ? 2 : 0));
       return result;
     },
