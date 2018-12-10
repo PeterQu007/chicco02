@@ -291,6 +291,7 @@
             RecordNo: 0, //index 0
             status: 8,
             address: 9,
+            neighborhood: 10,
             complexName: 11,
             Price: 12,
             ListPrice: 14,
@@ -307,8 +308,10 @@
             strataPlan: 36,
             streetAddress: 37,
             unitNo: 38,
-            houseType: 42,
-            city: 43
+            houseType: 39,
+            city: 40,
+            subArea: 41,
+            postcode: 42
           };
           break;
         case "Residential Detached":

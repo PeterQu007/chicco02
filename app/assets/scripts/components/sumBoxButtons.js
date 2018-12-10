@@ -195,7 +195,7 @@ class SumBoxButtons extends React.Component {
       for (var i = 0; i < tableRows.length; i++) {
         var row = tableRows[i];
         $(row).height(40);
-        for (var j = 72; j >= 39; j--) {
+        for (var j = 72; j >= 43; j--) {
           $(row)
             .children("td")
             .eq(j)
@@ -539,10 +539,13 @@ class SumBoxButtons extends React.Component {
         recordNo = recordNo_i.textContent;
         break;
       }
+      recordNo = -1;
     }
-    if (recordNo == 0) {
+    if (recordNo == -1) {
       console.warn("No Record Selected!");
       return;
+    } else {
+      recordNo = ((recordNo - 1) % 250) + 1;
     }
 
     ////UPDATE THE COMPLEX NAME IN THE SPREAD SHEET
