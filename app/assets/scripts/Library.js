@@ -260,83 +260,40 @@
     setCols: function(tabTitle) {
       var cols = null;
       switch (tabTitle) {
-        case "Quick Search":
         case "Listing Carts":
-        case "Market Monitor":
-          cols = {
-            RecordNo: 0, //index 0
-            status: 8,
-            address: 9,
-            complexName: 11,
-            ListPrice: 12,
-            Price: 13,
-            SoldPrice: 14,
-            TotalFloorArea: 15,
-            PricePSF: 16,
-            SoldPricePSF: 17,
-            PID: 22,
-            landValue: 23,
-            improvementValue: 24,
-            totalValue: 25,
-            changeValuePercent: 26,
-            lotSize: 27,
-            strataPlan: 28,
-            houseType: 30,
-            prevPrice: 31,
-            city: 32
-          };
-          break;
         case "Residential Attached":
+        case "Residential Detached":
+        case "Multi-Class":
+        case "Market Monitor":
+        case "Quick Search":
           cols = {
             RecordNo: 0, //index 0
             status: 8,
             address: 9,
             neighborhood: 10,
-            complexName: 11,
-            Price: 12,
-            ListPrice: 14,
-            SoldPrice: 18,
-            TotalFloorArea: 22,
-            PricePSF: 23,
-            SoldPricePSF: 24,
-            lotSize: 28,
-            PID: 31,
-            landValue: 32,
-            improvementValue: 33,
-            totalValue: 34,
-            changeValuePercent: 35,
-            strataPlan: 36,
-            streetAddress: 37,
-            unitNo: 38,
-            houseType: 39,
-            city: 40,
-            subArea: 41,
-            postcode: 42
-          };
-          break;
-        case "Residential Detached":
-          cols = {
-            RecordNo: 0, //index 0
-            status: 8,
-            address: 9,
-            complexName: 31,
-            Price: 12,
-            ListPrice: 12,
-            SoldPrice: 36, //
+            Price: 11,
+            complexName: 14,
             TotalFloorArea: 17,
-            PricePSF: 22,
-            SoldPricePSF: 23,
-            PID: 24,
-            landValue: 25,
-            improvementValue: 26,
-            totalValue: 27,
-            changeValuePercent: 28,
-            strataPlan: 33,
-            lotSize: 20,
-            city: 29,
-            houseType: 30
+            houseType: 20,
+            lotSize: 21,
+            PID: 22,
+            landValue: 23,
+            improvementValue: 24,
+            totalValue: 25,
+            changeValuePercent: 26,
+            strataPlan: 27,
+            streetAddress: 28,
+            ListPrice: 29,
+            SoldPrice: 33,
+            PricePSF: 34,
+            SoldPricePSF: 35,
+            unitNo: 51,
+            city: 53,
+            subArea: 54,
+            postcode: 55
           };
           break;
+
         case "Tour and Open House":
           cols = {
             RecordNo: 0, //index 0
@@ -399,7 +356,9 @@
         "Port Coquitlam",
         "Delta",
         "North Vancouver",
-        "West Vancouver"
+        "West Vancouver",
+        "Ladner",
+        "Lions Bay"
       ];
       if (cities.includes(city)) {
         return true;
