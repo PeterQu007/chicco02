@@ -98,10 +98,7 @@ class SumBoxButtons extends React.Component {
           colName = "No";
           break;
         case "DisplayId":
-          colName = "MLS#";
-          break;
-        case "Room28Lev":
-          colName = "BCAValue";
+          colName = "MLS";
           break;
         case "Room28Dim1":
           colName = "LandValue";
@@ -109,13 +106,19 @@ class SumBoxButtons extends React.Component {
         case "Room28Dim2":
           colName = "ImproveValue";
           break;
+        case "Room28Lev":
+          colName = "BCAValue";
+          break;
         case "Room28Type":
           colName = "Change%";
           break;
-        case "Room27Lev":
-          colName = "Address";
+        case "Room27Dim1":
+          colName = "PlanNum";
           break;
         case "Room27Dim2":
+          colName = "Address2"; //FORMAL.ADDRESS FROM TAX REPORT
+          break;
+        case "Room27Lev":
           colName = "Unit#";
           break;
       }
@@ -191,126 +194,56 @@ class SumBoxButtons extends React.Component {
 
   ////EXPORT TABLE TO EXCEL STEP 3
   selectExportTableRows(tabTitle, tableRows) {
-    if (tabTitle == "Residential Attached") {
+    if (
+      tabTitle == "Residential Attached" ||
+      tabTitle == "Residential Detached" ||
+      tabTitle == "Market Monitor" ||
+      tabTitle == "Listing Carts"
+    ) {
       for (var i = 0; i < tableRows.length; i++) {
         var row = tableRows[i];
         $(row).height(40);
-        for (var j = 72; j >= 43; j--) {
+        //REMOVE TAIL.CELLS
+        for (var j = 79; j >= 74; j--) {
           $(row)
             .children("td")
             .eq(j)
             .remove();
         }
-        $(row)
-          .children("td")
-          .eq(33)
-          .remove(); ////IMPROVEMENT VALUE
-        $(row)
-          .children("td")
-          .eq(32)
-          .remove(); ////LAND VALUE
-        $(row)
-          .children("td")
-          .eq(29)
-          .remove();
-        $(row)
-          .children("td")
-          .eq(28)
-          .remove();
-        $(row)
-          .children("td")
-          .eq(27)
-          .remove();
-        //$(row).children('td').eq(26).remove(); ////KEEP THE AGE
-        $(row)
-          .children("td")
-          .eq(24)
-          .remove();
-        //$(row).children('td').eq(19).remove(); //Days On Market
-        $(row)
-          .children("td")
-          .eq(18)
-          .remove();
-        $(row)
-          .children("td")
-          .eq(17)
-          .remove();
-        $(row)
-          .children("td")
-          .eq(15)
-          .remove();
-        $(row)
-          .children("td")
-          .eq(14)
-          .remove();
-        $(row)
-          .children("td")
-          .eq(13)
-          .remove();
-        $(row)
-          .children("td")
-          .eq(7)
-          .remove(); //ML # with Link
-        $(row)
-          .children("td")
-          .eq(6)
-          .remove(); //Action Icons
-        $(row)
-          .children("td")
-          .eq(5)
-          .remove(); //Pcitures
-        $(row)
-          .children("td")
-          .eq(4)
-          .remove(); //Pictures NO
-        //$(row).children('td').eq(3).remove();
-        $(row)
-          .children("td")
-          .eq(2)
-          .remove(); //Hidden
-        $(row)
-          .children("td")
-          .eq(1)
-          .remove(); //Hidden
-      }
-    }
-
-    if (tabTitle == "Residential Detached") {
-      for (var i = 0; i < tableRows.length; i++) {
-        var row = tableRows[i];
-        $(row).height(40);
-        for (var j = 51; j >= 32; j--) {
+        //REMOVE HEADER.CELLS
+        let RemovalHeadCellsNo = [7, 6, 5, 4, 2, 1];
+        for (var j in RemovalHeadCellsNo) {
           $(row)
             .children("td")
-            .eq(j)
+            .eq(RemovalHeadCellsNo[j])
             .remove();
         }
 
-        $(row)
-          .children("td")
-          .eq(7)
-          .remove(); //ML # with Link
-        $(row)
-          .children("td")
-          .eq(6)
-          .remove(); //Action Icons
-        $(row)
-          .children("td")
-          .eq(5)
-          .remove(); //Pcitures
-        $(row)
-          .children("td")
-          .eq(4)
-          .remove(); //Pictures NO
-        //$(row).children('td').eq(3).remove();
-        $(row)
-          .children("td")
-          .eq(2)
-          .remove(); //Hidden
-        $(row)
-          .children("td")
-          .eq(1)
-          .remove(); //Hidden
+        // $(row)
+        //   .children("td")
+        //   .eq(7)
+        //   .remove(); //ML # with Link
+        // $(row)
+        //   .children("td")
+        //   .eq(6)
+        //   .remove(); //Action Icons
+        // $(row)
+        //   .children("td")
+        //   .eq(5)
+        //   .remove(); //Pcitures
+        // $(row)
+        //   .children("td")
+        //   .eq(4)
+        //   .remove(); //Pictures NO
+        // //$(row).children('td').eq(3).remove();
+        // $(row)
+        //   .children("td")
+        //   .eq(2)
+        //   .remove(); //Hidden
+        // $(row)
+        //   .children("td")
+        //   .eq(1)
+        //   .remove(); //Hidden
       }
     }
 
@@ -387,89 +320,6 @@ class SumBoxButtons extends React.Component {
           .children("td")
           .eq(1)
           .remove(); //Hidden
-      }
-    }
-
-    if (tabTitle == "Market Monitor" || tabTitle == "Listing Carts") {
-      for (var i = 0; i < tableRows.length; i++) {
-        var row = tableRows[i];
-        if (
-          !$fx.inGreatVanArea(
-            $(row)
-              .children("td")
-              .eq(32)
-              .text()
-          )
-        ) {
-          $(row).remove();
-        } else {
-          $(row).height(40);
-          // for(var j=72; j>=41; j--){
-          //     $(row).children('td').eq(j).remove();
-          // }
-          $(row)
-            .children("td")
-            .eq(33)
-            .remove(); ////LAST CELL FOR CSS CLASS
-          // $(row).children('td').eq(32).remove();////LAND VALUE
-          $(row)
-            .children("td")
-            .eq(29)
-            .remove();
-          $(row)
-            .children("td")
-            .eq(28)
-            .remove();
-          //$(row).children('td').eq(27).remove(); ////KEEP THE LOT SIZE
-          //$(row).children('td').eq(26).remove(); ////KEEP THE AGE
-          $(row)
-            .children("td")
-            .eq(24)
-            .remove();
-          //$(row).children('td').eq(19).remove(); //Days On Market
-          //$(row).children('td').eq(18).remove(); ////KEEP THE YEAR BUILT
-          $(row)
-            .children("td")
-            .eq(17)
-            .remove();
-          $(row)
-            .children("td")
-            .eq(15)
-            .remove();
-          $(row)
-            .children("td")
-            .eq(14)
-            .remove();
-          $(row)
-            .children("td")
-            .eq(13)
-            .remove();
-          $(row)
-            .children("td")
-            .eq(7)
-            .remove(); //ML # with Link
-          $(row)
-            .children("td")
-            .eq(6)
-            .remove(); //Action Icons
-          $(row)
-            .children("td")
-            .eq(5)
-            .remove(); //Pcitures
-          $(row)
-            .children("td")
-            .eq(4)
-            .remove(); //Pictures NO
-          //$(row).children('td').eq(3).remove();
-          $(row)
-            .children("td")
-            .eq(2)
-            .remove(); //Hidden
-          $(row)
-            .children("td")
-            .eq(1)
-            .remove(); //Hidden
-        }
       }
     }
   }

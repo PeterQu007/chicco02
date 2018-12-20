@@ -799,7 +799,7 @@ var computeSFPrices = {
         self.table[j - 1][17]
       ); ////SHOW THE STREET ADDRESS WITHOUT UNIT#
       $($(rows[j]).children("td")[self.cols.unitNo]).text(
-        self.table[j - 1][18]
+        "#" + self.table[j - 1][18]
       ); ////SHOW THE UNIT NO SEPARATELY
       if (self.table[j - 1][12].trim()) {
         $($(rows[j]).children("td")[self.cols.complexName]).text(

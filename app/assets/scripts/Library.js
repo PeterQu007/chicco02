@@ -272,28 +272,27 @@
             address: 9,
             neighborhood: 10,
             Price: 11,
-            complexName: 14,
-            TotalFloorArea: 17,
-            houseType: 20,
-            lotSize: 21,
-            PID: 22,
-            landValue: 23,
-            improvementValue: 24,
-            totalValue: 25,
-            changeValuePercent: 26,
-            strataPlan: 27,
-            streetAddress: 28,
-            ListPrice: 29,
-            SoldPrice: 33,
-            PricePSF: 34,
-            SoldPricePSF: 35,
-            unitNo: 51,
-            city: 53,
-            subArea: 54,
-            postcode: 55
+            PricePSF: 12,
+            complexName: 16,
+            TotalFloorArea: 19,
+            houseType: 22,
+            lotSize: 23,
+            PID: 24,
+            landValue: 25,
+            improvementValue: 26,
+            totalValue: 27,
+            changeValuePercent: 28,
+            strataPlan: 29,
+            streetAddress: 30,
+            unitNo: 31,
+            city: 32,
+            subArea: 33,
+            postcode: 34,
+            ListPrice: 35,
+            SoldPrice: 39,
+            SoldPricePSF: 40
           };
           break;
-
         case "Tour and Open House":
           cols = {
             RecordNo: 0, //index 0
