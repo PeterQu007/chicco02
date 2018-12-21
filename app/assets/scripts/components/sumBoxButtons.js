@@ -97,6 +97,9 @@ class SumBoxButtons extends React.Component {
         case "?":
           colName = "No";
           break;
+        case "Price":
+          colName = "Price0";
+          break;
         case "DisplayId":
           colName = "MLS";
           break;
@@ -198,7 +201,8 @@ class SumBoxButtons extends React.Component {
       tabTitle == "Residential Attached" ||
       tabTitle == "Residential Detached" ||
       tabTitle == "Market Monitor" ||
-      tabTitle == "Listing Carts"
+      tabTitle == "Listing Carts" ||
+      tabTitle == "Quick Search"
     ) {
       for (var i = 0; i < tableRows.length; i++) {
         var row = tableRows[i];
