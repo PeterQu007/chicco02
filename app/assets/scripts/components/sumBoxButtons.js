@@ -202,124 +202,77 @@ class SumBoxButtons extends React.Component {
     ) {
       for (var i = 0; i < tableRows.length; i++) {
         var row = tableRows[i];
-        $(row).height(40);
-        //REMOVE TAIL.CELLS
-        for (var j = 79; j >= 74; j--) {
-          $(row)
-            .children("td")
-            .eq(j)
-            .remove();
+        if (
+          !$fx.inGreatVanArea(
+            $(row)
+              .children("td")
+              .eq(32)
+              .text()
+          )
+        ) {
+          $(row).remove();
+        } else {
+          $(row).height(40);
+          //REMOVE TAIL.CELLS
+          for (var j = 79; j >= 74; j--) {
+            $(row)
+              .children("td")
+              .eq(j)
+              .remove();
+          }
+          //REMOVE HEADER.CELLS
+          let RemovalHeadCellsNo = [7, 6, 5, 4, 2, 1];
+          for (var j in RemovalHeadCellsNo) {
+            $(row)
+              .children("td")
+              .eq(RemovalHeadCellsNo[j])
+              .remove();
+          }
         }
-        //REMOVE HEADER.CELLS
-        let RemovalHeadCellsNo = [7, 6, 5, 4, 2, 1];
-        for (var j in RemovalHeadCellsNo) {
-          $(row)
-            .children("td")
-            .eq(RemovalHeadCellsNo[j])
-            .remove();
-        }
-
-        // $(row)
-        //   .children("td")
-        //   .eq(7)
-        //   .remove(); //ML # with Link
-        // $(row)
-        //   .children("td")
-        //   .eq(6)
-        //   .remove(); //Action Icons
-        // $(row)
-        //   .children("td")
-        //   .eq(5)
-        //   .remove(); //Pcitures
-        // $(row)
-        //   .children("td")
-        //   .eq(4)
-        //   .remove(); //Pictures NO
-        // //$(row).children('td').eq(3).remove();
-        // $(row)
-        //   .children("td")
-        //   .eq(2)
-        //   .remove(); //Hidden
-        // $(row)
-        //   .children("td")
-        //   .eq(1)
-        //   .remove(); //Hidden
       }
     }
 
     if (tabTitle == "Tour and Open House") {
       for (var i = 0; i < tableRows.length; i++) {
         var row = tableRows[i];
-        $(row).height(40);
-        $(row)
-          .children("td")
-          .eq(40)
-          .remove(); //
-        $(row)
-          .children("td")
-          .eq(39)
-          .remove(); //Floor Plan Url
-        $(row)
-          .children("td")
-          .eq(38)
-          .remove();
-        $(row)
-          .children("td")
-          .eq(34)
-          .remove(); //
-        $(row)
-          .children("td")
-          .eq(28)
-          .remove(); //Floor Plan Url
-        $(row)
-          .children("td")
-          .eq(27)
-          .remove(); //Building Plan
-        $(row)
-          .children("td")
-          .eq(20)
-          .remove(); //ML # with Link
-        $(row)
-          .children("td")
-          .eq(19)
-          .remove(); //Status
-        $(row)
-          .children("td")
-          .eq(18)
-          .remove(); //Postal Code
-        $(row)
-          .children("td")
-          .eq(17)
-          .remove(); //Province
-        $(row)
-          .children("td")
-          .eq(8)
-          .remove(); //ML # with Link
-        $(row)
-          .children("td")
-          .eq(7)
-          .remove(); //ML # with Link
-        $(row)
-          .children("td")
-          .eq(6)
-          .remove(); //Action Icons
-        $(row)
-          .children("td")
-          .eq(5)
-          .remove(); //Pcitures
-        $(row)
-          .children("td")
-          .eq(4)
-          .remove(); //Pictures NO
-        //$(row).children('td').eq(3).remove(); //Keep the records number
-        $(row)
-          .children("td")
-          .eq(2)
-          .remove(); //Hidden
-        $(row)
-          .children("td")
-          .eq(1)
-          .remove(); //Hidden
+        if (
+          !$fx.inGreatVanArea(
+            $(row)
+              .children("td")
+              .eq(32)
+              .text()
+          )
+        ) {
+          $(row).remove();
+        } else {
+          $(row).height(40);
+          //REMOVE CELLS
+          let RemovalHeadCellsNo = [
+            40,
+            39,
+            38,
+            34,
+            28,
+            27,
+            20,
+            19,
+            18,
+            17,
+            8,
+            7,
+            6,
+            5,
+            4,
+            2,
+            1
+          ];
+          for (var j in RemovalHeadCellsNo) {
+            $(row)
+              .children("td")
+              .eq(RemovalHeadCellsNo[j])
+              .remove();
+          }
+        }
       }
     }
   }
@@ -494,3 +447,73 @@ export default SumBoxButtons;
 //     window.location.href = uri + base64(format(template, ctx));
 //   };
 // })();
+
+// $(row)
+//   .children("td")
+//   .eq(40)
+//   .remove(); //
+// $(row)
+//   .children("td")
+//   .eq(39)
+//   .remove(); //Floor Plan Url
+// $(row)
+//   .children("td")
+//   .eq(38)
+//   .remove();
+// $(row)
+//   .children("td")
+//   .eq(34)
+//   .remove(); //
+// $(row)
+//   .children("td")
+//   .eq(28)
+//   .remove(); //Floor Plan Url
+// $(row)
+//   .children("td")
+//   .eq(27)
+//   .remove(); //Building Plan
+// $(row)
+//   .children("td")
+//   .eq(20)
+//   .remove(); //ML # with Link
+// $(row)
+//   .children("td")
+//   .eq(19)
+//   .remove(); //Status
+// $(row)
+//   .children("td")
+//   .eq(18)
+//   .remove(); //Postal Code
+// $(row)
+//   .children("td")
+//   .eq(17)
+//   .remove(); //Province
+// $(row)
+//   .children("td")
+//   .eq(8)
+//   .remove(); //ML # with Link
+// $(row)
+//   .children("td")
+//   .eq(7)
+//   .remove(); //ML # with Link
+// $(row)
+//   .children("td")
+//   .eq(6)
+//   .remove(); //Action Icons
+// $(row)
+//   .children("td")
+//   .eq(5)
+//   .remove(); //Pcitures
+// $(row)
+//   .children("td")
+//   .eq(4)
+//   .remove(); //Pictures NO
+// //$(row).children('td').eq(3).remove(); //Keep the records number
+// $(row)
+//   .children("td")
+//   .eq(2)
+//   .remove(); //Hidden
+// $(row)
+//   .children("td")
+//   .eq(1)
+//   .remove(); //Hidden
