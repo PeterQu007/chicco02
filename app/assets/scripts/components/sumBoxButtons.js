@@ -90,9 +90,9 @@ class SumBoxButtons extends React.Component {
     var colName = "";
     for (var i = 0; i < newColCells.length; i++) {
       colName = originalColCells[i].textContent.trim();
-      colName = colName.replace("1)", "");
-      colName = colName.replace("2)", "");
-      colName = colName.replace("3)", "");
+      colName = colName.replace("1) ", "");
+      colName = colName.replace("2) ", "");
+      colName = colName.replace("3) ", "");
       switch (colName) {
         case "?":
           colName = "No";
