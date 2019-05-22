@@ -86,6 +86,7 @@ var computeSFPrices = {
     "div#app_banner_links_left input.select2-search__field",
     top.document
   ),
+  stopSearch: $("input#inputstopsearch", top.document),
   ////EVENTS:
   onMutation() {
     ////AFTER THE SPREADSHEET.TABLE HAS BEEN FULLY LOADED TO THE FRONT.END
@@ -323,13 +324,15 @@ var computeSFPrices = {
             } else {
               self.updateAssess();
             }
-            setTimeout(
-              function() {
-                ////LOOP THE TAX.SEARCH IN THE SPREADSHEET.TABLE
-                this.searchTax();
-              }.bind(self),
-              1000
-            );
+            if (!self.stopSearch.is(":checked")) {
+              setTimeout(
+                function() {
+                  ////LOOP THE TAX.SEARCH IN THE SPREADSHEET.TABLE
+                  this.searchTax();
+                }.bind(self),
+                1000
+              );
+            }
           }
         }
       });

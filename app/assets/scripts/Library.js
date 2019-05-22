@@ -217,6 +217,30 @@
       return "#" + src; //add id sign # as prefix
     },
 
+    getListingID: function(str) {
+      let src, start, end;
+      src = str;
+      start = src.indexOf("listingID=");
+      src = src.substring(start);
+      //console.log(src);
+      if (src.indexOf("&") > -1) {
+        end = src.indexOf("&");
+        src = src.substring(0, end);
+      }
+      start = src.indexOf("=");
+      src = src.substring(start + 1);
+
+      return src; //return listingID
+    },
+
+    getPicLinkValues: function(str) {
+      let linkValues = [];
+      ////cdnparap130.paragonrels.com/ParagonImages/Property/p13/BCRES/262361168/0/640/480/c31e77b82df3263ed3d56417ed3e3fe5/15/a4f6984091a0e4a0f6208c31f244e095/262361168.JPG,//cdnparap130.paragonrels.com/ParagonImages/Property/p13/BCRES/262361168/1/640/480/f85c89e089f88721e22e62bf1e379b9f/15/a4f6984091a0e4a0f6208c31f244e095/262361168-1.JPG
+      linkValues = str.split(",");
+
+      return linkValues;
+    },
+
     getSubTabID: function(str) {
       let src, start, end;
       src = str;

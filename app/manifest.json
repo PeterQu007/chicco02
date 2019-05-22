@@ -206,6 +206,7 @@
         "https://bcres.paragonrels.com/publink/default.aspx*Report=Yes"
       ],
       "js": [
+        //"https://maps.googleapis.com/maps/api/js?callback=initMap&signed_in=true&key=AIzaSyD1QvoySzCNvNj3Dffh0uMJfGMLf-NtOME",
         "./assets/lib/jquery/dist/jquery.min.js",
         "./temp/scripts/Library.js",
         "./temp/scripts/MLS-FullPublic.js"

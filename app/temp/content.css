@@ -1,44 +1,79 @@
 .highlight {
-    font-weight: bold;
-    color: red;
+  font-weight: bold;
+  color: red;
 }
 
-#reportlanguage{
-	width: 48px;
-	height: 25px;
-	padding-top: 5px;
+#reportlanguage {
+  width: 48px;
+  height: 25px;
+  padding-top: 5px;
 }
 
-.languagebox{
-	width: 50px;
-	height: 25px;
-	display: inline-block;
-	position: relative;
-	vertical-align: middle;
-	float: left;
+.languagebox {
+  width: 50px;
+  height: 25px;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+  float: left;
 }
 
 .clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
+  content: "";
+  clear: both;
+  display: table;
 }
 
-.uilistinginfo{
-	border: 1px solid red;
-	width: 147px;
-	padding: 2px 5px;
-	position: absolute;
-	top: 0px;
-	left: 770px;
+.uilistinginfo {
+  border: 1px solid red;
+  width: 147px;
+  padding: 2px 5px;
+  position: absolute;
+  top: 0px;
+  left: 770px;
 }
 
-.inputbox{
-	width: 120px;
+.mapView {
+  border: 1px solid red;
+  width: 640px;
+  height: 720px;
+  padding: 5px 10px;
+  position: absolute;
+  top: 0px;
+  left: 920px;
 }
 
-.bottomline{
-	border-bottom: 1px dotted lightblue;
-	padding-bottom: 2px;
-	margin-bottom: 2px;
+.mapBox {
+  width: 620px;
+  height: 680px;
+}
+
+.picContainer {
+  border: 1px solid red;
+  width: 335px;
+  height: 820px;
+  padding: 5px 5px;
+  position: absolute;
+  top: 0px;
+  left: 1565px;
+}
+
+.picBox {
+  padding: 1px 3px;
+  width: 158px;
+  height: 118px;
+}
+
+.picHidden {
+  display: none;
+}
+
+.inputbox {
+  width: 120px;
+}
+
+.bottomline {
+  border-bottom: 1px dotted lightblue;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
 }
