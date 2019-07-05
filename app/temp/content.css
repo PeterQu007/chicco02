@@ -35,7 +35,7 @@
 
 .mapView {
   border: 1px solid red;
-  width: 640px;
+  width: 500px;
   height: 720px;
   padding: 5px 10px;
   position: absolute;
@@ -44,18 +44,18 @@
 }
 
 .mapBox {
-  width: 620px;
+  width: 480px;
   height: 680px;
 }
 
 .picContainer {
   border: 1px solid red;
-  width: 335px;
-  height: 820px;
+  width: 515px;
+  height: 840px;
   padding: 5px 5px;
   position: absolute;
   top: 0px;
-  left: 1565px;
+  left: 1425px;
 }
 
 .picBox {
