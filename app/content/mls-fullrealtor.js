@@ -345,9 +345,11 @@ var fullRealtor = {
         .children("#img" + i)
         .attr("src", this.picLinkValues[i]);
       let elementPic = document.getElementById("img" + i);
-      elementPic.addEventListener("click", function() {
-        window.open(elementPic.src);
-      });
+      if (i != 0) {
+        elementPic.addEventListener("click", function() {
+          window.open(elementPic.src);
+        });
+      }
     }
 
     for (i = totalPics; i <= 20; i++) {
