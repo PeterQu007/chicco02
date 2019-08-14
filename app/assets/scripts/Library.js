@@ -381,7 +381,8 @@
         "North Vancouver",
         "West Vancouver",
         "Ladner",
-        "Lions Bay"
+        "Lions Bay",
+        "Abbotsford"
       ];
       if (cities.includes(city)) {
         return true;
