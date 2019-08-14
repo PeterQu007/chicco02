@@ -202,7 +202,8 @@ class SumBoxButtons extends React.Component {
       tabTitle == "Residential Detached" ||
       tabTitle == "Market Monitor" ||
       tabTitle == "Listing Carts" ||
-      tabTitle == "Quick Search"
+      tabTitle == "Quick Search" ||
+      tabTitle == "Multi-Class"
     ) {
       for (var i = 0; i < tableRows.length; i++) {
         var row = tableRows[i];
