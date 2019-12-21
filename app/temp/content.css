@@ -3,14 +3,15 @@
   color: red;
 }
 
-#reportlanguage {
-  width: 48px;
+#reportlanguage,
+#stopsearch {
+  /*width: 48px; */
   height: 25px;
   padding-top: 5px;
 }
 
 .languagebox {
-  width: 50px;
+  /* width: 50px; */
   height: 25px;
   display: inline-block;
   position: relative;

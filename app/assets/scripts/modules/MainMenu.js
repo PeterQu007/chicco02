@@ -8,6 +8,15 @@ export default class MainMenu {
     this.appRightBanner = $("#app_banner_links_right");
     this.appMidBanner = $('<div id = "app_banner_mid"></div>');
     this.appMainMenu = $("#app_banner_menu");
+
+    (this.txtResponse = $(`<div class="languagebox">
+                                <div id="textResponse">
+                                    <label>res</label>
+                                    <input type="text" name="textbox" style="width: 350px!important" />
+                                </div>
+                            </div>`)),
+      this.txtResponse.insertAfter(this.appLeftBanner);
+
     (this.chkLanguage = $(`<div class="languagebox">
                                 <div id="reportlanguage">
                                     <label>cn</label>

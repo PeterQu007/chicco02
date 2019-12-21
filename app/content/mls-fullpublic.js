@@ -14,7 +14,11 @@ var fullpublic = {
 		this.events();
 		this.getMorePropertyInfo();
 		this.bcAssess.addClass(this.lp.attr('class'));
-		var divBC = $('<div style="top:111px;left:703px;width:53px;height:14px;text-align: left;">(BCA\'16)</div>');
+		var thisYear = new Date()
+      .getFullYear()
+      .toString()
+      .substr(-2);
+		var divBC = $('<div style="top:111px;left:703px;width:53px;height:14px;text-align: left;">(BCA\'' + thisYear + ')</div>');
 		var banner = $('<div id="peterqu" style="z-index: 999; height:88px; position:absolute; top: 2px; padding-right:0px; padding-left:0px; padding-top:0px; padding-bottom:0px; left:0px; width: 766px"></div>');
 		divBC.addClass(this.lpSuffix.attr('class'));
 		divBC.insertAfter(this.bcAssess);
@@ -276,8 +280,8 @@ var fullpublic = {
 
 	houseType: $('div[style="top:111px;left:578px;width:147px;height:16px;"]'),
 	listingHouseType: null,
-	lp: $('div[style="top:129px;left:555px;width:147px;height:13px;"]'),
-	sp: $('div[style="top:147px;left:555px;width:147px;height:15px;"]'),
+	lp: $('div[style="top:129px;left:555px;width:143px;height:13px;"]'),
+	sp: $('div[style="top:147px;left:555px;width:143px;height:13px;"]'),
 	lpSuffix: $('div[style="top:129px;left:703px;width:23px;height:14px;"]'),
 	bcAssess: $('div[style="top:111px;left:578px;width:147px;height:16px;"]'),
 	finishedFloorArea: $('div[style="top:804px;left:120px;width:50px;height:16px;"]'),
@@ -298,7 +302,7 @@ var fullpublic = {
 
 	//complex info:
 	legal: $('div[style="top:532px;left:75px;width:688px;height:24px;"'),
-	address: $('div[style="top:110px;left:134px;width:481px;height:17px;"]'),
+	address: $('div[style="top:110px;left:134px;width:483px;height:17px;"]'),
 	subArea: $('div[style="top:126px;left:134px;width:480px;height:13px;"]'),
 	neighborhood: $('div[style="top:139px;left:134px;width:479px;height:13px;"]'),
 	postcode: $('div[style="top:152px;left:132px;width:484px;height:13px;"]'),
