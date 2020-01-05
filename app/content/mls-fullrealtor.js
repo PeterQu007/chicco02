@@ -114,6 +114,8 @@ var fullRealtor = {
     this.addStrataEvents();
     this.addComplexEvent();
     this.addExposureEvent();
+    this.addListingEvent();
+    this.addShowingEvent();
     //do searches:
     this.searchStrataPlanSummary();
     var that = this;
@@ -166,6 +168,8 @@ var fullRealtor = {
 
   saveComplexButton: null,
   saveExposureButton: null,
+  saveListingButton: null,
+  saveShowingButton: null,
   legalDesc: null, //need be inited at addStrataPlan
   strataPlan: null, //new strataPlan field, to be added
   formalAddress: null, //new formal Address field, to be added
@@ -339,6 +343,8 @@ var fullRealtor = {
     this.addRemarks();
 
     this.addPics();
+
+    this.addShowingInfo(); //add showing schedule info
   },
 
   addPics: function() {
@@ -392,6 +398,8 @@ var fullRealtor = {
 
     this.saveComplexButton = $("#saveComplexName");
     this.saveExposureButton = $("#saveExposure");
+    this.saveListingButton = $("#saveListing");
+    this.saveShowingButton = $("#saveShowing");
     this.strataPlanLink = $("#strataPlanLink");
     this.complexSummary = $("#complexSummary");
     this.complexName = $("#complexName");
@@ -504,6 +512,32 @@ var fullRealtor = {
     });
   },
 
+  addListingInfo: function(listing) {
+    var self = this;
+
+    var listingName = listing || "";
+    if (typeof listingName != "string" && listingName.length <= 0) {
+      console.log("listingName does not existed"); ////exit
+      return;
+    }
+
+    var listingInfo = {
+      _id: self.mlsNo.text(),
+      name: listingName,
+      listingName: listingName,
+      addDate: $fx.getToday(),
+      todo: listing != undefined ? "saveListing" : "searchListing",
+      from: "fullRealtorReport"
+    };
+
+    console.log("===>add ListingInfo: ", listingInfo);
+    chrome.runtime.sendMessage(listingInfo, function(response) {
+      if (response) {
+        self.uiListingInfo.inputListing.text(response.name);
+      }
+    });
+  },
+
   addBCAssessment: function() {
     //set bc assessment properties:
     this.bcAssess = $("#totalValue");
@@ -534,8 +568,45 @@ var fullRealtor = {
     });
   },
 
-  addShowingInfo: function() {
-    //todo ...
+  /******************
+   * 1) define showing button:
+   * 2) assign showingButton element;
+   * 3) Add showing button event:
+   * 4) saveShowingInfo: button click event function
+   * 4) addShowingInfo: search or save showingInfo from dbShowing
+   * 5) updateShowingInfo: update the showingInfo to Screen
+   */
+  addShowingInfo: function(showing) {
+    var self = this;
+    var showingID = showing || self.mlsNo.text();
+
+    if (typeof showingID != "string" && showingID.length <= 0) {
+      console.log("ShowingID does not existed"); ////exit
+      return;
+    }
+    var clientName = $("#clientName").val();
+    var showingNote = $("#showingNote").val();
+    var showingDate = $("#showingDate").val();
+    var showingTime = $("#showingTime").val();
+
+    var showingInfo = {
+      _id: self.mlsNo.text(),
+      name: clientName,
+      addDate: $fx.getToday(),
+      clientName: clientName,
+      showingNote: showingNote,
+      showingDate: showingDate,
+      showingTime: showingTime,
+      todo: showing != undefined ? "saveShowing" : "searchShowing",
+      from: "fullRealtorReport"
+    };
+
+    //console.log('===>add ComplexInfo: ', complexInfo);
+    chrome.runtime.sendMessage(showingInfo, function(response) {
+      if (response) {
+        self.uiListingInfo.clientName.text(response.name);
+      }
+    });
   },
 
   searchTax: function() {
@@ -629,6 +700,18 @@ var fullRealtor = {
     })(this);
   },
 
+  addListingEvent: function() {
+    (function event(self) {
+      self.saveListingButton.click(self.saveListingInfo.bind(self));
+    })(this);
+  },
+
+  addShowingEvent: function() {
+    (function event(self) {
+      self.saveShowingButton.click(self.saveShowingInfo.bind(self));
+    })(this);
+  },
+
   saveComplexInfo: function() {
     console.log("save button clicked!");
     //manually save or update complex name to the database
@@ -688,6 +771,30 @@ var fullRealtor = {
     }
   },
 
+  saveListingInfo: function() {
+    console.log("save Listing button clicked!");
+    //manually save or update complex name to the database
+
+    var self = this;
+    var inputName = $("#inputListing").val();
+    // inputName = $fx.normalizeComplexName(inputName);
+    if (inputName.length > 0) {
+      this.addListingInfo(inputName);
+    }
+  },
+
+  saveShowingInfo: function() {
+    console.log("save Showing button clicked!");
+    //manually save or update complex name to the database
+
+    var self = this;
+    var inputName = $("#clientName").val();
+    // inputName = $fx.normalizeComplexName(inputName);
+    if (inputName.length > 0) {
+      this.addShowingInfo(inputName);
+    }
+  },
+
   addDataEvents: function() {
     (function onEvents(self) {
       chrome.storage.onChanged.addListener(function(changes, area) {
@@ -716,6 +823,18 @@ var fullRealtor = {
             changes.from.newValue.indexOf("fullRealtorReport") > -1
           ) {
             self.updateExposureInfo();
+          }
+          if (
+            changes.from.newValue.indexOf("listing") > -1 &&
+            changes.from.newValue.indexOf("fullRealtorReport") > -1
+          ) {
+            self.updateListingInfo();
+          }
+          if (
+            changes.from.newValue.indexOf("showing") > -1 &&
+            changes.from.newValue.indexOf("fullRealtorReport") > -1
+          ) {
+            self.updateShowingInfo();
           }
           console.log("this: ", self);
         }
@@ -763,6 +882,7 @@ var fullRealtor = {
           if (formalAddress) {
             self.addComplexInfo(); //Search Complex Name
             self.addExposureInfo(); //Search Exposure Info
+            self.addListingInfo(); //Search Listing Info
           }
           return;
         }
@@ -806,6 +926,7 @@ var fullRealtor = {
         if (formalAddress) {
           self.addComplexInfo(); //Search Complex Name
           self.addExposureInfo(); //Search Exposure Info
+          self.addListingInfo(); //Search Listing Info
         }
 
         //console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
@@ -968,6 +1089,35 @@ var fullRealtor = {
       self.exposure.text(exposureName);
       $inputName.val(exposureName + "::");
     });
+  },
+
+  updateListingInfo: function() {
+    var self = this;
+    var $inputName = $("#inputListing");
+    var listingName = "";
+
+    chrome.storage.sync.get("listingName", function(result) {
+      listingName = result.listingName;
+      $inputName.val(listingName + "::");
+    });
+  },
+  //update showing fields:
+  updateShowingInfo: function() {
+    var self = this;
+    var $clientName = $("#clientName");
+    var $showingNote = $("#showingNote");
+    var $showingDate = $("#showingDate");
+    var $showingTime = $("#showingTime");
+
+    chrome.storage.sync.get(
+      ["clientName", "name", "showingDate", "showingTime", "showingNote"],
+      function(result) {
+        $clientName.val(result.name + "::");
+        $showingNote.val(result.showingNote);
+        $showingDate.val(result.showingDate);
+        $showingTime.val(result.showingTime);
+      }
+    );
   }
 };
 

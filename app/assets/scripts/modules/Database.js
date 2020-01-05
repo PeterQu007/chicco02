@@ -6,6 +6,7 @@ class Database {
     this.dbAssess = new PouchDB("http://localhost:5984/bcassessment");
     this.dbComplex = new PouchDB("http://localhost:5984/complex");
     this.dbExposure = new PouchDB("http://localhost:5984/exposure");
+    this.dbListing = new PouchDB("http://localhost:5984/listing");
     //http://localhost:5984/_utils/#/database/exposure/_all_docs
     this.dbStrataPlanSummary = new PouchDB(
       "http://localhost:5984/strataplansummary"
@@ -18,6 +19,9 @@ class Database {
       //console.log(info);
     });
     this.dbExposure.info().then(function(info) {
+      // console.log(info);
+    });
+    this.dbListing.info().then(function(info) {
       console.log(info);
     });
     this.dbStrataPlanSummary.info().then(function(info) {
@@ -270,49 +274,95 @@ class Database {
     //console.groupEnd('>>>writeComplex');
   }
 
-  readShowing(showingID, callback) {
-    //console.group(">>>readShowing");
+  readListing(listingInfo, callback) {
+    //console.group(">>>readComplex");
     var self = this;
-    self.dbShowing
-      .get(showingID)
+    self.listing = listingInfo;
+
+    self.dbListing.get(listingInfo._id, function(err, doc) {
+      if (err) {
+        self.writeListing(self.listing);
+        self.listing.from = "listing-saved to db-" + Math.random().toFixed(8);
+        callback(self.listing);
+      } else {
+        self.listing = doc;
+        self.listing.from = "listing" + Math.random().toFixed(8);
+        callback(self.listing);
+      }
+    });
+  }
+
+  writeListing(listing) {
+    //console.group('>>>writeListing');
+    var listingID = listing._id;
+    var self = this;
+    var listingName = listing.name;
+    self.dbListing
+      .get(listingID)
       .then(function(doc) {
-        self.showing = doc;
-        //console.log(">>>read the showing Info in database is: ", self.showing);
-        chrome.storage.sync.set({
-          showingID: doc._id,
-          mlsNo: doc.mls,
-          clientName: doc.clientName,
-          requestMethod: doc.requestMethod,
-          showingDate: doc.showingDate,
-          showingTime: doc.showingTime,
-          complexName: doc.name,
-          strataPlan: doc.strataPlan,
-          addDate: doc.addDate,
-          subArea: doc.subArea,
-          neighborhood: doc.neighborhood,
-          postcode: doc.postcode,
-          streetName: doc.streetName,
-          streetNumber: doc.streetNumber,
-          from: "showing" + Math.random().toFixed(8)
-        });
-        callback(self.showing);
+        //console.log('writeListing...the listing EXISTS, pass writing');
+        doc["name"] = listingName;
+        self.dbListing.put(doc);
+        return [doc, "listing updated!"];
       })
       .catch(function(err) {
-        //console.log(">>>read database showing error: ", err);
-        self.showing = null;
-        callback(self.showing);
+        self.dbListing
+          .put(listing)
+          .then(function() {
+            //console.log('SAVED the listing info to database:', listing.name);
+            return self.dbListing.get(listingID);
+          })
+          .then(function(doc) {
+            //console.log(">>>Listing Info has been saved to dbListing: ", doc);
+          })
+          .catch(function(err) {
+            //console.log(">>>save Listing info error: ", err);
+          });
       });
+    //console.groupEnd('>>>writeListing');
+  }
+
+  readShowing(showingInfo, callback) {
+    //console.group(">>>readShowing");
+    var self = this;
+    self.showing = showingInfo;
+
+    self.dbShowing.get(showingInfo._id, function(err, doc) {
+      if (err) {
+        //console.log(">>>read database showing error: ", err);
+        self.writeShowing(self.showing);
+        self.showing.from = "showing-saved to db-" + Math.random().toFixed(8);
+        callback(self.showing);
+      } else {
+        self.showing = doc;
+        //console.log(">>>read the showing Info in database is: ", self.showing);
+        self.showing.from = "showing-" + Math.random().toFixed(8);
+        callback(self.showing);
+      }
+    });
     //console.groupEnd(">>>readShowing");
   }
 
   writeShowing(showing) {
     var showingID = showing._id;
     var self = this;
+    var showingName = showing.name;
+    var clientName = showing.clientName;
+    var showingNote = showing.showingNote;
+    var showingDate = showing.showingDate;
+    var showingTime = showing.showingTime;
     //console.group('>>>writeShowing');
     self.dbShowing
       .get(showingID)
       .then(function(doc) {
         //console.log('writeShowing...the showing info EXISTS, pass writing!');
+        doc["name"] = showingName;
+        doc["clientName"] = clientName;
+        doc["showingNote"] = showingNote;
+        doc["showingDate"] = showingDate;
+        doc["showingTime"] = showingTime;
+        self.dbShowing.put(doc);
+        return [doc, "showing updated!"];
       })
       .catch(function(err) {
         self.dbShowing

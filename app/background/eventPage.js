@@ -225,6 +225,78 @@ console.clear();
       }
     }
 
+    // Listing
+    if (request.todo == "searchListing") {
+      var requestFrom = request.from;
+      delete request.from;
+      var listingInfo = request;
+
+      db.readListing(listingInfo, function(cInfo) {
+        console.log(">>>read the listing info from database:", listingInfo);
+        if (cInfo) {
+          if (cInfo.name.length > 0) {
+            cInfo.from += "-" + requestFrom;
+            cInfo.listingName = cInfo.name;
+          } else {
+            cInfo.from += "-" + requestFrom;
+            cInfo.listingName = "";
+          }
+
+          chrome.storage.sync.set(cInfo, function() {
+            console.log("listingInfo is: ", cInfo);
+          });
+        } else {
+          //error for listingInfo
+          console.log("Listing Name does not exist in Database");
+        }
+      });
+    }
+
+    if (request.todo == "saveListing") {
+      console.log("write listing info");
+      var listingID = request._id;
+      if (request.listingName.trim().length > 0) {
+        db.writeListing(request);
+      }
+    }
+
+    // Showing Info
+    if (request.todo == "searchShowing") {
+      var requestFrom = request.from;
+      delete request.from;
+      var showingInfo = request;
+
+      db.readShowing(showingInfo, function(cInfo) {
+        console.log(">>>read the showing info from database:", showingInfo);
+        if (cInfo) {
+          if (cInfo.name.length > 0) {
+            cInfo.from += "-" + requestFrom;
+            cInfo.name = cInfo.name;
+          } else {
+            cInfo.from += "-" + requestFrom;
+            cInfo.name = "";
+          }
+
+          chrome.storage.sync.set(cInfo, function() {
+            console.log("showingInfo is: ", cInfo);
+          });
+        } else {
+          //error for listingInfo
+          console.log("Showing Name does not exist in Database");
+        }
+      });
+    }
+
+    if (request.todo == "saveShowing") {
+      console.log("write showing info");
+      var showingID = request._id;
+      if (request.name.trim().length > 0) {
+        db.writeShowing(request);
+      }
+    }
+
+    //
+
     if (request.todo == "saveTax") {
       //console.log(">>>I got save tax info: ");
       var assess = request.taxData;

@@ -28,12 +28,17 @@ export default class UIListingInfo {
       '<input name="inputComplexName" id="inputComplexName"/>'
     );
     this.btnSaveComplexName = $(
-      '<button name="saveComplexName" id="saveComplexName" class="btn btn-primary">Save</button>'
+      '<button name="saveComplexName" id="saveComplexName" class="SearchBtn">Save Complex</button>'
     );
     //Exposure
     this.inputExposure = $('<input name="inputExposure" id="inputExposure"/>');
     this.btnSaveExposure = $(
-      '<button name="saveExposure" id="saveExposure" class="btn btn-primary">Save Exp</button>'
+      '<button name="saveExposure" id="saveExposure" class="SearchBtn">Save Exposure</button>'
+    );
+    //Listing Status
+    this.inputListing = $('<input name="inputListing" id="inputListing"/>');
+    this.btnSaveListing = $(
+      '<button name="saveListing" id="saveListing" class="SearchBtn">Save Status</button>'
     );
     //divs for BC Assessment:
     this.landValue = $('<div id="landValue">land value</div>');
@@ -51,12 +56,16 @@ export default class UIListingInfo {
     this.publicRemarks = $('<div id="publicRemarks"></div>');
     //divs for showing info:
     this.showingInfo = $('<div id="showingInfo">Showing info:</div>');
-    this.inputClientName = $('<input id="clientName" type="text"/>');
-    this.inputShowingRequest = $('<input id ="showingRequest" type="text"/>');
-    this.inputShowingDate = $('<input id="showingDate"/>');
-    this.inputShowingTime = $('<input id="showingTime"/>');
+    this.inputClientName = $(
+      '<span>ClientName:</span><input id="clientName" type="text"/>'
+    );
+    this.inputShowingNote = $(
+      '<span>ShowingNote:</span><input id ="showingNote" type="text"/>'
+    );
+    this.inputShowingDate = $('<span>Date:</span><input id="showingDate"/>');
+    this.inputShowingTime = $('<span>Time:</span><input id="showingTime"/>');
     this.btnSaveShowing = $(
-      '<button id="saveShowing" class="btn btn-success">Save</button>'
+      '<button id="saveShowing" class="SearchBtn">Save</button>'
     );
     //Google Map Apis
     this.map = null;
@@ -106,6 +115,9 @@ export default class UIListingInfo {
     //add exposure elements:
     uiDiv.append(this.inputExposure);
     uiDiv.append(this.btnSaveExposure);
+    //add listing status elements:
+    uiDiv.append(this.inputListing);
+    uiDiv.append(this.btnSaveListing);
     //add bca info
     uiDiv.append($("<hr/>"));
     uiDiv.append(this.landValue);
@@ -122,7 +134,7 @@ export default class UIListingInfo {
     uiDiv.append($("<hr/>"));
     uiDiv.append(this.showingInfo);
     uiDiv.append(this.inputClientName);
-    uiDiv.append(this.inputShowingRequest);
+    uiDiv.append(this.inputShowingNote);
     uiDiv.append(this.inputShowingDate);
     uiDiv.append(this.inputShowingTime);
     uiDiv.append(this.btnSaveShowing);
