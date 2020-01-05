@@ -636,7 +636,8 @@ var computeSFPrices = {
     var complexName = "";
     var houseType = "";
     var complexID = "";
-
+    var x = $("table#grid tbody");
+    var rows = x.children("tr");
     for (i = 0; i < self.table.length; i++) {
       try {
         if (!self.table[i][15]) {
@@ -647,6 +648,10 @@ var computeSFPrices = {
           planNum = self.table[i][9];
           address = self.table[i][13];
           complexName = $fx.normalizeComplexName(self.table[i][12]);
+          $($(rows[i + 1]).children("td")[self.cols.complexName]).text(
+            "**" + self.table[i][12]
+          );
+
           houseType = self.table[i][14].toUpperCase();
           if (houseType == "HOUSE" || houseType == "DETACHED") {
             ////DETACHED PROPERTY NO NEED TO DO COMPLEX SEARCH

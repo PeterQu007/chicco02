@@ -113,6 +113,7 @@ var fullRealtor = {
     this.addDataEvents();
     this.addStrataEvents();
     this.addComplexEvent();
+    this.addExposureEvent();
     //do searches:
     this.searchStrataPlanSummary();
     var that = this;
@@ -134,6 +135,7 @@ var fullRealtor = {
   report: $("div#divHtmlReport"),
   pid: null, //pid from getMorePropertyInfo
   complexOrSubdivision: null, //complex name from getMorePropertyInfo
+  exposure: null, //condo unit's exposure info
   mlsNo: $('div[style="top:18px;left:4px;width:123px;height:13px;"] a'),
   legal: $('div[style="top:426px;left:75px;width:593px;height:22px;"]'),
   realtorRemarks: $(
@@ -163,6 +165,7 @@ var fullRealtor = {
   devUnits: null, //from getMorePropertyInfo
 
   saveComplexButton: null,
+  saveExposureButton: null,
   legalDesc: null, //need be inited at addStrataPlan
   strataPlan: null, //new strataPlan field, to be added
   formalAddress: null, //new formal Address field, to be added
@@ -223,8 +226,11 @@ var fullRealtor = {
         ); //P.I.D.
         //
         self.complexOrSubdivision = $(
-          'div[style="top:236px;left:381px;width:383px;height:14px;"]'
+          'div[style="top:236px;left:381px;width:383px;height:13px;"]'
         ); //Complex/Subdiv
+        self.exposure = $(
+          'div[style="top:161px;left:355px;width:93px;height:15px;]'
+        ); //Exposure
         self.totalUnits = $(
           'div[style="top:326px;left:659px;width:101px;height:16px;"'
         ); //Total units in Strata
@@ -253,6 +259,9 @@ var fullRealtor = {
         self.complexOrSubdivision = $(
           'div[style="top:229px;left:393px;width:369px;height:13px;"]'
         ); //Complex/Subdiv
+        self.exposure = $(
+          'div[style="top:181px;left:375px;width:63px;height:13px;]'
+        ); //Rear Yard Exposure of detached house
         self.lotArea = $(
           'div[style="top:133px;left:375px;width:67px;height:13px;"'
         ); //
@@ -382,6 +391,7 @@ var fullRealtor = {
     );
 
     this.saveComplexButton = $("#saveComplexName");
+    this.saveExposureButton = $("#saveExposure");
     this.strataPlanLink = $("#strataPlanLink");
     this.complexSummary = $("#complexSummary");
     this.complexName = $("#complexName");
@@ -464,6 +474,32 @@ var fullRealtor = {
       if (response) {
         self.complexName.text(response.name);
         self.complexOrSubdivision.text(response.name);
+      }
+    });
+  },
+
+  addExposureInfo: function(exposure) {
+    var self = this;
+
+    var exposureName = exposure || self.exposure.text().trim();
+    if (typeof exposureName != "string" && exposureName.length <= 0) {
+      console.log("exposureName does not existed"); ////exit
+      return;
+    }
+
+    var exposureInfo = {
+      _id: self.pid.text(),
+      name: exposureName,
+      exposureName: exposureName,
+      addDate: $fx.getToday(),
+      todo: exposure != undefined ? "saveExposure" : "searchExposure",
+      from: "fullRealtorReport"
+    };
+
+    console.log("===>add ExposureInfo: ", exposureInfo);
+    chrome.runtime.sendMessage(exposureInfo, function(response) {
+      if (response) {
+        self.exposure.text(response.name);
       }
     });
   },
@@ -587,8 +623,14 @@ var fullRealtor = {
     })(this);
   },
 
+  addExposureEvent: function() {
+    (function event(self) {
+      self.saveExposureButton.click(self.saveExposureInfo.bind(self));
+    })(this);
+  },
+
   saveComplexInfo: function() {
-    //console.log('save button clicked!');
+    console.log("save button clicked!");
     //manually save or update complex name to the database
 
     var self = this;
@@ -632,6 +674,20 @@ var fullRealtor = {
     }
   },
 
+  saveExposureInfo: function() {
+    //console.log('save button clicked!');
+    //manually save or update complex name to the database
+
+    var self = this;
+    console.log("This is save exposure event");
+    var inputName = $("#inputExposure").val();
+    // inputName = $fx.normalizeComplexName(inputName);
+    if (inputName.length > 0) {
+      this.addExposureInfo(inputName);
+      this.exposure.text(inputName + "*");
+    }
+  },
+
   addDataEvents: function() {
     (function onEvents(self) {
       chrome.storage.onChanged.addListener(function(changes, area) {
@@ -654,6 +710,12 @@ var fullRealtor = {
             changes.from.newValue.indexOf("fullRealtorReport") > -1
           ) {
             self.updateComplexInfo();
+          }
+          if (
+            changes.from.newValue.indexOf("exposure") > -1 &&
+            changes.from.newValue.indexOf("fullRealtorReport") > -1
+          ) {
+            self.updateExposureInfo();
           }
           console.log("this: ", self);
         }
@@ -700,6 +762,7 @@ var fullRealtor = {
 
           if (formalAddress) {
             self.addComplexInfo(); //Search Complex Name
+            self.addExposureInfo(); //Search Exposure Info
           }
           return;
         }
@@ -742,6 +805,7 @@ var fullRealtor = {
         self.formalAddress.text(formalAddress);
         if (formalAddress) {
           self.addComplexInfo(); //Search Complex Name
+          self.addExposureInfo(); //Search Exposure Info
         }
 
         //console.log("mls-fullpublic got total bc assessment: ", landValue, improvementValue, totalValue, lotArea);
@@ -891,6 +955,18 @@ var fullRealtor = {
       self.complexName.text(compName);
       self.complexOrSubdivision.text(compName);
       $inputName.val(compName);
+    });
+  },
+
+  updateExposureInfo: function() {
+    var self = this;
+    var $inputName = $("#inputExposure");
+    var exposureName = "";
+
+    chrome.storage.sync.get("exposureName", function(result) {
+      exposureName = result.exposureName;
+      self.exposure.text(exposureName);
+      $inputName.val(exposureName + "::");
     });
   }
 };

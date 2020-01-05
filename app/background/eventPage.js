@@ -44,7 +44,7 @@ console.clear();
 
   //receive message from iframes, then transfer the message to Main Page content script
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    //console.log("onMessage.eventPage got a message", request);
+    console.log("onMessage.eventPage got a message", request);
 
     //message from Warning iframe
     if (request.todo == "warningMessage") {
@@ -188,6 +188,40 @@ console.clear();
       var complexID = request._id;
       if (request.complexName.trim().length > 0) {
         db.writeComplex(request);
+      }
+    }
+
+    if (request.todo == "searchExposure") {
+      var requestFrom = request.from;
+      delete request.from;
+      var exposureInfo = request;
+
+      db.readExposure(exposureInfo, function(cInfo) {
+        console.log(">>>read the exposure info from database:", exposureInfo);
+        if (cInfo) {
+          if (cInfo.name.length > 0) {
+            cInfo.from += "-" + requestFrom;
+            cInfo.exposureName = cInfo.name;
+          } else {
+            cInfo.from += "-" + requestFrom;
+            cInfo.exposureName = "";
+          }
+
+          chrome.storage.sync.set(cInfo, function() {
+            console.log("exposureInfo is: ", cInfo);
+          });
+        } else {
+          //error for exposureInfo
+          console.log("Exposure Name does not exist in Database");
+        }
+      });
+    }
+
+    if (request.todo == "saveExposure") {
+      console.log("write exposure info");
+      var exposureID = request._id;
+      if (request.exposureName.trim().length > 0) {
+        db.writeExposure(request);
       }
     }
 

@@ -30,6 +30,11 @@ export default class UIListingInfo {
     this.btnSaveComplexName = $(
       '<button name="saveComplexName" id="saveComplexName" class="btn btn-primary">Save</button>'
     );
+    //Exposure
+    this.inputExposure = $('<input name="inputExposure" id="inputExposure"/>');
+    this.btnSaveExposure = $(
+      '<button name="saveExposure" id="saveExposure" class="btn btn-primary">Save Exp</button>'
+    );
     //divs for BC Assessment:
     this.landValue = $('<div id="landValue">land value</div>');
     this.houseValue = $('<div id="houseValue">house value</div>');
@@ -98,6 +103,9 @@ export default class UIListingInfo {
     uiDiv.append(this.complexSummary);
     uiDiv.append(this.inputComplexName);
     uiDiv.append(this.btnSaveComplexName);
+    //add exposure elements:
+    uiDiv.append(this.inputExposure);
+    uiDiv.append(this.btnSaveExposure);
     //add bca info
     uiDiv.append($("<hr/>"));
     uiDiv.append(this.landValue);
