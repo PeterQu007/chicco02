@@ -23,6 +23,8 @@ var fullRealtor = {
     //$fx.getCurrentTab(curTabID);
     //link to iframe's tabID
     this.tabID = $fx.getTabID(window.frameElement.src);
+    var frame = window.frameElement;
+    frame.style.height = "832px";
     //this.listingID = $fx.getListingID(window.frameElement.src);
     try {
       this.listingID = $("img#imgIcon").attr("listingID"); //GET LISTING.ID FROM MAP.IMAGE.ICON
