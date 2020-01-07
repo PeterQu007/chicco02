@@ -24,6 +24,7 @@ module.exports = {
     //
     "MLS-FullRealtor": "./app/content/mls-FullRealtor.js",
     "MLS-FullPublic": "./app/content/mls-FullPublic.js",
+    "MLS-MapView": "./app/content/mls-MapView.js",
     //
     "MLS-TaxSearchCriteria": "./app/content/taxSearchCriteria.js",
     "MLS-TaxSearchResult": "./app/content/taxSearchResult.js",

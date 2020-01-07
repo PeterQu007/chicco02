@@ -197,6 +197,26 @@
     },
 
     {
+      //Paragon Resdiential Attached, Detached & Land Listing Search Results Page (Tab3/4/5_?_2): Map View
+      //Target: Single Listing View Page
+      //Function: Add Extra Listing Info Box, Add Property Tax Info, etc...
+      //https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=262360698&amp;screenWidth=1007&amp;uniqueIDs=&amp;viewID=77&amp;classID=1&amp;usePDF=false&amp;ShowAds=false&amp;searchID=tab4_1_2&amp;listingMode=0&amp;compact=true
+      "run_at": "document_end",
+      "matches": [
+        "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=77*",
+        "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?*viewID=77*listingIDs=*"
+      ],
+      "js": [
+        "./assets/lib/jquery/dist/jquery.min.js",
+        "./assets/lib/jquery.initialize-master/jquery.initialize.js",
+        "./temp/scripts/Library.js",
+        "./temp/scripts/MLS-MapView.js"
+      ],
+      "css": ["./temp/content.css", "./temp/bootstrap.min.css"],
+      "all_frames": true
+    },
+
+    {
       //Paragon Resdiential Attached, Detached & Land Listing Search Results Page (Tab3/4/5_?_2): Full Public Report View
       //Target: Single Listing View Page
       //Function: Add Extra Banner, Translate to Chinese, Compute Area in Square meters etc...

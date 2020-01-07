@@ -1,4 +1,5 @@
 //Create, Read, Write, Query Database
+//http://localhost:5984/_utils/#/_all_dbs
 
 class Database {
   constructor() {

@@ -14,7 +14,7 @@ export default class UIListingInfo {
     );
     this.listingID = null;
     this.mapSrc1 = `https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=`;
-    this.mapSrc2 = `&screenWidth=1007&uniqueIDs=&viewID=77&classID=1&usePDF=false&ShowAds=false&searchID=tab4_1_2&listingMode=0&compact=true`;
+    this.mapSrc2 = `&screenWidth=1007&uniqueIDs=&viewID=77&classID=1&usePDF=false&ShowAds=false&searchID=tab4_1_2&listingMode=1&compact=true`;
     this.mlsNo = $("<div>MLS #</div>");
     //divs for strata & complex info:
     this.planNo = $('<div id="strataPlan">PlanNo: </div>');
@@ -29,6 +29,10 @@ export default class UIListingInfo {
     );
     this.btnSaveComplexName = $(
       '<button name="saveComplexName" id="saveComplexName" class="SearchBtn">Save Complex</button>'
+    );
+    //Show Large Map
+    this.btnShowLargeMap = $(
+      '<button name="showLargeMap" id="showLargeMap" class="SearchBtn">Show Large Map</button>'
     );
     //Exposure
     this.inputExposure = $('<input name="inputExposure" id="inputExposure"/>');
@@ -115,6 +119,8 @@ export default class UIListingInfo {
     //add exposure elements:
     uiDiv.append(this.inputExposure);
     uiDiv.append(this.btnSaveExposure);
+    //
+    uiDiv.append(this.btnShowLargeMap);
     //add listing status elements:
     uiDiv.append(this.inputListing);
     uiDiv.append(this.btnSaveListing);

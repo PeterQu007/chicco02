@@ -49,6 +49,16 @@
   height: 680px;
 }
 
+.mapView__large {
+  width: 1000px;
+  height: 820px;
+}
+
+.mapBox__large {
+  width: 990px;
+  height: 720px;
+}
+
 .picContainer {
   border: 1px solid red;
   width: 515px;
@@ -57,6 +67,7 @@
   position: absolute;
   top: 0px;
   left: 1425px;
+  z-index: -10;
 }
 
 .picBox {

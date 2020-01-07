@@ -10,11 +10,13 @@
 *~
 *.sass-cache
 @*.*
+GoogleMapsApi*.*
 node_modules/
 .tmp/
 
 # Temperary folders
 **/temp/
+**/app/assets/scripts/modules/GoogleMapsApi.*
 
 # Bower dependency directory (https://bower.io/)
 bower_components

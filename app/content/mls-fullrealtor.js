@@ -118,6 +118,8 @@ var fullRealtor = {
     this.addExposureEvent();
     this.addListingEvent();
     this.addShowingEvent();
+    this.addLargeMapEvent();
+    this.showLargeMap();
     //do searches:
     this.searchStrataPlanSummary();
     var that = this;
@@ -172,6 +174,7 @@ var fullRealtor = {
   saveExposureButton: null,
   saveListingButton: null,
   saveShowingButton: null,
+  showLargeMapButton: null,
   legalDesc: null, //need be inited at addStrataPlan
   strataPlan: null, //new strataPlan field, to be added
   formalAddress: null, //new formal Address field, to be added
@@ -402,6 +405,7 @@ var fullRealtor = {
     this.saveExposureButton = $("#saveExposure");
     this.saveListingButton = $("#saveListing");
     this.saveShowingButton = $("#saveShowing");
+    this.showLargeMapButton = $("#showLargeMap");
     this.strataPlanLink = $("#strataPlanLink");
     this.complexSummary = $("#complexSummary");
     this.complexName = $("#complexName");
@@ -714,6 +718,12 @@ var fullRealtor = {
     })(this);
   },
 
+  addLargeMapEvent: function() {
+    (function event(self) {
+      self.showLargeMapButton.click(self.showLargeMap.bind(self));
+    })(this);
+  },
+
   saveComplexInfo: function() {
     console.log("save button clicked!");
     //manually save or update complex name to the database
@@ -794,6 +804,44 @@ var fullRealtor = {
     // inputName = $fx.normalizeComplexName(inputName);
     if (inputName.length > 0) {
       this.addShowingInfo(inputName);
+    }
+  },
+
+  showLargeMap: function() {
+    console.log("show large map clicked");
+    var x = $("iframe#mapViewFrame");
+    var y = x.contents();
+    var z = y.find("#divMap");
+    var v = y.find("#jqMpCntlTopMenu");
+    var w = y.find("div.jqMpCntlSubMenuButton");
+    w.click();
+
+    v.css("z-index", 9999);
+
+    if (x.hasClass("mapbox__large")) {
+      console.log(x);
+      x.removeClass("mapbox__large");
+      x.width(500);
+      x.height(810);
+      x.css("z-index", 5000);
+
+      console.log(z);
+      z.removeClass("mapBox__large");
+      z.width(480);
+      z.css("z-index", 5000);
+      z.height(800);
+    } else {
+      console.log(x);
+      x.addClass("mapbox__large");
+      x.width(1000);
+      x.height(820);
+      x.css("z-index", 5000);
+
+      console.log(z);
+      z.addClass("mapBox__large");
+      z.width(990);
+      z.css("z-index", 5000);
+      z.height(810);
     }
   },
 

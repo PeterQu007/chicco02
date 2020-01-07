@@ -9,6 +9,13 @@ export default class MainMenu {
     this.appMidBanner = $('<div id = "app_banner_mid"></div>');
     this.appMainMenu = $("#app_banner_menu");
 
+    (this.btnShowLargeMap = $(`<div class="button">
+                                <div id="buttonShowLargeMap">
+                                    <button name="buttonShowPic" style="width: 100px!important">Switch Map</button>
+                                </div>
+                            </div>`)),
+      this.btnShowLargeMap.insertAfter(this.appLeftBanner);
+
     (this.txtResponse = $(`<div class="languagebox">
                                 <div id="textResponse">
                                     <label>res</label>
@@ -42,6 +49,21 @@ export default class MainMenu {
 
     //add the tabs object to Main Menu.
     //this.tabs = new Tabs();
+    this.events();
+  }
+
+  events() {
+    this.btnShowLargeMap.on("click", this.showLargeMap.bind(this));
+  }
+
+  showLargeMap() {
+    console.log("large map clicked");
+    var x = $("iframe");
+    console.log(x);
+    var y = x.contents();
+    var z = y.find("#divMap");
+
+    console.log(z);
   }
 
   openTaxSearch() {
