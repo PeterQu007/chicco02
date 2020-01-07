@@ -59,6 +59,20 @@
   height: 720px;
 }
 
+.roadMapType {
+  width: 29px;
+  height: 28px;
+  background-position: -130px -1918px !important;
+  background-color: grey;
+}
+
+.aerialMapType {
+  width: 29px;
+  height: 28px;
+  background-position: -18px -13px !important;
+  background-color: grey;
+}
+
 .picContainer {
   border: 1px solid red;
   width: 515px;

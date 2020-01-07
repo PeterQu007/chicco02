@@ -203,12 +203,20 @@
       //https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=262360698&amp;screenWidth=1007&amp;uniqueIDs=&amp;viewID=77&amp;classID=1&amp;usePDF=false&amp;ShowAds=false&amp;searchID=tab4_1_2&amp;listingMode=0&amp;compact=true
       "run_at": "document_end",
       "matches": [
+        "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc/VirtualEarth*",
         "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=77*",
         "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?*viewID=77*listingIDs=*"
       ],
       "js": [
         "./assets/lib/jquery/dist/jquery.min.js",
-        "./assets/lib/jquery.initialize-master/jquery.initialize.js",
+        // "./assets/lib/jquery.initialize-master/jquery.initialize.js",
+        // "https://bcres.paragonrels.com/ParagonLS/Scripts/GoogleMaps/google-general.js?1053515",
+        "./assets/scripts/packages/module.js",
+        "./assets/scripts/GoogleMaps/google-general.js",
+        "./assets/scripts/GoogleMaps/google-spatial.js",
+        "./assets/scripts/googleMaps/google-drawing.js",
+        "./assets/scripts/focus/focus.google.init.js",
+        "./assets/scripts/GoogleMaps/google-api.js",
         "./temp/scripts/Library.js",
         "./temp/scripts/MLS-MapView.js"
       ],

@@ -347,7 +347,7 @@ var fullRealtor = {
 
     this.addRemarks();
 
-    this.addPics();
+    //this.addPics();
 
     this.addShowingInfo(); //add showing schedule info
   },
@@ -813,7 +813,7 @@ var fullRealtor = {
     var y = x.contents();
     var z = y.find("#divMap");
     var v = y.find("#jqMpCntlTopMenu");
-    var w = y.find("div.jqMpCntlSubMenuButton");
+    var w = y.find("div.jqMpCntlSubMenuImg.jqMpCntlSubMenuMpTypeAerial");
     w.click();
 
     v.css("z-index", 9999);
