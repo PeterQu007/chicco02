@@ -19,7 +19,7 @@ export default class MainMenu {
     (this.txtResponse = $(`<div class="languagebox">
                                 <div id="textResponse">
                                     <label>res</label>
-                                    <input type="text" name="textbox" style="width: 350px!important" />
+                                    <input id="inputListingInfo" type="text" name="textbox" style="width: 350px!important" />
                                 </div>
                             </div>`)),
       this.txtResponse.insertAfter(this.appLeftBanner);

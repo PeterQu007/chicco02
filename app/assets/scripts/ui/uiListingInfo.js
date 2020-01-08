@@ -32,7 +32,7 @@ export default class UIListingInfo {
     );
     //Show Large Map
     this.btnShowLargeMap = $(
-      '<button name="showLargeMap" id="showLargeMap" class="SearchBtn">Show Large Map</button>'
+      '<button name="showLargeMap" id="showLargeMap" class="SearchBtn">Show Pics</button>'
     );
     //Exposure
     this.inputExposure = $('<input name="inputExposure" id="inputExposure"/>');

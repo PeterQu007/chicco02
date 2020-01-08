@@ -110,6 +110,15 @@ var fullRealtor = {
       console.log("Only One Pictures");
     }
 
+    //send out data to topdocuemnts
+    var propertyType = $("input#inputListingInfo", top.document);
+    propertyType.val(
+      this.houseType
+        .text()
+        .replace(",", "")
+        .replace(" ", "")
+    );
+
     this.populateUiListing();
     //add event listeners:
     this.addDataEvents();
@@ -818,21 +827,30 @@ var fullRealtor = {
 
     v.css("z-index", 9999);
 
-    if (x.hasClass("mapbox__large")) {
+    if (z.hasClass("mapBox__large")) {
       console.log(x);
-      x.removeClass("mapbox__large");
+      if (
+        !this.uiListingInfo.UIPics.children("#imgAnchor0")
+          .children("#img0")
+          .attr("src")
+      ) {
+        this.addPics();
+      }
+
+      // x.removeClass("mapbox__large");
       x.width(500);
       x.height(810);
       x.css("z-index", 5000);
 
       console.log(z);
       z.removeClass("mapBox__large");
-      z.width(480);
+      z.width(498);
       z.css("z-index", 5000);
       z.height(800);
     } else {
       console.log(x);
-      x.addClass("mapbox__large");
+
+      // x.addClass("mapbox__large");
       x.width(1000);
       x.height(820);
       x.css("z-index", 5000);
@@ -842,6 +860,7 @@ var fullRealtor = {
       z.width(990);
       z.css("z-index", 5000);
       z.height(810);
+      this.addPics();
     }
   },
 

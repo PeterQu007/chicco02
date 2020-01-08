@@ -38,14 +38,14 @@
   border: 1px solid red;
   width: 500px;
   height: 720px;
-  padding: 5px 10px;
+  padding: 0px 0px;
   position: absolute;
   top: 0px;
   left: 920px;
 }
 
 .mapBox {
-  width: 480px;
+  width: 498px;
   height: 680px;
 }
 
@@ -62,7 +62,7 @@
 .roadMapType {
   width: 29px;
   height: 28px;
-  background-position: -130px -1918px !important;
+  background-position: -128px -1918px !important;
   background-color: grey;
 }
 
@@ -71,6 +71,14 @@
   height: 28px;
   background-position: -18px -13px !important;
   background-color: grey;
+}
+
+.changeSizeButton {
+  top: 2px;
+  width: 29px;
+  height: 29px;
+  color: darkblue;
+  background-color: buttonface;
 }
 
 .picContainer {
@@ -100,6 +108,6 @@
 
 .bottomline {
   border-bottom: 1px dotted lightblue;
-  padding-bottom: 2px;
-  margin-bottom: 2px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
 }
