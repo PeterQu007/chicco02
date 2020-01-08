@@ -62,14 +62,14 @@
 .roadMapType {
   width: 29px;
   height: 28px;
-  background-position: -128px -1918px !important;
+  background-position: -128px -1920px !important; //x larger -> move right, y larger -> move up
   background-color: grey;
 }
 
 .aerialMapType {
   width: 29px;
   height: 28px;
-  background-position: -18px -13px !important;
+  background-position: -15px -12px !important; //x larger -> move right, y larger -> move up
   background-color: grey;
 }
 
