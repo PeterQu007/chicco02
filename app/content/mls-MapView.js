@@ -45,8 +45,8 @@ function showLargeMap() {
 }
 
 function checkComplete() {
-  console.log("Check bkfsMap:");
-  console.log($.bkfsMap);
+  // console.log("Check bkfsMap:");
+  // console.log($.bkfsMap);
 
   loginCount++;
   if (
@@ -75,14 +75,16 @@ function checkComplete() {
       newItem.appendTo(menu);
       var newMapTypeItem = $(`<li class="jqMpCntlTopMenListItm"><div class="jqMpCntlTopMenuDivider"></div></li>
                     <li class="jqMpCntlTopMenListItm">
-                    <div class="jqMpCntlTopMenuBtn jqMpCntlSubMenuImg jqMpCntlSubMenuMpTypeRoad roadMapType" onclick="$.bkfsMap.divMap.setMapTypeId('roadmap')" 
-                    data-tooltip="Change Map Zoom"></div>
+                    <div class="jqMpCntlTopMenuBtn jqMpCntlSubMenuImg jqMpCntlSubMenuMpTypeRoad roadMapType" onclick="zoomOutToRoadMapView()" 
+                    data-tooltip="Change Map Zoom"><span><strong style="color:red">-</strong></span></div>
                     </li>`);
       newMapTypeItem.appendTo(menu);
+      //$.bkfsMap.divMap.setMapTypeId('satellite')
+      // $.bkfsMap.divMap.setMapTypeId("roadmap");
       var newMapType2Item = $(`<li class="jqMpCntlTopMenListItm"><div class="jqMpCntlTopMenuDivider"></div></li>
                     <li class="jqMpCntlTopMenListItm">
-                    <div class="jqMpCntlTopMenuBtn jqMpCntlSubMenuImg jqMpCntlSubMenuMpTypeAerial aerialMapType" onclick="$.bkfsMap.divMap.setMapTypeId('satellite')" 
-                    data-tooltip="Change Map Zoom"></div>
+                    <div class="jqMpCntlTopMenuBtn jqMpCntlSubMenuImg jqMpCntlSubMenuMpTypeAerial aerialMapType" onclick="zoomInToSatelliteView()" 
+                    data-tooltip="Change Map Zoom"><span><strong style="color:red">+</strong></span></div>
                     </li>`);
       newMapType2Item.appendTo(menu);
       var newButtonItem = $(`<li class="jqMpCntlTopMenListItm"><div class="jqMpCntlTopMenuDivider"></div></li>
@@ -90,13 +92,33 @@ function checkComplete() {
                     <button id="changeSizeButton" class="changeSizeButton"  
                     data-tooltip="Change Map Size">Size</button>
                     </li>`);
+      var newScript = $(`<script>
+                      let x1 = $("input#inputListingInfo", top.document);
+                      let zoomNumber;
+                      if (x1.val() == "Attached") {
+                        zoomNumber = 18;
+                      } else {
+                        zoomNumber = 20;
+                      }
+                      function zoomInToSatelliteView(){
+                        $.bkfsMap.divMap.setMapTypeId('satellite');
+                        $.bkfsMap.divMap.setZoom(zoomNumber);
+                      };
+                      function zoomOutToRoadMapView(){
+                        $.bkfsMap.divMap.setMapTypeId('roadmap');
+                        $.bkfsMap.divMap.setZoom(15);
+                      }
+                      </script>`);
+
       newButtonItem.appendTo(menu);
+      menu.append(newScript);
 
       var y = $("div.jqMpCntlTopMenuBtn.zoomInChange");
       y.click();
       var z = $("#divMap");
       z.addClass("mapBox__large");
       var x = $("div.jqMpCntlSubMenuImg.jqMpCntlSubMenuMpTypeAerial");
+
       x.click();
       // var z = $("div.jqMpCntlTopMenuBtn.zoomOutChange");
       // //  onclick="$.bkfsMap.divMap.setZoom(15).setMapTypeId('roadmap'
@@ -110,10 +132,10 @@ function checkComplete() {
     clearInterval(countTimer);
     var x = $("#changeSizeButton");
     x.click(function() {
-      console.log("test");
+      // console.log("test");
       showLargeMap();
     });
-    console.log("Map Failed");
+    // console.log("Map Failed");
   } else if ($("div.jqMpCntlSubMenuImg.jqMpCntlSubMenuMpTypeAerial").length) {
     // clearInterval(countTimer);
   }
