@@ -107,7 +107,8 @@
 }
 
 .bottomline {
-  border-bottom: 1px dotted lightblue;
-  padding-bottom: 0px;
-  margin-bottom: 0px;
+  border-bottom: 1px dotted darkblue;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+  color: grey;
 }

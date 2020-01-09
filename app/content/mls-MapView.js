@@ -15,6 +15,7 @@ function showLargeMap() {
   var z = $("#divMap");
   var v = $("#jqMpCntlTopMenu");
   var w = $("div.jqMpCntlSubMenuImg.jqMpCntlSubMenuMpTypeAerial");
+  var pics = $("div#uiListingPics", parent.document);
   w.click();
 
   v.css("z-index", 9999);
@@ -30,6 +31,8 @@ function showLargeMap() {
     z.width(498);
     z.css("z-index", 5000);
     z.height(800);
+    pics.css("z-index", 10);
+    pics.css("background-color", "#fff");
   } else {
     // console.log(x);
     x.width(1000);
@@ -41,6 +44,7 @@ function showLargeMap() {
     z.width(990);
     z.css("z-index", 5000);
     z.height(810);
+    pics.css("z-index", -10);
   }
 }
 

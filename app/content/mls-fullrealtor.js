@@ -170,7 +170,7 @@ var fullRealtor = {
   picLinkValues: [],
 
   //complex info:
-  address: $('div[style="top:4px;left:134px;width:481px;height:17px;"]'),
+  address: $('div[style="top:4px;left:134px;width:483px;height:17px;"]'),
   houseListingType: null,
   subArea: $('div[style="top:20px;left:134px;width:480px;height:13px;"]'),
   neighborhood: $('div[style="top:33px;left:134px;width:479px;height:13px;"]'),
