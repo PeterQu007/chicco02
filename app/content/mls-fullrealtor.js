@@ -36,6 +36,9 @@ var fullRealtor = {
       this.tabID = $fx.getTabID(parent.document.URL);
       this.subTabID = $fx.getSubTabID(parent.document.URL);
       this.listingID = $fx.getListingID(parent.document.URL);
+    } else {
+      this.subTabID = $fx.getSubTabID(window.frameElement.src);
+      this.listingID = $fx.getListingID(window.frameElement.src);
     }
 
     this.tabNo = parseInt(this.tabID.replace("#tab", ""));
@@ -351,7 +354,7 @@ var fullRealtor = {
   populateUiListing: function() {
     this.addMLSNo();
     this.addStrataPlan(); //move this operation inside updateAssessment
-
+    this.addComplexInfo(); //
     this.addBCAssessment();
 
     this.addRemarks();
@@ -740,6 +743,9 @@ var fullRealtor = {
     var self = this;
     var inputName = $("#inputComplexName").val();
     inputName = $fx.normalizeComplexName(inputName);
+    var inputName_original = self.complexOrSubdivision.text().trim();
+    inputName_original = $fx.normalizeComplexName(inputName_original);
+    inputName = inputName || inputName_original;
     if (inputName.length > 0) {
       this.addComplexInfo(inputName);
       this.complexName.text(inputName + "*");
@@ -929,6 +935,9 @@ var fullRealtor = {
       function(result) {
         var totalValue = result.totalValue;
         var formalAddress = result.address.trim();
+        if (!formalAddress) {
+          formalAddress = self.address.text().trim(); //TaxSearch has no address if presale listing
+        }
         if (totalValue == 0) {
           console.log("No BCA Assess Published Yet");
           //Update PlanNum and formal Address:

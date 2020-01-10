@@ -20,12 +20,14 @@ export default class UIListingInfo {
     this.planNo = $('<div id="strataPlan">PlanNo: </div>');
     this.planLink = $(`<a href="https://bcres.paragonrels.com/ParagonLS/Home/Page.mvc#HomeTab" 
                             target="HomeTab" id="strataPlanLink" ></a>`);
-    this.formalAddress = $('<div id="formalAddress">adr: </div>');
+    this.formalAddress = $('<div id="formalAddress"></div>');
     this.complexSummary = $('<div id="complexSummary"></div>');
-    this.complexName = $('<span id="complexName">ComplexName</span>');
+    this.complexName = $(
+      '<span id="complexName" class="inputHighlight" >ComplexName</span>'
+    );
     this.complexListingQuantity = $('<span id="listingQuantity"></span>');
     this.inputComplexName = $(
-      '<input name="inputComplexName" id="inputComplexName"/>'
+      '<input class="inputHighlight" name="inputComplexName" id="inputComplexName"/>'
     );
     this.btnSaveComplexName = $(
       '<button name="saveComplexName" id="saveComplexName" class="SearchBtn">Save Complex</button>'
@@ -35,12 +37,16 @@ export default class UIListingInfo {
       '<button name="showLargeMap" id="showLargeMap" class="SearchBtn">Show Pics</button>'
     );
     //Exposure
-    this.inputExposure = $('<input name="inputExposure" id="inputExposure"/>');
+    this.inputExposure = $(
+      '<input class="inputHighlight" name="inputExposure" id="inputExposure"/>'
+    );
     this.btnSaveExposure = $(
       '<button name="saveExposure" id="saveExposure" class="SearchBtn">Save Exposure</button>'
     );
     //Listing Status
-    this.inputListing = $('<input name="inputListing" id="inputListing"/>');
+    this.inputListing = $(
+      '<input class="inputHighlight" name="inputListing" id="inputListing"/>'
+    );
     this.btnSaveListing = $(
       '<button name="saveListing" id="saveListing" class="SearchBtn">Save Status</button>'
     );
@@ -61,13 +67,17 @@ export default class UIListingInfo {
     //divs for showing info:
     this.showingInfo = $('<div id="showingInfo">Showing info:</div>');
     this.inputClientName = $(
-      '<span>ClientName:</span><input id="clientName" type="text"/>'
+      '<span>ClientName:</span><input id="clientName" class="inputHighlight"  type="text"/>'
     );
     this.inputShowingNote = $(
-      '<span>ShowingNote:</span><input id ="showingNote" type="text"/>'
+      '<span>ShowingNote:</span><input id ="showingNote" class="inputHighlight" type="text"/>'
     );
-    this.inputShowingDate = $('<span>Date:</span><input id="showingDate"/>');
-    this.inputShowingTime = $('<span>Time:</span><input id="showingTime"/>');
+    this.inputShowingDate = $(
+      '<span>Date:</span><input id="showingDate" class="inputHighlight" />'
+    );
+    this.inputShowingTime = $(
+      '<span>Time:</span><input id="showingTime" class="inputHighlight" />'
+    );
     this.btnSaveShowing = $(
       '<button id="saveShowing" class="SearchBtn">Save</button>'
     );

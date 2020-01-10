@@ -94,7 +94,7 @@ function checkComplete() {
       var newButtonItem = $(`<li class="jqMpCntlTopMenListItm"><div class="jqMpCntlTopMenuDivider"></div></li>
                     <li class="jqMpCntlTopMenListItm">
                     <button id="changeSizeButton" class="changeSizeButton"  
-                    data-tooltip="Change Map Size">Size</button>
+                    data-tooltip="Change Map Size">Pic</button>
                     </li>`);
       var newScript = $(`<script>
                       let x1 = $("input#inputListingInfo", top.document);
@@ -105,7 +105,7 @@ function checkComplete() {
                         zoomNumber = 20;
                       }
                       function zoomInToSatelliteView(){
-                        $.bkfsMap.divMap.setMapTypeId('satellite');
+                        $.bkfsMap.divMap.setMapTypeId('hybrid');
                         $.bkfsMap.divMap.setZoom(zoomNumber);
                       };
                       function zoomOutToRoadMapView(){

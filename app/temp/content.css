@@ -112,3 +112,8 @@
   margin-bottom: 2px;
   color: grey;
 }
+
+.inputHighlight {
+  color: rgb(0, 123, 255) !important;
+  font-weight: bold !important;
+}
