@@ -125,39 +125,42 @@ console.clear();
       //get request to search tax info of Property with PID saved to storage
       //console.log(">>>I got search StrataPlanSummary command!");
 
-      chrome.storage.sync.get(["strataPlan", "complexName"], function(result) {
-        //check database, if assess exist, send it back
-        //console.log(">>>strataPlan is: ", result.strataPlan);
-        var strataPlan = result.strataPlan;
-        var complexName = result.complexName;
-        if (!strataPlan || strataPlan == "PLAN" || strataPlan == "PL") {
-          return;
-        }
-        var today = $fx.getToday();
-        db.readStrataPlanSummary(strataPlan + "-" + today, function(
-          strataPlanSummaryToday
-        ) {
-          //console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday)
-          if (!strataPlanSummaryToday) {
-            //other wise , send out tax research command:
-            chrome.tabs.query({ active: true, currentWindow: true }, function(
-              tabs
-            ) {
-              chrome.tabs.sendMessage(tabs[0].id, {
-                todo: "searchComplex",
-                showResult: true,
-                saveResult: true,
-                strataPlan: strataPlan,
-                complexName: complexName
-              });
-            });
+      chrome.storage.sync.get(
+        ["strataPlan", "complexNameForListingCount"],
+        function(result) {
+          //check database, if assess exist, send it back
+          //console.log(">>>strataPlan is: ", result.strataPlan);
+          var strataPlan = result.strataPlan;
+          var complexName = result.complexNameForListingCount;
+          if (!strataPlan || strataPlan == "PLAN" || strataPlan == "PL") {
+            return;
           }
-        });
-      });
+          var today = $fx.getToday();
+          db.readStrataPlanSummary(strataPlan + "-" + today, function(
+            strataPlanSummaryToday
+          ) {
+            //console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday)
+            if (!strataPlanSummaryToday) {
+              //other wise , send out tax research command:
+              chrome.tabs.query({ active: true, currentWindow: true }, function(
+                tabs
+              ) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                  todo: "searchComplexListingCount",
+                  showResult: true,
+                  saveResult: true,
+                  strataPlan: strataPlan,
+                  complexName: complexName
+                });
+              });
+            }
+          });
+        }
+      );
       sendResponse(">>>complex search has been processed in eventpage: ");
     }
 
-    if (request.todo == "searchComplex") {
+    if (request.todo == "searchComplexInfo") {
       var complexID = request._id;
       var requestFrom = request.from;
       delete request.from;
@@ -171,7 +174,7 @@ console.clear();
             cInfo.complexName = cInfo.name;
           } else {
             cInfo.from += "-" + requestFrom;
-            cInfo.complexName = "";
+            cInfo.complexName = "::";
           }
 
           chrome.storage.sync.set(cInfo, function() {
@@ -184,7 +187,7 @@ console.clear();
       });
     }
 
-    if (request.todo == "saveComplex") {
+    if (request.todo == "saveComplexInfo") {
       var complexID = request._id;
       if (request.complexName.trim().length > 0) {
         db.writeComplex(request);

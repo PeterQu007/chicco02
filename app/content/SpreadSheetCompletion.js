@@ -608,7 +608,7 @@ var computeSFPrices = {
         }
         if (area == "sync" && "from" in changes) {
           if (
-            changes.from.newValue.indexOf("complex") > -1 &&
+            changes.from.newValue.indexOf("complexInfo") > -1 &&
             changes.from.newValue.indexOf("spreadSheetCompletion") > -1
           ) {
             console.log("====>Spreadsheet : COMPLEX SEARCH EVENT", changes);
@@ -673,7 +673,7 @@ var computeSFPrices = {
           var complexInfo = {
             _id: complexID,
             name: complexName,
-            todo: "searchComplex",
+            todo: "searchComplexInfo",
             from: "spreadSheetCompletion"
           };
 

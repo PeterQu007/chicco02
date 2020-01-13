@@ -288,6 +288,7 @@
   ],
 
   "permissions": [
+    "activeTab",
     "tabs",
     "clipboardWrite",
     "clipboardRead",

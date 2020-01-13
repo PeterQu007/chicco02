@@ -158,11 +158,12 @@ class Database {
     self.dbComplex.get(complexInfo._id, function(err, doc) {
       if (err) {
         self.writeComplex(self.complex);
-        self.complex.from = "complex-saved to db-" + Math.random().toFixed(8);
+        self.complex.from =
+          "complexInfo-saved to db-" + Math.random().toFixed(8);
         callback(self.complex);
       } else {
         self.complex = doc;
-        self.complex.from = "complex" + Math.random().toFixed(8);
+        self.complex.from = "complexInfo" + Math.random().toFixed(8);
         callback(self.complex);
       }
     });
@@ -207,6 +208,7 @@ class Database {
       .then(function(doc) {
         //console.log('writeComplex...the complex EXISTS, pass writing');
         doc["name"] = complexName;
+        doc["complexName"] = complexName;
         self.dbComplex.put(doc);
         return [doc, "complex updated!"];
       })

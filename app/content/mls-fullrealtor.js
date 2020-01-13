@@ -364,6 +364,53 @@ var fullRealtor = {
     this.addShowingInfo(); //add showing schedule info
   },
 
+  addDataEvents: function() {
+    (function onEvents(self) {
+      chrome.storage.onChanged.addListener(function(changes, area) {
+        console.debug("====>fullrealtor: got a message: !", changes);
+        if (area == "sync" && "from" in changes) {
+          if (
+            changes.from.newValue.indexOf("assess") > -1 &&
+            changes.from.newValue.indexOf("ForListingReport") > -1
+          ) {
+            self.updateAssess();
+          }
+          if (changes.from.newValue.indexOf("strataPlanSummary") > -1) {
+            self.updateComplexListingQuan(changes);
+            //self.syncTabToContent();
+            //let topTabInfo = new TopTabInfo(curTabID);
+            //topTabInfo.ActiveThisTab();
+          }
+          if (
+            changes.from.newValue.indexOf("complexInfo") > -1 &&
+            changes.from.newValue.indexOf("fullRealtorReport") > -1
+          ) {
+            self.updateComplexInfo();
+          }
+          if (
+            changes.from.newValue.indexOf("exposure") > -1 &&
+            changes.from.newValue.indexOf("fullRealtorReport") > -1
+          ) {
+            self.updateExposureInfo();
+          }
+          if (
+            changes.from.newValue.indexOf("listing") > -1 &&
+            changes.from.newValue.indexOf("fullRealtorReport") > -1
+          ) {
+            self.updateListingInfo();
+          }
+          if (
+            changes.from.newValue.indexOf("showing") > -1 &&
+            changes.from.newValue.indexOf("fullRealtorReport") > -1
+          ) {
+            self.updateShowingInfo();
+          }
+          console.log("this: ", self);
+        }
+      });
+    })(this);
+  },
+
   addPics: function() {
     let totalPics = this.picLinkValues.length;
     let i = 0;
@@ -491,7 +538,7 @@ var fullRealtor = {
       dwellingType: dwellingType,
       totalUnits: totalUnits,
       devUnits: devUnits,
-      todo: complex != undefined ? "saveComplex" : "searchComplex",
+      todo: complex != undefined ? "saveComplexInfo" : "searchComplexInfo",
       from: "fullRealtorReport"
     };
 
@@ -500,6 +547,21 @@ var fullRealtor = {
       if (response) {
         self.complexName.text(response.name);
         self.complexOrSubdivision.text(response.name);
+      }
+    });
+  },
+
+  updateComplexInfo: function() {
+    var self = this;
+    var $inputName = $("#inputComplexName");
+    var compName = "";
+
+    chrome.storage.sync.get("complexName", function(result) {
+      if (result) {
+        compName = $fx.normalizeComplexName(result.complexName);
+        self.complexName.text(compName);
+        self.complexOrSubdivision.text(compName);
+        $inputName.val(compName);
       }
     });
   },
@@ -662,7 +724,7 @@ var fullRealtor = {
     var complexName = this.complexOrSubdivision.text();
     complexName = $fx.normalizeComplexName(complexName); ////NORMALIZE THE COMPLEX NAME FROM THE REPORT
     chrome.storage.sync.set(
-      { strataPlan: strataPlan, complexName: complexName },
+      { strataPlan: strataPlan, complexNameForListingCount: complexName },
       function(e) {
         chrome.runtime.sendMessage(
           {
@@ -868,53 +930,6 @@ var fullRealtor = {
       z.height(810);
       this.addPics();
     }
-  },
-
-  addDataEvents: function() {
-    (function onEvents(self) {
-      chrome.storage.onChanged.addListener(function(changes, area) {
-        console.log("====>fullrealtor: got a message: !", changes);
-        if (area == "sync" && "from" in changes) {
-          if (
-            changes.from.newValue.indexOf("assess") > -1 &&
-            changes.from.newValue.indexOf("ForListingReport") > -1
-          ) {
-            self.updateAssess();
-          }
-          if (changes.from.newValue.indexOf("strataPlanSummary") > -1) {
-            self.updateComplexListingQuan(changes);
-            //self.syncTabToContent();
-            //let topTabInfo = new TopTabInfo(curTabID);
-            //topTabInfo.ActiveThisTab();
-          }
-          if (
-            changes.from.newValue.indexOf("complex") > -1 &&
-            changes.from.newValue.indexOf("fullRealtorReport") > -1
-          ) {
-            self.updateComplexInfo();
-          }
-          if (
-            changes.from.newValue.indexOf("exposure") > -1 &&
-            changes.from.newValue.indexOf("fullRealtorReport") > -1
-          ) {
-            self.updateExposureInfo();
-          }
-          if (
-            changes.from.newValue.indexOf("listing") > -1 &&
-            changes.from.newValue.indexOf("fullRealtorReport") > -1
-          ) {
-            self.updateListingInfo();
-          }
-          if (
-            changes.from.newValue.indexOf("showing") > -1 &&
-            changes.from.newValue.indexOf("fullRealtorReport") > -1
-          ) {
-            self.updateShowingInfo();
-          }
-          console.log("this: ", self);
-        }
-      });
-    })(this);
   },
 
   updateAssess: function() {
@@ -1141,19 +1156,6 @@ var fullRealtor = {
       var summary = ": [ " + result.count + " ]";
       self.complexName.text(complexName);
       self.complexListingSummary.text(summary);
-    });
-  },
-
-  updateComplexInfo: function() {
-    var self = this;
-    var $inputName = $("#inputComplexName");
-    var compName = "";
-
-    chrome.storage.sync.get("complexName", function(result) {
-      compName = $fx.normalizeComplexName(result.complexName);
-      self.complexName.text(compName);
-      self.complexOrSubdivision.text(compName);
-      $inputName.val(compName);
     });
   },
 
