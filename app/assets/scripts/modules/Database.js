@@ -63,10 +63,35 @@ class Database {
       })
       .catch(function(err) {
         //console.log(">>>read database error: ", err);
-        self.assess = null;
+        self.assess = {};
+        self.assess.from = "assess-" + Math.random().toFixed(8);
+        self.assess.dataFromDB = true;
+        self.assess._id = null;
         callback(self.assess);
       });
     //console.groupEnd(">>>readAssess");
+  }
+
+  readAssess_v6(taxID, callback) {
+    //console.group(">>>readAssess");
+    var self = this;
+    try {
+      self.dbAssess.get(taxID, function(err, doc) {
+        if (err) {
+          self.assess = null;
+          callback(self.assess);
+        } else {
+          var assess = (self.assess = doc);
+          assess.from = "assess-" + Math.random().toFixed(8);
+          assess.dataFromDB = true;
+          callback(self.assess);
+        }
+      });
+    } catch (err) {
+      console.warn(err);
+      self.assess = null;
+      callback(self.assess);
+    }
   }
 
   writeAssess(assess) {

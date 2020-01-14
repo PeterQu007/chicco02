@@ -11,8 +11,14 @@ var d = new Date();
 var taxYear = d.getFullYear();
 taxYear = newTaxYear ? taxYear : taxYear - 1;
 var complexInfoSearchResult = null;
+var chromeTabID;
 
 console.clear();
+
+chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
+  chromeTabID = tabs[0].id;
+  console.warn("background events page chromeTabID is: ", chromeTabID);
+});
 
 (function() {
   //console.log("Hello!-1");
@@ -50,6 +56,7 @@ console.clear();
     if (request.todo == "warningMessage") {
       //console.log("I got the warning message!");
       //pass the message to defaultpage(Main Home Page)
+      console.info("Chrome Tab ID is: ", chromeTabID);
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, { todo: "ignoreWarning" });
       });
@@ -59,6 +66,7 @@ console.clear();
     if (request.todo == "logoutMessage") {
       //console.log("I got logout message!");
       //pass the message to defaultpage(Main Home Page)
+      console.info("Chrome Tab ID is: ", chromeTabID);
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, { todo: "logoutMLS" });
       });
@@ -67,6 +75,7 @@ console.clear();
     if (request.todo == "switchTab") {
       console.log("I got switch Tab message!");
       //pass the message to defaultpage(Main Home Page)
+      console.info("Chrome Tab ID is: ", chromeTabID);
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {
           todo: "switchTab",
@@ -89,18 +98,66 @@ console.clear();
           var requester = request.from;
           db.readAssess(taxID, function(assess) {
             //console.log(">>>read from , assess is: ", assess)
-            if (!assess) {
+            if (!assess._id) {
               //other wise , send out tax research command:
               try {
+                console.info("Chrome Tab ID is: ", chromeTabID);
+                // chrome.tabs.query(
+                //   { active: true, currentWindow: true },
+                //   function(tabs) {
+                //     let chromeTabId ;
+                //     if(tabs.length !=0){chromeTabID = tabs[0].id};
+                //     try {
+                //       chrome.tabs.sendMessage(chromeTabID, {
+                //         todo: "taxSearchFor" + requester
+                //       });
+                //     } catch (err) {
+                //       console.error("taxSearch Errors in Background: ", err);
+                //     }
+                //   }
+                // );
                 chrome.tabs.query(
                   { active: true, currentWindow: true },
                   function(tabs) {
-                    try {
-                      chrome.tabs.sendMessage(tabs[0].id, {
-                        todo: "taxSearchFor" + requester
-                      });
-                    } catch (err) {
-                      console.error("taxSearch Errors in Background: ", err);
+                    console.warn("taxSearch get chrome tabs:", tabs);
+                    if (tabs.length > 0) {
+                      //
+                      console.warn(
+                        "url: ",
+                        chrome.runtime.getURL("/Default.mvc#4,1,2")
+                      );
+                      chrome.tabs.update(tabs[0].id, { active: true }, function(
+                        tab
+                      ) {
+                        chrome.tabs.onUpdated.addListener(function listener(
+                          tabId,
+                          changeInfo
+                        ) {
+                          if (
+                            tabId === tab.id &&
+                            changeInfo.status == "complete"
+                          ) {
+                            chrome.tabs.onUpdated.removeListener(listener);
+                            // Now the tab is ready!
+                            chrome.tabs.sendMessage(tabId, {
+                              todo: "taxSearchFor" + requester
+                            });
+                          }
+                        });
+                      }); //
+                      // chrome.tabs.sendMessage(chromeTabID, {
+                      //   todo: "taxSearchFor" + requester
+                      // });
+                    } else {
+                      if (
+                        String(assess.from).indexOf(
+                          "taxSearchFor" + requester
+                        ) < 0
+                      ) {
+                        assess.from = assess.from + "-taxSearchFor" + requester;
+                      }
+                      assess.from += "-taxSearchFailed";
+                      chrome.storage.sync.set(assess);
                     }
                   }
                 );
@@ -142,6 +199,7 @@ console.clear();
             //console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday)
             if (!strataPlanSummaryToday) {
               //other wise , send out tax research command:
+              console.info("Chrome Tab ID is: ", chromeTabID);
               chrome.tabs.query({ active: true, currentWindow: true }, function(
                 tabs
               ) {
@@ -317,7 +375,7 @@ console.clear();
 
     if (request.todo == "updateTopLevelTabMenuItems") {
       console.log("I got Update Top Level Tab Menu Items Command!");
-
+      console.info("Chrome Tab ID is: ", chromeTabID);
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {
           todo: "updateTopLevelTabMenuItems"
@@ -329,7 +387,7 @@ console.clear();
 
     if (request.todo == "readCurTabID") {
       console.log("New Command: readCurTabID");
-
+      console.info("Chrome Tab ID is: ", chromeTabID);
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, { todo: "readCurTabID" });
       });
@@ -339,7 +397,7 @@ console.clear();
 
     if (request.todo == "syncTabToContent") {
       console.log("New Command: syncTabToContent");
-
+      console.info("Chrome Tab ID is: ", chromeTabID);
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, { todo: "syncTabToContent" });
       });
@@ -347,7 +405,7 @@ console.clear();
 
     if (request.todo == "hideQuickSearch") {
       console.log("New Command: showQuickSearch");
-
+      console.info("Chrome Tab ID is: ", chromeTabID);
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {
           todo: "hideQuickSearch",
@@ -359,6 +417,7 @@ console.clear();
     if (request.todo == "getTabTitle") {
       console.log("Command: ", request.todo, request.from);
       let result = null;
+      console.info("Chrome Tab ID is: ", chromeTabID);
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(
           tabs[0].id,
@@ -383,6 +442,7 @@ console.clear();
       //get command from sub content script to add lock to the sub content panel
       console.log("Command: ", request.todo, request.from, request.tabID);
       let result = null;
+      console.info("Chrome Tab ID is: ", chromeTabID);
       chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
         chrome.tabs.sendMessage(
           tabs[0].id,

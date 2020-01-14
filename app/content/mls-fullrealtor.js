@@ -23,6 +23,9 @@ var fullRealtor = {
     //$fx.getCurrentTab(curTabID);
     //link to iframe's tabID
     this.tabID = $fx.getTabID(window.frameElement.src);
+    this.lockMapSize = $("input#checkShowSmallMap", top.document).is(
+      ":checked"
+    );
     var frame = window.frameElement;
     frame.style.height = "832px";
     //this.listingID = $fx.getListingID(window.frameElement.src);
@@ -131,7 +134,12 @@ var fullRealtor = {
     this.addListingEvent();
     this.addShowingEvent();
     this.addLargeMapEvent();
-    this.showLargeMap();
+    if (!this.lockMapSize) {
+      this.showLargeMap();
+    } else {
+      this.uiListingInfo.UIPics.css("z-index", 10);
+      this.addPics();
+    }
     //do searches:
     this.searchStrataPlanSummary();
     var that = this;

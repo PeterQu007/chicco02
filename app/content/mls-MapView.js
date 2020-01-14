@@ -3,6 +3,7 @@ console.log(">>>>>>>mapview js injected!!<<<<<<<<<???????");
 let countTimer = setInterval(checkComplete, 100);
 let loginCount = 0;
 let x1 = $("input#inputListingInfo", top.document);
+let lockMapSize = $("input#checkShowSmallMap", top.document).is(":checked");
 let zoomNumber;
 if (x1.val() == "Attached") {
   zoomNumber = 18;
@@ -96,6 +97,11 @@ function checkComplete() {
                     <button id="changeSizeButton" class="changeSizeButton"  
                     data-tooltip="Change Map Size">Pic</button>
                     </li>`);
+      var showMapCheck = $(`<li class="jqMpCntlTopMenListItm"><div class="jqMpCntlTopMenuDivider"></div></li>
+                    <li class="jqMpCntlTopMenListItm" >
+                    <input id="showSmallMap" type="checkbox" name="checkbox" style="width: 14px!important" />
+                    </li>
+                    `);
       var newScript = $(`<script>
                       let x1 = $("input#inputListingInfo", top.document);
                       let zoomNumber;
@@ -115,12 +121,17 @@ function checkComplete() {
                       </script>`);
 
       newButtonItem.appendTo(menu);
+      menu.append(showMapCheck);
       menu.append(newScript);
 
       var y = $("div.jqMpCntlTopMenuBtn.zoomInChange");
       y.click();
       var z = $("#divMap");
-      z.addClass("mapBox__large");
+      if (!lockMapSize) {
+        z.addClass("mapBox__large");
+      } else {
+        z.removeClass("mapBox__large");
+      }
       var x = $("div.jqMpCntlSubMenuImg.jqMpCntlSubMenuMpTypeAerial");
 
       x.click();
@@ -135,6 +146,7 @@ function checkComplete() {
   if (loginCount > 25) {
     clearInterval(countTimer);
     var x = $("#changeSizeButton");
+    var y = $("#showSmallMap").val();
     x.click(function() {
       // console.log("test");
       showLargeMap();

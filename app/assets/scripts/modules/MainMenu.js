@@ -9,12 +9,13 @@ export default class MainMenu {
     this.appMidBanner = $('<div id = "app_banner_mid"></div>');
     this.appMainMenu = $("#app_banner_menu");
 
-    (this.btnShowLargeMap = $(`<div class="button">
-                                <div id="buttonShowLargeMap">
-                                    <button name="buttonShowPic" style="width: 100px!important">Switch Map</button>
+    (this.chkShowSmallMap = $(`<div class="languagebox">
+                                <div id="checkShowSmallMapWrapper">
+                                    <label>Lock Map Size</label>
+                                    <input id="checkShowSmallMap" name="buttonShowPic" type = "checkbox" style="width: 14px!important"/>
                                 </div>
                             </div>`)),
-      this.btnShowLargeMap.insertAfter(this.appLeftBanner);
+      this.chkShowSmallMap.insertAfter(this.appLeftBanner);
 
     (this.txtResponse = $(`<div class="languagebox">
                                 <div id="textResponse">
@@ -53,7 +54,7 @@ export default class MainMenu {
   }
 
   events() {
-    this.btnShowLargeMap.on("click", this.showLargeMap.bind(this));
+    //todo::
   }
 
   showLargeMap() {
