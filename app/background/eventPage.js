@@ -48,6 +48,23 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
     }
   );
 
+  // chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+  //   var timer = new chrome.Interval();
+  //   timer.start();
+
+  //   var port = chrome.tabs.connect(tabs[0].id);
+  //   port.postMessage({ counter: 1 });
+  //   port.onMessage.addListener(function getResp(response) {
+  //     if (response.counter < 1000) {
+  //       port.postMessage({ counter: response.counter });
+  //     } else {
+  //       timer.stop();
+  //       var usec = Math.round(timer.microseconds() / response.counter);
+  //       console.info("usec is::", usec);
+  //     }
+  //   });
+  // });
+
   //receive message from iframes, then transfer the message to Main Page content script
   chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     console.log("onMessage.eventPage got a message", request);
@@ -121,33 +138,9 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
                   function(tabs) {
                     console.warn("taxSearch get chrome tabs:", tabs);
                     if (tabs.length > 0) {
-                      //
-                      console.warn(
-                        "url: ",
-                        chrome.runtime.getURL("/Default.mvc#4,1,2")
-                      );
-                      chrome.tabs.update(tabs[0].id, { active: true }, function(
-                        tab
-                      ) {
-                        chrome.tabs.onUpdated.addListener(function listener(
-                          tabId,
-                          changeInfo
-                        ) {
-                          if (
-                            tabId === tab.id &&
-                            changeInfo.status == "complete"
-                          ) {
-                            chrome.tabs.onUpdated.removeListener(listener);
-                            // Now the tab is ready!
-                            chrome.tabs.sendMessage(tabId, {
-                              todo: "taxSearchFor" + requester
-                            });
-                          }
-                        });
-                      }); //
-                      // chrome.tabs.sendMessage(chromeTabID, {
-                      //   todo: "taxSearchFor" + requester
-                      // });
+                      chrome.tabs.sendMessage(tabs[0].id, {
+                        todo: "taxSearchFor" + requester
+                      });
                     } else {
                       if (
                         String(assess.from).indexOf(

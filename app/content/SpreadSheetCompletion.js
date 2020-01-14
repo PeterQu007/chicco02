@@ -55,6 +55,7 @@ var computeSFPrices = {
 
       ////HOOK UP EVENTS:
       this.onTaxSearch(); ////TAX.SEARCH EVENT
+      // this.onConnect(); ///long live port
       this.onMutation(); ////SPREADSHEET.TABLE READY EVENT
       this.onComplexSearch(); ////COMPLEX.NAME.SEARCH EVENT
     } else {
@@ -88,6 +89,15 @@ var computeSFPrices = {
   ),
   stopSearch: $("input#inputstopsearch", top.document),
   ////EVENTS:
+  // onConnect() {
+  //   // chrome.runtime.onConnect.addListener(function(port) {
+  //   //   port.onMessage.addListener(function(msg) {
+  //   //     console.info("msg", msg.counter);
+  //   //     port.postMessage({ counter: msg.counter + 1 });
+  //   //   });
+  //   // });
+  // },
+
   onMutation() {
     ////AFTER THE SPREADSHEET.TABLE HAS BEEN FULLY LOADED TO THE FRONT.END
     ////POPULATE this.table AND this.tableComplex
@@ -303,6 +313,42 @@ var computeSFPrices = {
   //////////////////////////////////////////////////////////////////////////////
   ///////////////////          Assessment Search Code              /////////////
   //////////////////////////////////////////////////////////////////////////////
+  onTaxSearch_old: function() {
+    ////DEFINE THE TAX.SEARCH EVENT
+    (function onEvents(self) {
+      chrome.storage.onChanged.addListener(function(changes, area) {
+        if (self.$spreadSheet.css("display") == "none") {
+          return;
+        }
+        if (area == "sync" && "from" in changes) {
+          if (
+            changes.from.newValue.indexOf("assess") > -1 &&
+            changes.from.newValue.indexOf("ForSpreadSheet") > -1
+          ) {
+            console.log(
+              "==>Spreadsheet - TAX SEARCH EVENT: ",
+              changes.from.newValue
+            );
+            if (changes.from.newValue.indexOf("-TaxSearchFailed") > -1) {
+              self.updateAssessWhenTaxSearchFailed();
+            } else {
+              self.updateAssess();
+            }
+            if (!self.stopSearch.is(":checked")) {
+              setTimeout(
+                function() {
+                  ////LOOP THE TAX.SEARCH IN THE SPREADSHEET.TABLE
+                  this.searchTax();
+                }.bind(self),
+                1000
+              );
+            }
+          }
+        }
+      });
+    })(this);
+  },
+
   onTaxSearch: function() {
     ////DEFINE THE TAX.SEARCH EVENT
     (function onEvents(self) {
