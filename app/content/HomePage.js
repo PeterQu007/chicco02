@@ -14,6 +14,15 @@ import MainMenu from "../assets/scripts/modules/MainMenu";
 
 let DefaultPage = {
   init: function() {
+    // Define Debug
+    var DEBUG = false;
+    if (!DEBUG) {
+      if (!window.console) window.console = {};
+      var methods = ["log", "debug", "warn", "info"];
+      for (var i = 0; i < methods.length; i++) {
+        console[methods[i]] = function() {};
+      }
+    }
     // Open frequently used tabs:
     this.mainMenu.openTaxSearch();
     this.mainMenu.openListingCarts();
