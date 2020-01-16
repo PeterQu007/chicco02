@@ -201,12 +201,14 @@ let DefaultPage = {
 
     $.ajax({
       url:
-        "https://pidrealty.local/wp-content/themes/realhomes-child/db/data.php",
+        "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/data.php",
       method: "post",
       data: { postTitle: title, postID: id },
       success: function(res) {
         console.log(res);
-        $('input[name="textbox"]').val(JSON.stringify(res));
+        $('input[name="textbox"]').val(
+          JSON.stringify(res) + ":: connect to MySQL successfully!"
+        );
       }
     });
   }

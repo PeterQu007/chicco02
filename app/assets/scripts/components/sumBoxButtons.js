@@ -414,7 +414,7 @@ class SumBoxButtons extends React.Component {
         dwellingType: houseType,
         totalUnits: totalUnits,
         devUnits: devUnits,
-        todo: "saveComplex",
+        todo: "saveComplexInfo",
         from: "uiSummaryTable"
       };
 

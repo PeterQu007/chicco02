@@ -81,7 +81,7 @@ var computeSFPrices = {
   //recordPointer: 0,
   table: [], //for assessment search
   rowNumber: [], //for table col 0 , keep the listing row number of spreadsheet
-  tableComplex: [], //for complexName search
+  complexInfos: [], //for complexName search
   cols: null,
   keyword: $(
     "div#app_banner_links_left input.select2-search__field",
@@ -100,14 +100,16 @@ var computeSFPrices = {
 
   onMutation() {
     ////AFTER THE SPREADSHEET.TABLE HAS BEEN FULLY LOADED TO THE FRONT.END
-    ////POPULATE this.table AND this.tableComplex
+    ////POPULATE this.table AND this.complexInfos
     var self = this;
     var tableLoading = document.querySelector("#grid tbody"); ////MONITOR THE #grid.tbody, CHECK THE LISTING RECORDS
 
     var $mutationObserver = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
-        var x = $("table#grid tbody");
+        var x = $("table#grid tbody"); //Spreadsheet table body
+        var y = $("table.ui-jqgrid-htable thead"); //Spreadsheet Table header
         var rows = x.children("tr");
+        var tableHeaderRow = y.children("tr");
 
         var name = mutation.attributeName;
         var value = mutation.target.getAttribute(name);
@@ -147,6 +149,7 @@ var computeSFPrices = {
 
           var i;
           var row = []; //current row
+          var complexInfo = {}; //complex info json object
           var col14_Price = []; //List Price
           var col22_FloorArea = []; //FloorArea
           var col23_ActivePricePSF = []; //Listed / asking Price per SqFt
@@ -166,10 +169,56 @@ var computeSFPrices = {
           var countActiveListing = 0; ////KEEP THE COUNT OF ACTIVE LISTINGS
           var soldPricePSF; //keep the sold price per square feet
           var listingPricePSF; //keep the listing price per square feet
+          var strataFeePSF; ////KEEP THE CALCULATED STRATA FEE PER SQUARE FEET
           var status; ////KEEP THE LISTING STATUS
+          i = 0;
+          ////modify the table header
+          var headerCells = $(tableHeaderRow[0]).children("th");
+          for (var j = 0; j <= headerCells.length; j++) {
+            switch (j) {
+              case self.cols.landValue:
+                $(headerCells[j])
+                  .children("div")
+                  .text("landValue");
+                break;
+              case self.cols.improvementValue:
+                $(headerCells[j])
+                  .children("div")
+                  .text("imprvValue");
+                break;
+              case self.cols.totalValue:
+                $(headerCells[j])
+                  .children("div")
+                  .text("totalValue");
+                break;
+              case self.cols.changeValuePercent:
+                $(headerCells[j])
+                  .children("div")
+                  .text("change%");
+                break;
+              case self.cols.strataPlan:
+                $(headerCells[j])
+                  .children("div")
+                  .text("strataPlan");
+                break;
+              case self.cols.streetAddress:
+                $(headerCells[j])
+                  .children("div")
+                  .text("streetAddress");
+                break;
+              case self.cols.unitNo:
+                $(headerCells[j])
+                  .children("div")
+                  .text("Unit#");
+                break;
+              case self.cols.StrataFeePSF:
+                $(headerCells[j])
+                  .children("div")
+                  .text("StrFeePSF");
+                break;
+            }
+          }
           for (i = 1; i < rows.length; i++) {
-            ////i=1; i<rows.length; i++
-            //console.log(rows[i], $(rows[i]).children('td')[24]);
             row.push(i); ////COL 0: ROW.NO
             status = $(rows[i]).children("td")[self.cols.status].textContent;
             var price = $fx.convertStringToDecimal(
@@ -264,6 +313,16 @@ var computeSFPrices = {
             city = $(rows[i]).children("td")[self.cols.city].textContent;
             row.push(city); //// COL 19: CITY OF GREAT VANCOUVER
             row.push(status); ////COL 20: LISTING STATUS
+            var strataFee = $(rows[i]).children("td")[self.cols.StrataFee]
+              .textContent;
+            strataFee = $fx.convertStringToDecimal(strataFee, true);
+            try {
+              strataFeePSF = Number(strataFee / floorArea).toFixed(2);
+            } catch (e) {
+              strataFeePSF = 0;
+            }
+            row.push(strataFeePSF); ////COL 21: STRATA FEE PER SQUARE FEET
+            console.info("row::", row);
             self.table.push(row); ////ADD THE ROW TO THE TABLE
             row = []; ////INIT THE ROW
           }
@@ -294,7 +353,6 @@ var computeSFPrices = {
               continue;
             }
           }
-
           self.searchTax();
         }
       });
@@ -443,6 +501,23 @@ var computeSFPrices = {
         self.searchComplex();
       }
     }
+  },
+
+  postComplexInfo: function() {
+    console.log(this.complexInfos);
+    $.ajax({
+      url:
+        "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/dataComplexInfo.php",
+      method: "post",
+      data: { complexInfos: this.complexInfos },
+      success: function(res) {
+        console.log("ajax::", res);
+        res = JSON.parse(res);
+        res.forEach(complexInfo => {
+          console.log(complexInfo);
+        });
+      }
+    });
   },
 
   updateAssess: function() {
@@ -733,8 +808,60 @@ var computeSFPrices = {
       }
 
       if (i == self.table.length - 1) {
-        console.log("complexSearch done!");
         self.updateSpreadsheet();
+        self.complexInfos.length = 0;
+        for (var j = 1; j <= self.table.length; j++) {
+          let fields = $(rows[j]).children("td");
+          let strataPlanID =
+            fields[self.cols.strataPlan].textContent.trim() +
+            " " +
+            fields[self.cols.streetAddress].textContent.trim();
+          strataPlanID = strataPlanID
+            .trim()
+            .split(" ")
+            .join("-");
+          complexInfo = {
+            complexName: fields[self.cols.complexName].textContent,
+            address: fields[self.cols.streetAddress].textContent,
+            city: fields[self.cols.city].textContent,
+            postcode: fields[self.cols.postcode].textContent,
+            Province: "BC",
+            DwellingType: fields[self.cols.houseType].textContent,
+            strataPlan: fields[self.cols.strataPlan].textContent,
+            strataPlanID: strataPlanID,
+            neighborhood: fields[self.cols.neighborhood].textContent,
+            cityDistrict: fields[self.cols.subArea].textContent,
+            YearBuilt: fields[self.cols.YearBuilt].textContent,
+            PropertyType: fields[self.cols.PropertyType].textContent,
+            titleToLand: fields[self.cols.TitleToLand].textContent,
+            units: fields[self.cols.Units].textContent,
+            storeys: fields[self.cols.Storeys].textContent,
+            BylawRentalRestriction:
+              fields[self.cols.BylawRentalRestriction].textContent,
+            FloodPlain: fields[self.cols.FloodPlain].textContent,
+            Zoning: fields[self.cols.Zoning].textContent,
+            BylawRestriction: fields[self.cols.BylawRestriction].textContent,
+            Parking: fields[self.cols.Parking].textContent,
+            ManagementCoName: fields[self.cols.ManagementCoName].textContent,
+            ManagementCoPhone: fields[self.cols.ManagementCoPhone].textContent,
+            BylawPetRestriction:
+              fields[self.cols.BylawPetRestriction].textContent,
+            BylawAgeRestriction:
+              fields[self.cols.BylawAgeRestriction].textContent,
+            NeighborhoodCode: fields[self.cols.NeighborhoodCode].textContent,
+            Region: fields[self.cols.Region].textContent,
+            Province: fields[self.cols.Province].textContent,
+            RainScreen: fields[self.cols.RainScreen].textContent,
+            Construction: fields[self.cols.Construction].textContent,
+            Amenities: fields[self.cols.Amenities].textContent,
+            SiteInfluences: fields[self.cols.SiteInfluences].textContent,
+            StrataFeePSF: fields[self.cols.StrataFeePSF].textContent
+          };
+          self.complexInfos.push(complexInfo);
+        }
+
+        // console.log("complexSearch done::", self.complexInfos);
+        self.postComplexInfo();
       }
     }
   },
@@ -860,6 +987,9 @@ var computeSFPrices = {
           self.table[j - 1][12]
         ); ////SHOW NORMALIZED COMPLEX NAME
       }
+      $($(rows[j]).children("td")[self.cols.StrataFeePSF]).text(
+        self.table[j - 1][21]
+      );
     }
     var maxChange = Math.max(...assessChangeActive);
     var minChange = Math.min(...assessChangeActive);
@@ -923,129 +1053,6 @@ var computeSFPrices = {
       }
     );
   }
-  // setCols: function(tabTitle) {
-  //   //set Spreadsheet column position by numbers
-  //   this.cols = null;
-  //   var cols = null;
-  //   switch (tabTitle) {
-  //     case "Quick Search":
-  //     case "Listing Carts":
-  //     case "Market Monitor":
-  //       cols = {
-  //         RecordNo: 0, //index 0
-  //         Status: 8,
-  //         address: 9,
-  //         complexName: 11,
-  //         ListPrice: 12,
-  //         Price: 13,
-  //         SoldPrice: 14,
-  //         TotalFloorArea: 15,
-  //         PricePSF: 16,
-  //         SoldPricePSF: 17,
-  //         PID: 22,
-  //         landValue: 23,
-  //         improvementValue: 24,
-  //         totalValue: 25,
-  //         changeValuePercent: 26,
-  //         lotSize: 27,
-  //         strataPlan: 28,
-  //         houseType: 30,
-  //         prevPrice: 31,
-  //         city: 32
-  //       };
-  //       break;
-  //     case "Residential Attached":
-  //       cols = {
-  //         RecordNo: 0, //index 0
-  //         Status: 8,
-  //         address: 9,
-  //         complexName: 11,
-  //         Price: 12,
-  //         ListPrice: 14,
-  //         SoldPrice: 18,
-  //         TotalFloorArea: 22,
-  //         PricePSF: 23,
-  //         SoldPricePSF: 24,
-  //         lotSize: 28,
-  //         PID: 31,
-  //         landValue: 32,
-  //         improvementValue: 33,
-  //         totalValue: 34,
-  //         changeValuePercent: 35,
-  //         strataPlan: 36,
-  //         streetAddress: 37,
-  //         unitNo: 38,
-  //         houseType: 42,
-  //         city: 43
-  //       };
-  //       break;
-  //     case "Residential Detached":
-  //       cols = {
-  //         RecordNo: 0, //index 0
-  //         Status: 8,
-  //         address: 9,
-  //         complexName: 31,
-  //         Price: 12,
-  //         ListPrice: 12,
-  //         SoldPrice: 36, //
-  //         TotalFloorArea: 17,
-  //         PricePSF: 22,
-  //         SoldPricePSF: 23,
-  //         PID: 24,
-  //         landValue: 25,
-  //         improvementValue: 26,
-  //         totalValue: 27,
-  //         changeValuePercent: 28,
-  //         strataPlan: 33,
-  //         lotSize: 20,
-  //         city: 29,
-  //         houseType: 30
-  //       };
-  //       break;
-  //     case "Tour and Open House":
-  //       cols = {
-  //         RecordNo: 0, //index 0
-  //         Status: 20,
-  //         Price: 11,
-  //         ListPrice: 11,
-  //         PricePSF: 12,
-  //         address: 13,
-  //         complexName: 14,
-  //         city: 16,
-  //         SoldPrice: 39, //No use for open house
-  //         TotalFloorArea: 32,
-  //         SoldPricePSF: 39,
-  //         PID: 21,
-  //         landValue: 22,
-  //         improvementValue: 23,
-  //         totalValue: 24,
-  //         changeValuePercent: 25,
-  //         strataPlan: 34,
-  //         lotSize: 33,
-  //         houseType: 9
-  //       };
-  //       break;
-  //     default:
-  //       cols = {
-  //         RecordNo: 0, //index 0
-  //         Status: 8,
-  //         Price: 12,
-  //         ListPrice: 14,
-  //         SoldPrice: 18,
-  //         TotalFloorArea: 22,
-  //         PricePSF: 23,
-  //         SoldPricePSF: 24,
-  //         PID: 31,
-  //         landValue: 32,
-  //         improvementValue: 33,
-  //         totalValue: 34,
-  //         changeValuePercent: 35,
-  //         strataPlan: 36
-  //       };
-  //       break;
-  //   }
-  //   this.cols = cols;
-  // },
 };
 
 //entry point:
@@ -1053,7 +1060,7 @@ $(function() {
   console.log("Spreadsheet Document State:", document.readyState);
   var $loadingNotice = document.querySelector("#load_grid");
   // Define Debug Status::
-  var DEBUG = false;
+  var DEBUG = true;
   if (!DEBUG) {
     if (!window.console) window.console = {};
     var methods = ["log", "debug", "warn", "info"];

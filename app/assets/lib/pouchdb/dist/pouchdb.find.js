@@ -1,11 +1,11 @@
-// pouchdb-find plugin 6.2.0
+// pouchdb-find plugin 7.1.1
 // Based on Mango: https://github.com/cloudant/mango
 // 
-// (c) 2012-2017 Dale Harvey and the PouchDB team
+// (c) 2012-2019 Dale Harvey and the PouchDB team
 // PouchDB may be freely distributed under the Apache license, version 2.0.
 // For all details and documentation:
 // http://pouchdb.com
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(_dereq_,module,exports){
 'use strict';
 
 module.exports = argsArray;
@@ -47,8 +47,16 @@ function argsArray(fun) {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+var objectCreate = Object.create || objectCreatePolyfill
+var objectKeys = Object.keys || objectKeysPolyfill
+var bind = Function.prototype.bind || functionBindPolyfill
+
 function EventEmitter() {
-  this._events = this._events || {};
+  if (!this._events || !Object.prototype.hasOwnProperty.call(this, '_events')) {
+    this._events = objectCreate(null);
+    this._eventsCount = 0;
+  }
+
   this._maxListeners = this._maxListeners || undefined;
 }
 module.exports = EventEmitter;
@@ -61,272 +69,485 @@ EventEmitter.prototype._maxListeners = undefined;
 
 // By default EventEmitters will print a warning if more than 10 listeners are
 // added to it. This is a useful default which helps finding memory leaks.
-EventEmitter.defaultMaxListeners = 10;
+var defaultMaxListeners = 10;
+
+var hasDefineProperty;
+try {
+  var o = {};
+  if (Object.defineProperty) Object.defineProperty(o, 'x', { value: 0 });
+  hasDefineProperty = o.x === 0;
+} catch (err) { hasDefineProperty = false }
+if (hasDefineProperty) {
+  Object.defineProperty(EventEmitter, 'defaultMaxListeners', {
+    enumerable: true,
+    get: function() {
+      return defaultMaxListeners;
+    },
+    set: function(arg) {
+      // check whether the input is a positive number (whose value is zero or
+      // greater and not a NaN).
+      if (typeof arg !== 'number' || arg < 0 || arg !== arg)
+        throw new TypeError('"defaultMaxListeners" must be a positive number');
+      defaultMaxListeners = arg;
+    }
+  });
+} else {
+  EventEmitter.defaultMaxListeners = defaultMaxListeners;
+}
 
 // Obviously not all Emitters should be limited to 10. This function allows
 // that to be increased. Set to zero for unlimited.
-EventEmitter.prototype.setMaxListeners = function(n) {
-  if (!isNumber(n) || n < 0 || isNaN(n))
-    throw TypeError('n must be a positive number');
+EventEmitter.prototype.setMaxListeners = function setMaxListeners(n) {
+  if (typeof n !== 'number' || n < 0 || isNaN(n))
+    throw new TypeError('"n" argument must be a positive number');
   this._maxListeners = n;
   return this;
 };
 
-EventEmitter.prototype.emit = function(type) {
-  var er, handler, len, args, i, listeners;
+function $getMaxListeners(that) {
+  if (that._maxListeners === undefined)
+    return EventEmitter.defaultMaxListeners;
+  return that._maxListeners;
+}
 
-  if (!this._events)
-    this._events = {};
+EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
+  return $getMaxListeners(this);
+};
 
-  // If there is no 'error' event listener then throw.
-  if (type === 'error') {
-    if (!this._events.error ||
-        (isObject(this._events.error) && !this._events.error.length)) {
-      er = arguments[1];
-      if (er instanceof Error) {
-        throw er; // Unhandled 'error' event
-      } else {
-        // At least give some kind of context to the user
-        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
-        err.context = er;
-        throw err;
-      }
-    }
+// These standalone emit* functions are used to optimize calling of event
+// handlers for fast cases because emit() itself often has a variable number of
+// arguments and can be deoptimized because of that. These functions always have
+// the same number of arguments and thus do not get deoptimized, so the code
+// inside them can execute faster.
+function emitNone(handler, isFn, self) {
+  if (isFn)
+    handler.call(self);
+  else {
+    var len = handler.length;
+    var listeners = arrayClone(handler, len);
+    for (var i = 0; i < len; ++i)
+      listeners[i].call(self);
   }
+}
+function emitOne(handler, isFn, self, arg1) {
+  if (isFn)
+    handler.call(self, arg1);
+  else {
+    var len = handler.length;
+    var listeners = arrayClone(handler, len);
+    for (var i = 0; i < len; ++i)
+      listeners[i].call(self, arg1);
+  }
+}
+function emitTwo(handler, isFn, self, arg1, arg2) {
+  if (isFn)
+    handler.call(self, arg1, arg2);
+  else {
+    var len = handler.length;
+    var listeners = arrayClone(handler, len);
+    for (var i = 0; i < len; ++i)
+      listeners[i].call(self, arg1, arg2);
+  }
+}
+function emitThree(handler, isFn, self, arg1, arg2, arg3) {
+  if (isFn)
+    handler.call(self, arg1, arg2, arg3);
+  else {
+    var len = handler.length;
+    var listeners = arrayClone(handler, len);
+    for (var i = 0; i < len; ++i)
+      listeners[i].call(self, arg1, arg2, arg3);
+  }
+}
 
-  handler = this._events[type];
+function emitMany(handler, isFn, self, args) {
+  if (isFn)
+    handler.apply(self, args);
+  else {
+    var len = handler.length;
+    var listeners = arrayClone(handler, len);
+    for (var i = 0; i < len; ++i)
+      listeners[i].apply(self, args);
+  }
+}
 
-  if (isUndefined(handler))
+EventEmitter.prototype.emit = function emit(type) {
+  var er, handler, len, args, i, events;
+  var doError = (type === 'error');
+
+  events = this._events;
+  if (events)
+    doError = (doError && events.error == null);
+  else if (!doError)
     return false;
 
-  if (isFunction(handler)) {
-    switch (arguments.length) {
-      // fast cases
-      case 1:
-        handler.call(this);
-        break;
-      case 2:
-        handler.call(this, arguments[1]);
-        break;
-      case 3:
-        handler.call(this, arguments[1], arguments[2]);
-        break;
-      // slower
-      default:
-        args = Array.prototype.slice.call(arguments, 1);
-        handler.apply(this, args);
+  // If there is no 'error' event listener then throw.
+  if (doError) {
+    if (arguments.length > 1)
+      er = arguments[1];
+    if (er instanceof Error) {
+      throw er; // Unhandled 'error' event
+    } else {
+      // At least give some kind of context to the user
+      var err = new Error('Unhandled "error" event. (' + er + ')');
+      err.context = er;
+      throw err;
     }
-  } else if (isObject(handler)) {
-    args = Array.prototype.slice.call(arguments, 1);
-    listeners = handler.slice();
-    len = listeners.length;
-    for (i = 0; i < len; i++)
-      listeners[i].apply(this, args);
+    return false;
+  }
+
+  handler = events[type];
+
+  if (!handler)
+    return false;
+
+  var isFn = typeof handler === 'function';
+  len = arguments.length;
+  switch (len) {
+      // fast cases
+    case 1:
+      emitNone(handler, isFn, this);
+      break;
+    case 2:
+      emitOne(handler, isFn, this, arguments[1]);
+      break;
+    case 3:
+      emitTwo(handler, isFn, this, arguments[1], arguments[2]);
+      break;
+    case 4:
+      emitThree(handler, isFn, this, arguments[1], arguments[2], arguments[3]);
+      break;
+      // slower
+    default:
+      args = new Array(len - 1);
+      for (i = 1; i < len; i++)
+        args[i - 1] = arguments[i];
+      emitMany(handler, isFn, this, args);
   }
 
   return true;
 };
 
-EventEmitter.prototype.addListener = function(type, listener) {
+function _addListener(target, type, listener, prepend) {
   var m;
+  var events;
+  var existing;
 
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
+  if (typeof listener !== 'function')
+    throw new TypeError('"listener" argument must be a function');
 
-  if (!this._events)
-    this._events = {};
+  events = target._events;
+  if (!events) {
+    events = target._events = objectCreate(null);
+    target._eventsCount = 0;
+  } else {
+    // To avoid recursion in the case that type === "newListener"! Before
+    // adding it to the listeners, first emit "newListener".
+    if (events.newListener) {
+      target.emit('newListener', type,
+          listener.listener ? listener.listener : listener);
 
-  // To avoid recursion in the case that type === "newListener"! Before
-  // adding it to the listeners, first emit "newListener".
-  if (this._events.newListener)
-    this.emit('newListener', type,
-              isFunction(listener.listener) ?
-              listener.listener : listener);
+      // Re-assign `events` because a newListener handler could have caused the
+      // this._events to be assigned to a new object
+      events = target._events;
+    }
+    existing = events[type];
+  }
 
-  if (!this._events[type])
+  if (!existing) {
     // Optimize the case of one listener. Don't need the extra array object.
-    this._events[type] = listener;
-  else if (isObject(this._events[type]))
-    // If we've already got an array, just append.
-    this._events[type].push(listener);
-  else
-    // Adding the second element, need to change to array.
-    this._events[type] = [this._events[type], listener];
-
-  // Check for listener leak
-  if (isObject(this._events[type]) && !this._events[type].warned) {
-    if (!isUndefined(this._maxListeners)) {
-      m = this._maxListeners;
+    existing = events[type] = listener;
+    ++target._eventsCount;
+  } else {
+    if (typeof existing === 'function') {
+      // Adding the second element, need to change to array.
+      existing = events[type] =
+          prepend ? [listener, existing] : [existing, listener];
     } else {
-      m = EventEmitter.defaultMaxListeners;
+      // If we've already got an array, just append.
+      if (prepend) {
+        existing.unshift(listener);
+      } else {
+        existing.push(listener);
+      }
     }
 
-    if (m && m > 0 && this._events[type].length > m) {
-      this._events[type].warned = true;
-      console.error('(node) warning: possible EventEmitter memory ' +
-                    'leak detected. %d listeners added. ' +
-                    'Use emitter.setMaxListeners() to increase limit.',
-                    this._events[type].length);
-      if (typeof console.trace === 'function') {
-        // not supported in IE 10
-        console.trace();
+    // Check for listener leak
+    if (!existing.warned) {
+      m = $getMaxListeners(target);
+      if (m && m > 0 && existing.length > m) {
+        existing.warned = true;
+        var w = new Error('Possible EventEmitter memory leak detected. ' +
+            existing.length + ' "' + String(type) + '" listeners ' +
+            'added. Use emitter.setMaxListeners() to ' +
+            'increase limit.');
+        w.name = 'MaxListenersExceededWarning';
+        w.emitter = target;
+        w.type = type;
+        w.count = existing.length;
+        if (typeof console === 'object' && console.warn) {
+          console.warn('%s: %s', w.name, w.message);
+        }
       }
     }
   }
 
-  return this;
+  return target;
+}
+
+EventEmitter.prototype.addListener = function addListener(type, listener) {
+  return _addListener(this, type, listener, false);
 };
 
 EventEmitter.prototype.on = EventEmitter.prototype.addListener;
 
-EventEmitter.prototype.once = function(type, listener) {
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
+EventEmitter.prototype.prependListener =
+    function prependListener(type, listener) {
+      return _addListener(this, type, listener, true);
+    };
 
-  var fired = false;
-
-  function g() {
-    this.removeListener(type, g);
-
-    if (!fired) {
-      fired = true;
-      listener.apply(this, arguments);
+function onceWrapper() {
+  if (!this.fired) {
+    this.target.removeListener(this.type, this.wrapFn);
+    this.fired = true;
+    switch (arguments.length) {
+      case 0:
+        return this.listener.call(this.target);
+      case 1:
+        return this.listener.call(this.target, arguments[0]);
+      case 2:
+        return this.listener.call(this.target, arguments[0], arguments[1]);
+      case 3:
+        return this.listener.call(this.target, arguments[0], arguments[1],
+            arguments[2]);
+      default:
+        var args = new Array(arguments.length);
+        for (var i = 0; i < args.length; ++i)
+          args[i] = arguments[i];
+        this.listener.apply(this.target, args);
     }
   }
+}
 
-  g.listener = listener;
-  this.on(type, g);
+function _onceWrap(target, type, listener) {
+  var state = { fired: false, wrapFn: undefined, target: target, type: type, listener: listener };
+  var wrapped = bind.call(onceWrapper, state);
+  wrapped.listener = listener;
+  state.wrapFn = wrapped;
+  return wrapped;
+}
 
+EventEmitter.prototype.once = function once(type, listener) {
+  if (typeof listener !== 'function')
+    throw new TypeError('"listener" argument must be a function');
+  this.on(type, _onceWrap(this, type, listener));
   return this;
 };
 
-// emits a 'removeListener' event iff the listener was removed
-EventEmitter.prototype.removeListener = function(type, listener) {
-  var list, position, length, i;
-
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  if (!this._events || !this._events[type])
-    return this;
-
-  list = this._events[type];
-  length = list.length;
-  position = -1;
-
-  if (list === listener ||
-      (isFunction(list.listener) && list.listener === listener)) {
-    delete this._events[type];
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-
-  } else if (isObject(list)) {
-    for (i = length; i-- > 0;) {
-      if (list[i] === listener ||
-          (list[i].listener && list[i].listener === listener)) {
-        position = i;
-        break;
-      }
-    }
-
-    if (position < 0)
+EventEmitter.prototype.prependOnceListener =
+    function prependOnceListener(type, listener) {
+      if (typeof listener !== 'function')
+        throw new TypeError('"listener" argument must be a function');
+      this.prependListener(type, _onceWrap(this, type, listener));
       return this;
+    };
 
-    if (list.length === 1) {
-      list.length = 0;
-      delete this._events[type];
-    } else {
-      list.splice(position, 1);
-    }
+// Emits a 'removeListener' event if and only if the listener was removed.
+EventEmitter.prototype.removeListener =
+    function removeListener(type, listener) {
+      var list, events, position, i, originalListener;
 
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-  }
+      if (typeof listener !== 'function')
+        throw new TypeError('"listener" argument must be a function');
 
-  return this;
+      events = this._events;
+      if (!events)
+        return this;
+
+      list = events[type];
+      if (!list)
+        return this;
+
+      if (list === listener || list.listener === listener) {
+        if (--this._eventsCount === 0)
+          this._events = objectCreate(null);
+        else {
+          delete events[type];
+          if (events.removeListener)
+            this.emit('removeListener', type, list.listener || listener);
+        }
+      } else if (typeof list !== 'function') {
+        position = -1;
+
+        for (i = list.length - 1; i >= 0; i--) {
+          if (list[i] === listener || list[i].listener === listener) {
+            originalListener = list[i].listener;
+            position = i;
+            break;
+          }
+        }
+
+        if (position < 0)
+          return this;
+
+        if (position === 0)
+          list.shift();
+        else
+          spliceOne(list, position);
+
+        if (list.length === 1)
+          events[type] = list[0];
+
+        if (events.removeListener)
+          this.emit('removeListener', type, originalListener || listener);
+      }
+
+      return this;
+    };
+
+EventEmitter.prototype.removeAllListeners =
+    function removeAllListeners(type) {
+      var listeners, events, i;
+
+      events = this._events;
+      if (!events)
+        return this;
+
+      // not listening for removeListener, no need to emit
+      if (!events.removeListener) {
+        if (arguments.length === 0) {
+          this._events = objectCreate(null);
+          this._eventsCount = 0;
+        } else if (events[type]) {
+          if (--this._eventsCount === 0)
+            this._events = objectCreate(null);
+          else
+            delete events[type];
+        }
+        return this;
+      }
+
+      // emit removeListener for all listeners on all events
+      if (arguments.length === 0) {
+        var keys = objectKeys(events);
+        var key;
+        for (i = 0; i < keys.length; ++i) {
+          key = keys[i];
+          if (key === 'removeListener') continue;
+          this.removeAllListeners(key);
+        }
+        this.removeAllListeners('removeListener');
+        this._events = objectCreate(null);
+        this._eventsCount = 0;
+        return this;
+      }
+
+      listeners = events[type];
+
+      if (typeof listeners === 'function') {
+        this.removeListener(type, listeners);
+      } else if (listeners) {
+        // LIFO order
+        for (i = listeners.length - 1; i >= 0; i--) {
+          this.removeListener(type, listeners[i]);
+        }
+      }
+
+      return this;
+    };
+
+function _listeners(target, type, unwrap) {
+  var events = target._events;
+
+  if (!events)
+    return [];
+
+  var evlistener = events[type];
+  if (!evlistener)
+    return [];
+
+  if (typeof evlistener === 'function')
+    return unwrap ? [evlistener.listener || evlistener] : [evlistener];
+
+  return unwrap ? unwrapListeners(evlistener) : arrayClone(evlistener, evlistener.length);
+}
+
+EventEmitter.prototype.listeners = function listeners(type) {
+  return _listeners(this, type, true);
 };
 
-EventEmitter.prototype.removeAllListeners = function(type) {
-  var key, listeners;
-
-  if (!this._events)
-    return this;
-
-  // not listening for removeListener, no need to emit
-  if (!this._events.removeListener) {
-    if (arguments.length === 0)
-      this._events = {};
-    else if (this._events[type])
-      delete this._events[type];
-    return this;
-  }
-
-  // emit removeListener for all listeners on all events
-  if (arguments.length === 0) {
-    for (key in this._events) {
-      if (key === 'removeListener') continue;
-      this.removeAllListeners(key);
-    }
-    this.removeAllListeners('removeListener');
-    this._events = {};
-    return this;
-  }
-
-  listeners = this._events[type];
-
-  if (isFunction(listeners)) {
-    this.removeListener(type, listeners);
-  } else if (listeners) {
-    // LIFO order
-    while (listeners.length)
-      this.removeListener(type, listeners[listeners.length - 1]);
-  }
-  delete this._events[type];
-
-  return this;
-};
-
-EventEmitter.prototype.listeners = function(type) {
-  var ret;
-  if (!this._events || !this._events[type])
-    ret = [];
-  else if (isFunction(this._events[type]))
-    ret = [this._events[type]];
-  else
-    ret = this._events[type].slice();
-  return ret;
-};
-
-EventEmitter.prototype.listenerCount = function(type) {
-  if (this._events) {
-    var evlistener = this._events[type];
-
-    if (isFunction(evlistener))
-      return 1;
-    else if (evlistener)
-      return evlistener.length;
-  }
-  return 0;
+EventEmitter.prototype.rawListeners = function rawListeners(type) {
+  return _listeners(this, type, false);
 };
 
 EventEmitter.listenerCount = function(emitter, type) {
-  return emitter.listenerCount(type);
+  if (typeof emitter.listenerCount === 'function') {
+    return emitter.listenerCount(type);
+  } else {
+    return listenerCount.call(emitter, type);
+  }
 };
 
-function isFunction(arg) {
-  return typeof arg === 'function';
+EventEmitter.prototype.listenerCount = listenerCount;
+function listenerCount(type) {
+  var events = this._events;
+
+  if (events) {
+    var evlistener = events[type];
+
+    if (typeof evlistener === 'function') {
+      return 1;
+    } else if (evlistener) {
+      return evlistener.length;
+    }
+  }
+
+  return 0;
 }
 
-function isNumber(arg) {
-  return typeof arg === 'number';
+EventEmitter.prototype.eventNames = function eventNames() {
+  return this._eventsCount > 0 ? Reflect.ownKeys(this._events) : [];
+};
+
+// About 1.5x faster than the two-arg version of Array#splice().
+function spliceOne(list, index) {
+  for (var i = index, k = i + 1, n = list.length; k < n; i += 1, k += 1)
+    list[i] = list[k];
+  list.pop();
 }
 
-function isObject(arg) {
-  return typeof arg === 'object' && arg !== null;
+function arrayClone(arr, n) {
+  var copy = new Array(n);
+  for (var i = 0; i < n; ++i)
+    copy[i] = arr[i];
+  return copy;
 }
 
-function isUndefined(arg) {
-  return arg === void 0;
+function unwrapListeners(arr) {
+  var ret = new Array(arr.length);
+  for (var i = 0; i < ret.length; ++i) {
+    ret[i] = arr[i].listener || arr[i];
+  }
+  return ret;
+}
+
+function objectCreatePolyfill(proto) {
+  var F = function() {};
+  F.prototype = proto;
+  return new F;
+}
+function objectKeysPolyfill(obj) {
+  var keys = [];
+  for (var k in obj) if (Object.prototype.hasOwnProperty.call(obj, k)) {
+    keys.push(k);
+  }
+  return k;
+}
+function functionBindPolyfill(context) {
+  var fn = this;
+  return function () {
+    return fn.apply(context, arguments);
+  };
 }
 
 },{}],3:[function(_dereq_,module,exports){
@@ -428,443 +649,6 @@ if (typeof Object.create === 'function') {
 }
 
 },{}],5:[function(_dereq_,module,exports){
-'use strict';
-var immediate = _dereq_(3);
-
-/* istanbul ignore next */
-function INTERNAL() {}
-
-var handlers = {};
-
-var REJECTED = ['REJECTED'];
-var FULFILLED = ['FULFILLED'];
-var PENDING = ['PENDING'];
-
-module.exports = Promise;
-
-function Promise(resolver) {
-  if (typeof resolver !== 'function') {
-    throw new TypeError('resolver must be a function');
-  }
-  this.state = PENDING;
-  this.queue = [];
-  this.outcome = void 0;
-  if (resolver !== INTERNAL) {
-    safelyResolveThenable(this, resolver);
-  }
-}
-
-Promise.prototype["catch"] = function (onRejected) {
-  return this.then(null, onRejected);
-};
-Promise.prototype.then = function (onFulfilled, onRejected) {
-  if (typeof onFulfilled !== 'function' && this.state === FULFILLED ||
-    typeof onRejected !== 'function' && this.state === REJECTED) {
-    return this;
-  }
-  var promise = new this.constructor(INTERNAL);
-  if (this.state !== PENDING) {
-    var resolver = this.state === FULFILLED ? onFulfilled : onRejected;
-    unwrap(promise, resolver, this.outcome);
-  } else {
-    this.queue.push(new QueueItem(promise, onFulfilled, onRejected));
-  }
-
-  return promise;
-};
-function QueueItem(promise, onFulfilled, onRejected) {
-  this.promise = promise;
-  if (typeof onFulfilled === 'function') {
-    this.onFulfilled = onFulfilled;
-    this.callFulfilled = this.otherCallFulfilled;
-  }
-  if (typeof onRejected === 'function') {
-    this.onRejected = onRejected;
-    this.callRejected = this.otherCallRejected;
-  }
-}
-QueueItem.prototype.callFulfilled = function (value) {
-  handlers.resolve(this.promise, value);
-};
-QueueItem.prototype.otherCallFulfilled = function (value) {
-  unwrap(this.promise, this.onFulfilled, value);
-};
-QueueItem.prototype.callRejected = function (value) {
-  handlers.reject(this.promise, value);
-};
-QueueItem.prototype.otherCallRejected = function (value) {
-  unwrap(this.promise, this.onRejected, value);
-};
-
-function unwrap(promise, func, value) {
-  immediate(function () {
-    var returnValue;
-    try {
-      returnValue = func(value);
-    } catch (e) {
-      return handlers.reject(promise, e);
-    }
-    if (returnValue === promise) {
-      handlers.reject(promise, new TypeError('Cannot resolve promise with itself'));
-    } else {
-      handlers.resolve(promise, returnValue);
-    }
-  });
-}
-
-handlers.resolve = function (self, value) {
-  var result = tryCatch(getThen, value);
-  if (result.status === 'error') {
-    return handlers.reject(self, result.value);
-  }
-  var thenable = result.value;
-
-  if (thenable) {
-    safelyResolveThenable(self, thenable);
-  } else {
-    self.state = FULFILLED;
-    self.outcome = value;
-    var i = -1;
-    var len = self.queue.length;
-    while (++i < len) {
-      self.queue[i].callFulfilled(value);
-    }
-  }
-  return self;
-};
-handlers.reject = function (self, error) {
-  self.state = REJECTED;
-  self.outcome = error;
-  var i = -1;
-  var len = self.queue.length;
-  while (++i < len) {
-    self.queue[i].callRejected(error);
-  }
-  return self;
-};
-
-function getThen(obj) {
-  // Make sure we only access the accessor once as required by the spec
-  var then = obj && obj.then;
-  if (obj && (typeof obj === 'object' || typeof obj === 'function') && typeof then === 'function') {
-    return function appyThen() {
-      then.apply(obj, arguments);
-    };
-  }
-}
-
-function safelyResolveThenable(self, thenable) {
-  // Either fulfill, reject or reject with error
-  var called = false;
-  function onError(value) {
-    if (called) {
-      return;
-    }
-    called = true;
-    handlers.reject(self, value);
-  }
-
-  function onSuccess(value) {
-    if (called) {
-      return;
-    }
-    called = true;
-    handlers.resolve(self, value);
-  }
-
-  function tryToUnwrap() {
-    thenable(onSuccess, onError);
-  }
-
-  var result = tryCatch(tryToUnwrap);
-  if (result.status === 'error') {
-    onError(result.value);
-  }
-}
-
-function tryCatch(func, value) {
-  var out = {};
-  try {
-    out.value = func(value);
-    out.status = 'success';
-  } catch (e) {
-    out.status = 'error';
-    out.value = e;
-  }
-  return out;
-}
-
-Promise.resolve = resolve;
-function resolve(value) {
-  if (value instanceof this) {
-    return value;
-  }
-  return handlers.resolve(new this(INTERNAL), value);
-}
-
-Promise.reject = reject;
-function reject(reason) {
-  var promise = new this(INTERNAL);
-  return handlers.reject(promise, reason);
-}
-
-Promise.all = all;
-function all(iterable) {
-  var self = this;
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return this.reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return this.resolve([]);
-  }
-
-  var values = new Array(len);
-  var resolved = 0;
-  var i = -1;
-  var promise = new this(INTERNAL);
-
-  while (++i < len) {
-    allResolver(iterable[i], i);
-  }
-  return promise;
-  function allResolver(value, i) {
-    self.resolve(value).then(resolveFromAll, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-    function resolveFromAll(outValue) {
-      values[i] = outValue;
-      if (++resolved === len && !called) {
-        called = true;
-        handlers.resolve(promise, values);
-      }
-    }
-  }
-}
-
-Promise.race = race;
-function race(iterable) {
-  var self = this;
-  if (Object.prototype.toString.call(iterable) !== '[object Array]') {
-    return this.reject(new TypeError('must be an array'));
-  }
-
-  var len = iterable.length;
-  var called = false;
-  if (!len) {
-    return this.resolve([]);
-  }
-
-  var i = -1;
-  var promise = new this(INTERNAL);
-
-  while (++i < len) {
-    resolver(iterable[i]);
-  }
-  return promise;
-  function resolver(value) {
-    self.resolve(value).then(function (response) {
-      if (!called) {
-        called = true;
-        handlers.resolve(promise, response);
-      }
-    }, function (error) {
-      if (!called) {
-        called = true;
-        handlers.reject(promise, error);
-      }
-    });
-  }
-}
-
-},{"3":3}],6:[function(_dereq_,module,exports){
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],7:[function(_dereq_,module,exports){
 (function (factory) {
     if (typeof exports === 'object') {
         // Node/CommonJS
@@ -1617,21 +1401,229 @@ process.umask = function() { return 0; };
     return SparkMD5;
 }));
 
+},{}],6:[function(_dereq_,module,exports){
+var v1 = _dereq_(9);
+var v4 = _dereq_(10);
+
+var uuid = v4;
+uuid.v1 = v1;
+uuid.v4 = v4;
+
+module.exports = uuid;
+
+},{"10":10,"9":9}],7:[function(_dereq_,module,exports){
+/**
+ * Convert array of 16 byte values to UUID string format of the form:
+ * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+ */
+var byteToHex = [];
+for (var i = 0; i < 256; ++i) {
+  byteToHex[i] = (i + 0x100).toString(16).substr(1);
+}
+
+function bytesToUuid(buf, offset) {
+  var i = offset || 0;
+  var bth = byteToHex;
+  return bth[buf[i++]] + bth[buf[i++]] +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] + '-' +
+          bth[buf[i++]] + bth[buf[i++]] +
+          bth[buf[i++]] + bth[buf[i++]] +
+          bth[buf[i++]] + bth[buf[i++]];
+}
+
+module.exports = bytesToUuid;
+
 },{}],8:[function(_dereq_,module,exports){
-(function (process){
+// Unique ID creation requires a high quality random # generator.  In the
+// browser this is a little complicated due to unknown quality of Math.random()
+// and inconsistent support for the `crypto` API.  We do the best we can via
+// feature-detection
+
+// getRandomValues needs to be invoked in a context where "this" is a Crypto implementation.
+var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues.bind(crypto)) ||
+                      (typeof(msCrypto) != 'undefined' && msCrypto.getRandomValues.bind(msCrypto));
+if (getRandomValues) {
+  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+  module.exports = function whatwgRNG() {
+    getRandomValues(rnds8);
+    return rnds8;
+  };
+} else {
+  // Math.random()-based (RNG)
+  //
+  // If all else fails, use Math.random().  It's fast, but is of unspecified
+  // quality.
+  var rnds = new Array(16);
+
+  module.exports = function mathRNG() {
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+    }
+
+    return rnds;
+  };
+}
+
+},{}],9:[function(_dereq_,module,exports){
+var rng = _dereq_(8);
+var bytesToUuid = _dereq_(7);
+
+// **`v1()` - Generate time-based UUID**
+//
+// Inspired by https://github.com/LiosK/UUID.js
+// and http://docs.python.org/library/uuid.html
+
+var _nodeId;
+var _clockseq;
+
+// Previous uuid creation time
+var _lastMSecs = 0;
+var _lastNSecs = 0;
+
+// See https://github.com/broofa/node-uuid for API details
+function v1(options, buf, offset) {
+  var i = buf && offset || 0;
+  var b = buf || [];
+
+  options = options || {};
+  var node = options.node || _nodeId;
+  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
+
+  // node and clockseq need to be initialized to random values if they're not
+  // specified.  We do this lazily to minimize issues related to insufficient
+  // system entropy.  See #189
+  if (node == null || clockseq == null) {
+    var seedBytes = rng();
+    if (node == null) {
+      // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+      node = _nodeId = [
+        seedBytes[0] | 0x01,
+        seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]
+      ];
+    }
+    if (clockseq == null) {
+      // Per 4.2.2, randomize (14 bit) clockseq
+      clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
+    }
+  }
+
+  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
+
+  // Per 4.2.1.2, use count of uuid's generated during the current clock
+  // cycle to simulate higher resolution clock
+  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
+
+  // Time since last uuid creation (in msecs)
+  var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+
+  // Per 4.2.1.2, Bump clockseq on clock regression
+  if (dt < 0 && options.clockseq === undefined) {
+    clockseq = clockseq + 1 & 0x3fff;
+  }
+
+  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+  // time interval
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+    nsecs = 0;
+  }
+
+  // Per 4.2.1.2 Throw error if too many uuids are requested
+  if (nsecs >= 10000) {
+    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+  }
+
+  _lastMSecs = msecs;
+  _lastNSecs = nsecs;
+  _clockseq = clockseq;
+
+  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+  msecs += 12219292800000;
+
+  // `time_low`
+  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+  b[i++] = tl >>> 24 & 0xff;
+  b[i++] = tl >>> 16 & 0xff;
+  b[i++] = tl >>> 8 & 0xff;
+  b[i++] = tl & 0xff;
+
+  // `time_mid`
+  var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+  b[i++] = tmh >>> 8 & 0xff;
+  b[i++] = tmh & 0xff;
+
+  // `time_high_and_version`
+  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+  b[i++] = tmh >>> 16 & 0xff;
+
+  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+  b[i++] = clockseq >>> 8 | 0x80;
+
+  // `clock_seq_low`
+  b[i++] = clockseq & 0xff;
+
+  // `node`
+  for (var n = 0; n < 6; ++n) {
+    b[i + n] = node[n];
+  }
+
+  return buf ? buf : bytesToUuid(b);
+}
+
+module.exports = v1;
+
+},{"7":7,"8":8}],10:[function(_dereq_,module,exports){
+var rng = _dereq_(8);
+var bytesToUuid = _dereq_(7);
+
+function v4(options, buf, offset) {
+  var i = buf && offset || 0;
+
+  if (typeof(options) == 'string') {
+    buf = options === 'binary' ? new Array(16) : null;
+    options = null;
+  }
+  options = options || {};
+
+  var rnds = options.random || (options.rng || rng)();
+
+  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+  rnds[6] = (rnds[6] & 0x0f) | 0x40;
+  rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+  // Copy bytes to buffer, if provided
+  if (buf) {
+    for (var ii = 0; ii < 16; ++ii) {
+      buf[i + ii] = rnds[ii];
+    }
+  }
+
+  return buf || bytesToUuid(rnds);
+}
+
+module.exports = v4;
+
+},{"7":7,"8":8}],11:[function(_dereq_,module,exports){
+(function (global){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var lie = _interopDefault(_dereq_(5));
-var getArguments = _interopDefault(_dereq_(1));
+var immediate = _interopDefault(_dereq_(3));
 var events = _dereq_(2);
+var uuidV4 = _interopDefault(_dereq_(6));
+var Md5 = _interopDefault(_dereq_(5));
+var getArguments = _interopDefault(_dereq_(1));
 var inherits = _interopDefault(_dereq_(4));
-var nextTick = _interopDefault(_dereq_(3));
-var Md5 = _interopDefault(_dereq_(7));
-
-/* istanbul ignore next */
-var PouchPromise$1 = typeof Promise === 'function' ? Promise : lie;
 
 function isBinaryObject(object) {
   return (typeof ArrayBuffer !== 'undefined' && object instanceof ArrayBuffer) ||
@@ -1748,7 +1740,7 @@ function toPromise(func) {
     var self = this;
     // if the last argument is a function, assume its a callback
     var usedCB = (typeof args[args.length - 1] === 'function') ? args.pop() : false;
-    var promise = new PouchPromise$1(function (fulfill, reject) {
+    var promise = new Promise(function (fulfill, reject) {
       var resp;
       try {
         var callback = once(function (err, mesg) {
@@ -1862,7 +1854,6 @@ function supportsMapAndSet() {
 }
 
 // based on https://github.com/montagejs/collections
-/* global Map,Set */
 
 var ExportedSet;
 var ExportedMap;
@@ -1889,23 +1880,13 @@ function pick(obj, arr) {
   return res;
 }
 
-function isChromeApp() {
-  return (typeof chrome !== "undefined" &&
-    typeof chrome.storage !== "undefined" &&
-    typeof chrome.storage.local !== "undefined");
-}
-
 var hasLocal;
 
-if (isChromeApp()) {
+try {
+  localStorage.setItem('_pouch_check_localstorage', 1);
+  hasLocal = !!localStorage.getItem('_pouch_check_localstorage');
+} catch (e) {
   hasLocal = false;
-} else {
-  try {
-    localStorage.setItem('_pouch_check_localstorage', 1);
-    hasLocal = !!localStorage.getItem('_pouch_check_localstorage');
-  } catch (e) {
-    hasLocal = false;
-  }
 }
 
 function hasLocalStorage() {
@@ -1913,39 +1894,15 @@ function hasLocalStorage() {
 }
 
 // Custom nextTick() shim for browsers. In node, this will just be process.nextTick(). We
-// avoid using process.nextTick() directly because the polyfill is very large and we don't
-// need all of it (see: https://github.com/defunctzombie/node-process).
-// "immediate" 3.0.8 is used by lie, and it's a smaller version of the latest "immediate"
-// package, so it's the one we use.
-// When we use nextTick() in our codebase, we only care about not releasing Zalgo
-// (see: http://blog.izs.me/post/59142742143/designing-apis-for-asynchrony).
-// Microtask vs macrotask doesn't matter to us. So we're free to use the fastest
-// (least latency) option, which is "immediate" due to use of microtasks.
-// All of our nextTicks are isolated to this one function so we can easily swap out one
-// implementation for another.
 
 inherits(Changes, events.EventEmitter);
 
 /* istanbul ignore next */
 function attachBrowserEvents(self) {
-  if (isChromeApp()) {
-    chrome.storage.onChanged.addListener(function (e) {
-      // make sure it's event addressed to us
-      if (e.db_name != null) {
-        //object only has oldValue, newValue members
-        self.emit(e.dbName.newValue);
-      }
+  if (hasLocalStorage()) {
+    addEventListener("storage", function (e) {
+      self.emit(e.key);
     });
-  } else if (hasLocalStorage()) {
-    if (typeof addEventListener !== 'undefined') {
-      addEventListener("storage", function (e) {
-        self.emit(e.key);
-      });
-    } else { // old IE
-      window.attachEvent("storage", function (e) {
-        self.emit(e.key);
-      });
-    }
   }
 }
 
@@ -1974,7 +1931,7 @@ Changes.prototype.addListener = function (dbName, id, db, opts) {
     inprogress = true;
     var changesOpts = pick(opts, [
       'style', 'include_docs', 'attachments', 'conflicts', 'filter',
-      'doc_ids', 'view', 'since', 'query_params', 'binary'
+      'doc_ids', 'view', 'since', 'query_params', 'binary', 'return_docs'
     ]);
 
     /* istanbul ignore next */
@@ -1989,7 +1946,7 @@ Changes.prototype.addListener = function (dbName, id, db, opts) {
       }
     }).on('complete', function () {
       if (inprogress === 'waiting') {
-        nextTick(eventFunction);
+        immediate(eventFunction);
       }
       inprogress = false;
     }).on('error', onError);
@@ -2013,9 +1970,7 @@ Changes.prototype.removeListener = function (dbName, id) {
 Changes.prototype.notifyLocalWindows = function (dbName) {
   //do a useless change on a storage thing
   //in order to get other windows's listeners to activate
-  if (isChromeApp()) {
-    chrome.storage.local.set({dbName: dbName});
-  } else if (hasLocalStorage()) {
+  if (hasLocalStorage()) {
     localStorage[dbName] = (localStorage[dbName] === "a") ? "b" : "a";
   }
 };
@@ -2027,7 +1982,7 @@ Changes.prototype.notify = function (dbName) {
 
 function guardedConsole(method) {
   /* istanbul ignore else */
-  if (console !== 'undefined' && method in console) {
+  if (typeof console !== 'undefined' && typeof console[method] === 'function') {
     var args = Array.prototype.slice.call(arguments, 1);
     console[method].apply(console, args);
   }
@@ -2106,6 +2061,34 @@ var FILE_EXISTS = new PouchError(412, 'file_exists', 'The database could not be 
 var MISSING_STUB = new PouchError(412, 'missing_stub', 'A pre-existing attachment stub wasn\'t found');
 var INVALID_URL = new PouchError(413, 'invalid_url', 'Provided URL is invalid');
 
+function generateErrorFromResponse(err) {
+
+  if (typeof err !== 'object') {
+    var data = err;
+    err = UNKNOWN_ERROR;
+    err.data = data;
+  }
+
+  if ('error' in err && err.error === 'conflict') {
+    err.name = 'conflict';
+    err.status = 409;
+  }
+
+  if (!('name' in err)) {
+    err.name = err.error || 'unknown';
+  }
+
+  if (!('status' in err)) {
+    err.status = 500;
+  }
+
+  if (!('message' in err)) {
+    err.message = err.message || err.reason;
+  }
+
+  return err;
+}
+
 function flatten(arrs) {
   var res = [];
   for (var i = 0, len = arrs.length; i < len; i++) {
@@ -2115,35 +2098,8 @@ function flatten(arrs) {
 }
 
 // shim for Function.prototype.name,
-// for browsers that don't support it like IE
-
-/* istanbul ignore next */
-function f() {}
-
-var hasName = f.name;
-var res;
-
-// We dont run coverage in IE
-/* istanbul ignore else */
-if (hasName) {
-  res = function (fun) {
-    return fun.name;
-  };
-} else {
-  res = function (fun) {
-    return fun.toString().match(/^\s*function\s*(\S*)\s*\(/)[1];
-  };
-}
 
 // Checks if a PouchDB object is "remote" or not. This is
-// designed to opt-in to certain optimizations, such as
-// avoiding checks for "dependentDbs" and other things that
-// we know only apply to local databases. In general, "remote"
-// should be true for the http adapter, and for third-party
-// adapters with similar expensive boundaries to cross for
-// every API call, such as socket-pouch and worker-pouch.
-// Previously, this was handled via db.type() === 'http'
-// which is now deprecated.
 
 function isRemote(db) {
   if (typeof db._remote === 'boolean') {
@@ -2161,18 +2117,14 @@ function isRemote(db) {
 }
 
 // originally parseUri 1.2.2, now patched by us
-// (c) Steven Levithan <stevenlevithan.com>
-// MIT License
 
 // Based on https://github.com/alexdavid/scope-eval v0.0.3
-// (source: https://unpkg.com/scope-eval@0.0.3/scope_eval.js)
-// This is basically just a wrapper around new Function()
 
 // this is essentially the "update sugar" function from daleharvey/pouchdb#1388
 // the diffFun tells us what delta to apply to the doc.  it either returns
 // the doc, or false if it doesn't need to do an update after all
 function upsert(db, docId, diffFun) {
-  return new PouchPromise$1(function (fulfill, reject) {
+  return new Promise(function (fulfill, reject) {
     db.get(docId, function (err, doc) {
       if (err) {
         /* istanbul ignore next */
@@ -2216,49 +2168,70 @@ function tryAndPut(db, doc, diffFun) {
   });
 }
 
-// BEGIN Math.uuid.js
+var thisAtob = function (str) {
+  return atob(str);
+};
 
-/*!
-Math.uuid.js (v1.4)
-http://www.broofa.com
-mailto:robert@broofa.com
-
-Copyright (c) 2010 Robert Kieffer
-Dual licensed under the MIT and GPL licenses.
-*/
-
-/*
- * Generate a random uuid.
- *
- * USAGE: Math.uuid(length, radix)
- *   length - the desired number of characters
- *   radix  - the number of allowable values for each character.
- *
- * EXAMPLES:
- *   // No arguments  - returns RFC4122, version 4 ID
- *   >>> Math.uuid()
- *   "92329D39-6F5C-4520-ABFC-AAB64544E172"
- *
- *   // One argument - returns ID of the specified length
- *   >>> Math.uuid(15)     // 15 character ID (default base=62)
- *   "VcydxgltxrVZSTV"
- *
- *   // Two arguments - returns ID of the specified length, and radix. 
- *   // (Radix must be <= 62)
- *   >>> Math.uuid(8, 2)  // 8 character ID (base=2)
- *   "01001010"
- *   >>> Math.uuid(8, 10) // 8 character ID (base=10)
- *   "47473046"
- *   >>> Math.uuid(8, 16) // 8 character ID (base=16)
- *   "098F4D35"
- */
-var chars = (
-  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-  'abcdefghijklmnopqrstuvwxyz'
-).split('');
-function getValue(radix) {
-  return 0 | Math.random() * radix;
+// Abstracts constructing a Blob object, so it also works in older
+// browsers that don't support the native Blob constructor (e.g.
+// old QtWebKit versions, Android < 4.4).
+function createBlob(parts, properties) {
+  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
+  parts = parts || [];
+  properties = properties || {};
+  try {
+    return new Blob(parts, properties);
+  } catch (e) {
+    if (e.name !== "TypeError") {
+      throw e;
+    }
+    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
+                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
+                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
+                  WebKitBlobBuilder;
+    var builder = new Builder();
+    for (var i = 0; i < parts.length; i += 1) {
+      builder.append(parts[i]);
+    }
+    return builder.getBlob(properties.type);
+  }
 }
+
+// From http://stackoverflow.com/questions/14967647/ (continues on next line)
+// encode-decode-image-with-base64-breaks-image (2013-04-21)
+function binaryStringToArrayBuffer(bin) {
+  var length = bin.length;
+  var buf = new ArrayBuffer(length);
+  var arr = new Uint8Array(buf);
+  for (var i = 0; i < length; i++) {
+    arr[i] = bin.charCodeAt(i);
+  }
+  return buf;
+}
+
+function binStringToBluffer(binString, type) {
+  return createBlob([binaryStringToArrayBuffer(binString)], {type: type});
+}
+
+function b64ToBluffer(b64, type) {
+  return binStringToBluffer(thisAtob(b64), type);
+}
+
+//Can't find original post, but this is close
+
+// simplified API. universal browser support is assumed
+
+// this is not used in the browser
+
+var setImmediateShim = global.setImmediate || global.setTimeout;
+
+function stringMd5(string) {
+  return Md5.hash(string);
+}
+
+var uuid = uuidV4.v4;
+
+var h = Headers;
 
 // we restucture the supplied JSON considerably, because the official
 // Mango API is very particular about a lot of this stuff, but we like
@@ -2289,28 +2262,49 @@ function massageCreateIndexRequest(requestDef) {
   return requestDef;
 }
 
+function dbFetch(db, path, opts, callback) {
+  var status, ok;
+  opts.headers = new h({'Content-type': 'application/json'});
+  db.fetch(path, opts).then(function (response) {
+    status = response.status;
+    ok = response.ok;
+    return response.json();
+  }).then(function (json) {
+    if (!ok) {
+      json.status = status;
+      var err = generateErrorFromResponse(json);
+      callback(err);
+    } else {
+      callback(null, json);
+    }
+  })["catch"](callback);
+}
+
 function createIndex(db, requestDef, callback) {
   requestDef = massageCreateIndexRequest(requestDef);
-
-  db.request({
+  dbFetch(db, '_index', {
     method: 'POST',
-    url: '_index',
-    body: requestDef
+    body: JSON.stringify(requestDef)
   }, callback);
 }
 
 function find(db, requestDef, callback) {
-  db.request({
+  dbFetch(db, '_find', {
     method: 'POST',
-    url: '_find',
-    body: requestDef
+    body: JSON.stringify(requestDef)
+  }, callback);
+}
+
+function explain(db, requestDef, callback) {
+  dbFetch(db, '_explain', {
+    method: 'POST',
+    body: JSON.stringify(requestDef)
   }, callback);
 }
 
 function getIndexes(db, callback) {
-  db.request({
-    method: 'GET',
-    url: '_index'
+  dbFetch(db, '_index', {
+    method: 'GET'
   }, callback);
 }
 
@@ -2331,10 +2325,7 @@ function deleteIndex(db, indexDef, callback) {
 
   var url = '_index/' + [ddoc, type, name].map(encodeURIComponent).join('/');
 
-  db.request({
-    method: 'DELETE',
-    url: url
-  }, callback);
+  dbFetch(db, url, {method: 'DELETE'}, callback);
 }
 
 // this would just be "return doc[field]", but fields
@@ -2394,7 +2385,7 @@ function getKey(obj) {
   return Object.keys(obj)[0];
 }
 
-function getValue$1(obj) {
+function getValue(obj) {
   return obj[getKey(obj)];
 }
 
@@ -2533,6 +2524,37 @@ function mergeEq(value, fieldMatchers) {
   fieldMatchers.$eq = value;
 }
 
+//#7458: execute function mergeAndedSelectors on nested $and
+function mergeAndedSelectorsNested(obj) {
+    for (var prop in obj) {
+        if (Array.isArray(obj)) {
+            for (var i in obj) {
+                if (obj[i]['$and']) {
+                    obj[i] = mergeAndedSelectors(obj[i]['$and']);
+                }
+            }
+        }
+        var value = obj[prop];
+        if (typeof value === 'object') {
+            mergeAndedSelectorsNested(value); // <- recursive call
+        }
+    }
+    return obj;
+}
+
+//#7458: determine id $and is present in selector (at any level)
+function isAndInSelector(obj, isAnd) {
+    for (var prop in obj) {
+        if (prop === '$and') {
+            isAnd = true;
+        }
+        var value = obj[prop];
+        if (typeof value === 'object') {
+            isAnd = isAndInSelector(value, isAnd); // <- recursive call
+        }
+    }
+    return isAnd;
+}
 
 //
 // normalize the selector
@@ -2540,10 +2562,14 @@ function mergeEq(value, fieldMatchers) {
 function massageSelector(input) {
   var result = clone(input);
   var wasAnded = false;
-  if ('$and' in result) {
-    result = mergeAndedSelectors(result['$and']);
-    wasAnded = true;
-  }
+    //#7458: if $and is present in selector (at any level) merge nested $and
+    if (isAndInSelector(result, false)) {
+        result = mergeAndedSelectorsNested(result);
+        if ('$and' in result) {
+            result = mergeAndedSelectors(result['$and']);
+        }
+        wasAnded = true;
+    }
 
   ['$or', '$nor'].forEach(function (orOrNor) {
     if (orOrNor in result) {
@@ -2681,10 +2707,12 @@ function indexify(key) {
         // 0 -> 1, 1
         // 1 -> 1, 2
         // 2 -> 2, 2
+        /* eslint-disable no-control-regex */
         return key
           .replace(/\u0002/g, '\u0002\u0002')
           .replace(/\u0001/g, '\u0001\u0002')
           .replace(/\u0000/g, '\u0001\u0001');
+        /* eslint-enable no-control-regex */
       case 'object':
         var isArray = Array.isArray(key);
         var arr = isArray ? key : Object.keys(key);
@@ -2833,9 +2861,11 @@ function parseIndexableString(str) {
         }
         // perform the reverse of the order-preserving replacement
         // algorithm (see above)
+        /* eslint-disable no-control-regex */
         parsedStr = parsedStr.replace(/\u0001\u0001/g, '\u0000')
           .replace(/\u0001\u0002/g, '\u0001')
           .replace(/\u0002\u0002/g, '\u0002');
+        /* eslint-enable no-control-regex */
         stack.push(parsedStr);
         break;
       case '5':
@@ -2994,7 +3024,7 @@ function filterInMemoryFields(rows, requestDef, inMemoryFields) {
     var fieldSorter = createFieldSorter(requestDef.sort);
     rows = rows.sort(fieldSorter);
     if (typeof requestDef.sort[0] !== 'string' &&
-        getValue$1(requestDef.sort[0]) === 'desc') {
+        getValue(requestDef.sort[0]) === 'desc') {
       rows = rows.reverse();
     }
   }
@@ -3010,10 +3040,6 @@ function filterInMemoryFields(rows, requestDef, inMemoryFields) {
 
 function rowFilter(doc, selector, inMemoryFields) {
   return inMemoryFields.every(function (field) {
-    if (isDesignDoc(doc)) {
-      return false;
-    }
-
     var matcher = selector[field];
     var parsedField = parseField(field);
     var docFieldValue = getFieldFromDoc(doc, parsedField);
@@ -3025,20 +3051,22 @@ function rowFilter(doc, selector, inMemoryFields) {
   });
 }
 
-function isDesignDoc(doc) {
-  return /^_design\//.test(doc._id);
-}
-
 function matchSelector(matcher, doc, parsedField, docFieldValue) {
   if (!matcher) {
     // no filtering necessary; this field is just needed for sorting
     return true;
   }
 
-  return Object.keys(matcher).every(function (userOperator) {
-    var userValue = matcher[userOperator];
-    return match(userOperator, doc, userValue, parsedField, docFieldValue);
-  });
+  // is matcher an object, if so continue recursion
+  if (typeof matcher === 'object') {
+    return Object.keys(matcher).every(function (userOperator) {
+      var userValue = matcher[userOperator];
+      return match(userOperator, doc, userValue, parsedField, docFieldValue);
+    });
+  }
+
+  // no more depth, No need to recurse further
+  return matcher === docFieldValue;
 }
 
 function matchCominationalSelector(field, matcher, doc) {
@@ -3064,7 +3092,7 @@ function match(userOperator, doc, userValue, parsedField, docFieldValue) {
   if (!matchers[userOperator]) {
     throw new Error('unknown operator "' + userOperator +
       '" - should be one of $eq, $lte, $lt, $gt, $gte, $exists, $ne, $in, ' +
-      '$nin, $size, $mod, $regex, $elemMatch, $type or $all');
+      '$nin, $size, $mod, $regex, $elemMatch, $type, $allMatch or $all');
   }
   return matchers[userOperator](doc, userValue, parsedField, docFieldValue);
 }
@@ -3169,6 +3197,27 @@ var matchers = {
     });
   },
 
+  '$allMatch': function (doc, userValue, parsedField, docFieldValue) {
+    if (!Array.isArray(docFieldValue)) {
+      return false;
+    }
+
+    /* istanbul ignore next */
+    if (docFieldValue.length === 0) {
+      return false;
+    }
+
+    if (typeof docFieldValue[0] === 'object') {
+      return docFieldValue.every(function (val) {
+        return rowFilter(val, userValue, Object.keys(userValue));
+      });
+    }
+
+    return docFieldValue.every(function (val) {
+      return matchSelector(userValue, doc, parsedField, val);
+    });
+  },
+
   '$eq': function (doc, userValue, parsedField, docFieldValue) {
     return fieldIsNotUndefined(docFieldValue) && collate(docFieldValue, userValue) === 0;
   },
@@ -3243,6 +3292,7 @@ function getArguments$1(fun) {
     return fun.call(this, args);
   };
 }
+
 function callbackify(fun) {
   return getArguments$1(function (args) {
     var cb = args.pop();
@@ -3254,23 +3304,23 @@ function callbackify(fun) {
 
 function promisedCallback(promise, callback) {
   promise.then(function (res) {
-    process.nextTick(function () {
+    immediate(function () {
       callback(null, res);
     });
   }, function (reason) {
-    process.nextTick(function () {
+    immediate(function () {
       callback(reason);
     });
   });
   return promise;
 }
 
-var flatten$2 = getArguments$1(function (args) {
+var flatten$1 = getArguments$1(function (args) {
   var res = [];
   for (var i = 0, len = args.length; i < len; i++) {
     var subArr = args[i];
     if (Array.isArray(subArr)) {
-      res = res.concat(flatten$2.apply(null, subArr));
+      res = res.concat(flatten$1.apply(null, subArr));
     } else {
       res.push(subArr);
     }
@@ -3288,7 +3338,7 @@ function mergeObjects(arr) {
 
 // Selects a list of fields defined in dot notation from one doc
 // and copies them to a new doc. Like underscore _.pick but supports nesting.
-function pick$2(obj, arr) {
+function pick$1(obj, arr) {
   var res = {};
   for (var i = 0, len = arr.length; i < len; i++) {
     var parsedField = parseField(arr[i]);
@@ -3384,63 +3434,6 @@ function uniq(arr) {
   });
 }
 
-var thisAtob = function (str) {
-  return atob(str);
-};
-
-// Abstracts constructing a Blob object, so it also works in older
-// browsers that don't support the native Blob constructor (e.g.
-// old QtWebKit versions, Android < 4.4).
-function createBlob(parts, properties) {
-  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
-  parts = parts || [];
-  properties = properties || {};
-  try {
-    return new Blob(parts, properties);
-  } catch (e) {
-    if (e.name !== "TypeError") {
-      throw e;
-    }
-    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
-                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
-                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
-                  WebKitBlobBuilder;
-    var builder = new Builder();
-    for (var i = 0; i < parts.length; i += 1) {
-      builder.append(parts[i]);
-    }
-    return builder.getBlob(properties.type);
-  }
-}
-
-// From http://stackoverflow.com/questions/14967647/ (continues on next line)
-// encode-decode-image-with-base64-breaks-image (2013-04-21)
-function binaryStringToArrayBuffer(bin) {
-  var length = bin.length;
-  var buf = new ArrayBuffer(length);
-  var arr = new Uint8Array(buf);
-  for (var i = 0; i < length; i++) {
-    arr[i] = bin.charCodeAt(i);
-  }
-  return buf;
-}
-
-function binStringToBluffer(binString, type) {
-  return createBlob([binaryStringToArrayBuffer(binString)], {type: type});
-}
-
-function b64ToBluffer(b64, type) {
-  return binStringToBluffer(thisAtob(b64), type);
-}
-
-//Can't find original post, but this is close
-//http://stackoverflow.com/questions/6965107/ (continues on next line)
-//converting-between-strings-and-arraybuffers
-
-// simplified API. universal browser support is assumed
-
-// this is not used in the browser
-
 /*
  * Simple task queue to sequentialize actions. Assumes
  * callbacks will eventually fire (once).
@@ -3448,7 +3441,7 @@ function b64ToBluffer(b64, type) {
 
 
 function TaskQueue() {
-  this.promise = new PouchPromise$1(function (fulfill) {fulfill(); });
+  this.promise = new Promise(function (fulfill) {fulfill(); });
 }
 TaskQueue.prototype.add = function (promiseFactory) {
   this.promise = this.promise["catch"](function () {
@@ -3461,10 +3454,6 @@ TaskQueue.prototype.add = function (promiseFactory) {
 TaskQueue.prototype.finish = function () {
   return this.promise;
 };
-
-function stringMd5(string) {
-  return Md5.hash(string);
-}
 
 function stringify(input) {
   if (!input) {
@@ -3599,11 +3588,11 @@ inherits(BuiltInError, Error);
 function promisedCallback$1(promise, callback) {
   if (callback) {
     promise.then(function (res) {
-      nextTick(function () {
+      immediate(function () {
         callback(null, res);
       });
     }, function (reason) {
-      nextTick(function () {
+      immediate(function () {
         callback(reason);
       });
     });
@@ -3721,7 +3710,7 @@ function emitError(db, e) {
  *   This could be a way to communicate to the user that the configuration for the
  *   indexer is invalid.
  */
-function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator) {
+function createAbstractMapReduce(localDocName, mapper, reducer, ddocValidator) {
 
   function tryMap(db, fun, doc) {
     // emit an event if there was an error thrown by a map function.
@@ -3865,6 +3854,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
     var params = [];
     var body;
     var method = 'GET';
+    var ok, status;
 
     // If opts.reduce exists and is defined, then add it to the list
     // of parameters.
@@ -3886,6 +3876,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
     addHttpParam('end_key', opts, params, true);
     addHttpParam('inclusive_end', opts, params);
     addHttpParam('key', opts, params, true);
+    addHttpParam('update_seq', opts, params);
 
     // Format the list of parameters into a valid URI query string
     params = params.join('&');
@@ -3917,10 +3908,27 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
     // We are referencing a query defined in the design doc
     if (typeof fun === 'string') {
       var parts = parseViewName(fun);
-      return db.request({
+      return db.fetch('_design/' + parts[0] + '/_view/' + parts[1] + params, {
+        headers: new h({'Content-Type': 'application/json'}),
         method: method,
-        url: '_design/' + parts[0] + '/_view/' + parts[1] + params,
-        body: body
+        body: JSON.stringify(body)
+      }).then(function (response) {
+        ok = response.ok;
+        status = response.status;
+        return response.json();
+      }).then(function (result) {
+        if (!ok) {
+          result.status = status;
+          throw generateErrorFromResponse(result);
+        }
+        // fail the entire request if the result contains an error
+        result.rows.forEach(function (row) {
+          /* istanbul ignore if */
+          if (row.value && row.value.error && row.value.error === "builtin_reduce_error") {
+            throw new Error(row.reason);
+          }
+        });
+        return result;
       }).then(postprocessAttachments(opts));
     }
 
@@ -3933,10 +3941,21 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
         body[key] = fun[key].toString();
       }
     });
-    return db.request({
+
+    return db.fetch('_temp_view' + params, {
+      headers: new h({'Content-Type': 'application/json'}),
       method: 'POST',
-      url: '_temp_view' + params,
-      body: body
+      body: JSON.stringify(body)
+    }).then(function (response) {
+        ok = response.ok;
+        status = response.status;
+      return response.json();
+    }).then(function (result) {
+      if (!ok) {
+        result.status = status;
+        throw generateErrorFromResponse(result);
+      }
+      return result;
     }).then(postprocessAttachments(opts));
   }
 
@@ -3944,7 +3963,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
   // and override the default behavior
   /* istanbul ignore next */
   function customQuery(db, fun, opts) {
-    return new PouchPromise$1(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       db._query(fun, opts, function (err, res) {
         if (err) {
           return reject(err);
@@ -3958,7 +3977,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
   // and override the default behavior
   /* istanbul ignore next */
   function customViewCleanup(db) {
-    return new PouchPromise$1(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
       db._viewCleanup(function (err, res) {
         if (err) {
           return reject(err);
@@ -3993,7 +4012,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
       if (isGenOne(changes)) {
         // generation 1, so we can safely assume initial state
         // for performance reasons (avoids unnecessary GETs)
-        return PouchPromise$1.resolve(defaultMetaDoc);
+        return Promise.resolve(defaultMetaDoc);
       }
       return view.db.get(metaDocId)["catch"](defaultsTo(defaultMetaDoc));
     }
@@ -4001,7 +4020,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
     function getKeyValueDocs(metaDoc) {
       if (!metaDoc.keys.length) {
         // no keys, no need for a lookup
-        return PouchPromise$1.resolve({rows: []});
+        return Promise.resolve({rows: []});
       }
       return view.db.allDocs({
         keys: metaDoc.keys,
@@ -4064,7 +4083,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
       "catch"](defaultsTo({_id: seqDocId, seq: 0}))
       .then(function (lastSeqDoc) {
         var docIds = mapToKeysArray(docIdsToChangesAndEmits);
-        return PouchPromise$1.all(docIds.map(function (docId) {
+        return Promise.all(docIds.map(function (docId) {
           return getDocsToPersist(docId, view, docIdsToChangesAndEmits);
         })).then(function (listOfDocsToPersist) {
           var docsToPersist = flatten(listOfDocsToPersist);
@@ -4120,6 +4139,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
 
     function processNextBatch() {
       return view.sourceDB.changes({
+        return_docs: true,
         conflicts: true,
         include_docs: true,
         style: 'all_docs',
@@ -4295,6 +4315,10 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
           rows: rows
         };
       }
+      /* istanbul ignore if */
+      if (opts.update_seq) {
+        finalResults.update_seq = view.seq;
+      }
       if (opts.include_docs) {
         var docIds = uniq$1(rows.map(rowToDocId));
 
@@ -4330,13 +4354,21 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
           startkey : toIndexableString([key]),
           endkey   : toIndexableString([key, {}])
         };
+        /* istanbul ignore if */
+        if (opts.update_seq) {
+          viewOpts.update_seq = true;
+        }
         return fetchFromView(viewOpts);
       });
-      return PouchPromise$1.all(fetchPromises).then(flatten).then(onMapResultsReady);
+      return Promise.all(fetchPromises).then(flatten).then(onMapResultsReady);
     } else { // normal query, no 'keys'
       var viewOpts = {
         descending : opts.descending
       };
+      /* istanbul ignore if */
+      if (opts.update_seq) {
+        viewOpts.update_seq = true;
+      }
       var startkey;
       var endkey;
       if ('start_key' in opts) {
@@ -4387,9 +4419,11 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
   }
 
   function httpViewCleanup(db) {
-    return db.request({
-      method: 'POST',
-      url: '_view_cleanup'
+    return db.fetch('_view_cleanup', {
+      headers: new h({'Content-Type': 'application/json'}),
+      method: 'POST'
+    }).then(function (response) {
+      return response.json();
     });
   }
 
@@ -4440,7 +4474,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
             return new db.constructor(viewDBName, db.__opts).destroy();
           })();
         });
-        return PouchPromise$1.all(destroyPromises).then(function () {
+        return Promise.all(destroyPromises).then(function () {
           return {ok: true};
         });
       });
@@ -4505,7 +4539,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
         return createViewPromise.then(function (view) {
           if (opts.stale === 'ok' || opts.stale === 'update_after') {
             if (opts.stale === 'update_after') {
-              nextTick(function () {
+              immediate(function () {
                 updateView(view);
               });
             }
@@ -4532,7 +4566,7 @@ function createAbstractMapReduce$1(localDocName, mapper, reducer, ddocValidator)
       fun = {map : fun};
     }
 
-    var promise = PouchPromise$1.resolve().then(function () {
+    var promise = Promise.resolve().then(function () {
       return queryPromised(db, fun, opts);
     });
     promisedCallback$1(promise, callback);
@@ -4578,7 +4612,7 @@ function createDeepMultiMapper(fields, emit) {
       for (var j = 0, jLen = parsedField.length; j < jLen; j++) {
         var key = parsedField[j];
         value = value[key];
-        if (!value) {
+        if (typeof value === 'undefined') {
           return; // don't emit
         }
       }
@@ -4595,7 +4629,7 @@ function createDeepSingleMapper(field, emit) {
     for (var i = 0, len = parsedField.length; i < len; i++) {
       var key = parsedField[i];
       value = value[key];
-      if (!value) {
+      if (typeof value === 'undefined') {
         return; // do nothing
       }
     }
@@ -4675,12 +4709,16 @@ function ddocValidator(ddoc, viewName) {
   }
 }
 
-var abstractMapper = createAbstractMapReduce$1(
+var abstractMapper = createAbstractMapReduce(
   /* localDocName */ 'indexes',
   mapper,
   reducer,
   ddocValidator
 );
+
+function abstractMapper$1 (db) {
+  return db._customFindAbstractMapper || abstractMapper;
+}
 
 // normalize the "sort" value
 function massageSort(sort) {
@@ -4695,6 +4733,19 @@ function massageSort(sort) {
     } else {
       return sorting;
     }
+  });
+}
+
+function massageUseIndex(useIndex) {
+  var cleanedUseIndex = [];
+  if (typeof useIndex === 'string') {
+    cleanedUseIndex.push(useIndex);
+  } else {
+    cleanedUseIndex = useIndex;
+  }
+
+  return cleanedUseIndex.map(function (name) {
+    return name.replace('_design/', '');
   });
 }
 
@@ -4772,7 +4823,7 @@ function reverseOptions(opts) {
 
 function validateIndex(index) {
   var ascFields = index.fields.filter(function (field) {
-    return getValue$1(field) === 'asc';
+    return getValue(field) === 'asc';
   });
   if (ascFields.length !== 0 && ascFields.length !== index.fields.length) {
     throw new Error('unsupported mixed sorting');
@@ -4864,11 +4915,16 @@ function createIndex$1(db, requestDef) {
 
   validateIndex(requestDef.index);
 
-  var md5 = stringMd5(JSON.stringify(requestDef));
+  // calculating md5 is expensive - memoize and only
+  // run if required
+  var md5;
+  function getMd5() {
+    return md5 || (md5 = stringMd5(JSON.stringify(requestDef)));
+  }
 
-  var viewName = requestDef.name || ('idx-' + md5);
+  var viewName = requestDef.name || ('idx-' + getMd5());
 
-  var ddocName = requestDef.ddoc || ('idx-' + md5);
+  var ddocName = requestDef.ddoc || ('idx-' + getMd5());
   var ddocId = '_design/' + ddocName;
 
   var hasInvalidLanguage = false;
@@ -4913,7 +4969,7 @@ function createIndex$1(db, requestDef) {
     // TODO: abstract-pouchdb-mapreduce should support auto-updating
     // TODO: should also use update_after, but pouchdb/pouchdb#3415 blocks me
     var signature = ddocName + '/' + viewName;
-    return abstractMapper.query.call(db, signature, {
+    return abstractMapper$1(db).query.call(db, signature, {
       limit: 0,
       reduce: false
     }).then(function () {
@@ -4945,7 +5001,7 @@ function getIndexes$1(db) {
       }]
     };
 
-    res.indexes = flatten$2(res.indexes, allDocsRes.rows.filter(function (row) {
+    res.indexes = flatten$1(res.indexes, allDocsRes.rows.filter(function (row) {
       return row.doc.language === 'query';
     }).map(function (row) {
       var viewNames = row.doc.views !== undefined ? Object.keys(row.doc.views) : [];
@@ -5052,7 +5108,7 @@ function getInMemoryFieldsFromNe(selector) {
 }
 
 function getInMemoryFields(coreInMemoryFields, index, selector, userFields) {
-  var result = flatten$2(
+  var result = flatten$1(
     // in-memory fields reported as necessary by the query planner
     coreInMemoryFields,
     // combine with another pass that checks for any we may have missed
@@ -5096,15 +5152,8 @@ function checkFieldsLogicallySound(indexFields, selector) {
   var matcher = selector[firstField];
 
   if (typeof matcher === 'undefined') {
+    /* istanbul ignore next */
     return true;
-  }
-
-  var hasLogicalOperator = Object.keys(matcher).some(function (matcherKey) {
-    return !(isNonLogicalMatcher(matcherKey));
-  });
-
-  if (!hasLogicalOperator) {
-    return false;
   }
 
   var isInvalidNe = Object.keys(matcher).length === 1 &&
@@ -5146,18 +5195,24 @@ function findMatchingIndexes(selector, userFields, sortOrder, indexes) {
 
 // find the best index, i.e. the one that matches the most fields
 // in the user's query
-function findBestMatchingIndex(selector, userFields, sortOrder, indexes) {
+function findBestMatchingIndex(selector, userFields, sortOrder, indexes, useIndex) {
 
   var matchingIndexes = findMatchingIndexes(selector, userFields, sortOrder, indexes);
 
   if (matchingIndexes.length === 0) {
+    if (useIndex) {
+      throw {
+        error: "no_usable_index",
+        message: "There is no index available for this selector."
+      };
+    }
     //return `all_docs` as a default index;
     //I'm assuming that _all_docs is always first
     var defaultIndex = indexes[0];
     defaultIndex.defaultUsed = true;
     return defaultIndex;
   }
-  if (matchingIndexes.length === 1) {
+  if (matchingIndexes.length === 1 && !useIndex) {
     return matchingIndexes[0];
   }
 
@@ -5173,6 +5228,31 @@ function findBestMatchingIndex(selector, userFields, sortOrder, indexes) {
       }
     }
     return score;
+  }
+
+  if (useIndex) {
+    var useIndexDdoc = '_design/' + useIndex[0];
+    var useIndexName = useIndex.length === 2 ? useIndex[1] : false;
+    var index = matchingIndexes.find(function (index) {
+      if (useIndexName && index.ddoc === useIndexDdoc && useIndexName === index.name) {
+        return true;
+      }
+
+      if (index.ddoc === useIndexDdoc) {
+        /* istanbul ignore next */
+        return true;
+      }
+
+      return false;
+    });
+
+    if (!index) {
+      throw {
+        error: "unknown_error",
+        message: "Could not find that index or could not use that index for the query"
+      };
+    }
+    return index;
   }
 
   return max(matchingIndexes, scoreIndex);
@@ -5197,6 +5277,10 @@ function getSingleFieldQueryOptsFor(userOperator, userValue) {
         inclusive_start: false
       };
   }
+
+  return {
+    startkey: COLLATE_LO
+  };
 }
 
 function getSingleFieldCoreQueryPlan(selector, index) {
@@ -5214,7 +5298,6 @@ function getSingleFieldCoreQueryPlan(selector, index) {
 
     if (isNonLogicalMatcher(userOperator)) {
       inMemoryFields.push(field);
-      return;
     }
 
     var userValue = matcher[userOperator];
@@ -5295,7 +5378,7 @@ function getMultiFieldQueryOpts(selector, index) {
       finish(i);
       break;
     } else if (i > 0) {
-      if (Object.keys(matcher).some(isNonLogicalMatcher)) { // non-logical are ignored 
+      if (Object.keys(matcher).some(isNonLogicalMatcher)) { // non-logical are ignored
         finish(i);
         break;
       }
@@ -5387,7 +5470,7 @@ function planQuery(request, indexes) {
 
   var userFields = userFieldsRes.fields;
   var sortOrder = userFieldsRes.sortOrder;
-  var index = findBestMatchingIndex(selector, userFields, sortOrder, indexes);
+  var index = findBestMatchingIndex(selector, userFields, sortOrder, indexes, request.use_index);
 
   var coreQueryPlan = getCoreQueryPlan(selector, index);
   var queryOpts = coreQueryPlan.queryOpts;
@@ -5433,15 +5516,27 @@ function doAllDocs(db, originalOpts) {
     opts.limit = 0;
   }
 
-  return db.allDocs(opts);
+  return db.allDocs(opts)
+  .then(function (res) {
+    // filter out any design docs that _all_docs might return
+    res.rows = res.rows.filter(function (row) {
+      return !/^_design\//.test(row.id);
+    });
+    return res;
+  });
 }
 
-function find$1(db, requestDef) {
+function find$1(db, requestDef, explain) {
   if (requestDef.selector) {
     requestDef.selector = massageSelector(requestDef.selector);
   }
+
   if (requestDef.sort) {
     requestDef.sort = massageSort(requestDef.sort);
+  }
+
+  if (requestDef.use_index) {
+    requestDef.use_index = massageUseIndex(requestDef.use_index);
   }
 
   validateFindRequest(requestDef);
@@ -5464,12 +5559,13 @@ function find$1(db, requestDef) {
     if ('startkey' in opts && 'endkey' in opts &&
         collate(opts.startkey, opts.endkey) > 0) {
       // can't possibly return any results, startkey > endkey
+      /* istanbul ignore next */
       return {docs: []};
     }
 
     var isDescending = requestDef.sort &&
       typeof requestDef.sort[0] !== 'string' &&
-      getValue$1(requestDef.sort[0]) === 'desc';
+      getValue(requestDef.sort[0]) === 'desc';
 
     if (isDescending) {
       // either all descending or all ascending
@@ -5487,13 +5583,17 @@ function find$1(db, requestDef) {
         opts.skip = requestDef.skip;
       }
     }
-    
-    return PouchPromise$1.resolve().then(function () {
+
+    if (explain) {
+      return Promise.resolve(queryPlan, opts);
+    }
+
+    return Promise.resolve().then(function () {
       if (indexToUse.name === '_all_docs') {
         return doAllDocs(db, opts);
       } else {
         var signature = indexToSignature(indexToUse);
-        return abstractMapper.query.call(db, signature, opts);
+        return abstractMapper$1(db).query.call(db, signature, opts);
       }
     }).then(function (res) {
       if (opts.inclusive_start === false) {
@@ -5511,7 +5611,7 @@ function find$1(db, requestDef) {
         docs: res.rows.map(function (row) {
           var doc = row.doc;
           if (requestDef.fields) {
-            return pick$2(doc, requestDef.fields);
+            return pick$1(doc, requestDef.fields);
           }
           return doc;
         })
@@ -5523,6 +5623,34 @@ function find$1(db, requestDef) {
 
       return resp;
     });
+  });
+}
+
+function explain$1(db, requestDef) {
+  return find$1(db, requestDef, true)
+  .then(function (queryPlan) {
+    return {
+      dbname: db.name,
+      index: queryPlan.index,
+      selector: requestDef.selector,
+      range: {
+        start_key: queryPlan.queryOpts.startkey,
+        end_key: queryPlan.queryOpts.endkey
+      },
+      opts: {
+        use_index: requestDef.use_index || [],
+        bookmark: "nil", //hardcoded to match CouchDB since its not supported,
+        limit: requestDef.limit,
+        skip: requestDef.skip,
+        sort: requestDef.sort || {},
+        fields: requestDef.fields,
+        conflicts: false, //hardcoded to match CouchDB since its not supported,
+        r: [49] // hardcoded to match CouchDB since its not support
+      },
+      limit: requestDef.limit,
+      skip: requestDef.skip || 0,
+      fields: requestDef.fields
+    };
   });
 }
 
@@ -5550,7 +5678,7 @@ function deleteIndex$1(db, index) {
   }
 
   return upsert(db, docId, deltaFun).then(function () {
-    return abstractMapper.viewCleanup.apply(db);
+    return abstractMapper$1(db).viewCleanup.apply(db);
   }).then(function () {
     return {ok: true};
   });
@@ -5558,6 +5686,7 @@ function deleteIndex$1(db, index) {
 
 var createIndexAsCallback = callbackify(createIndex$1);
 var findAsCallback = callbackify(find$1);
+var explainAsCallback = callbackify(explain$1);
 var getIndexesAsCallback = callbackify(getIndexes$1);
 var deleteIndexAsCallback = callbackify(deleteIndex$1);
 
@@ -5588,6 +5717,21 @@ plugin.find = toPromise(function (requestDef, callback) {
   find$$1(this, requestDef, callback);
 });
 
+plugin.explain = toPromise(function (requestDef, callback) {
+
+  if (typeof callback === 'undefined') {
+    callback = requestDef;
+    requestDef = undefined;
+  }
+
+  if (typeof requestDef !== 'object') {
+    return callback(new Error('you must provide search parameters to explain()'));
+  }
+
+  var find$$1 = isRemote(this) ? explain : explainAsCallback;
+  find$$1(this, requestDef, callback);
+});
+
 plugin.getIndexes = toPromise(function (callback) {
 
   var getIndexes$$1 = isRemote(this) ? getIndexes : getIndexesAsCallback;
@@ -5607,8 +5751,6 @@ plugin.deleteIndex = toPromise(function (indexDef, callback) {
 
 /* global PouchDB */
 
-// this code only runs in the browser, as its own dist/ script
-
 if (typeof PouchDB === 'undefined') {
   guardedConsole('error', 'pouchdb-find plugin error: ' +
     'Cannot find global "PouchDB" object! ' +
@@ -5617,5 +5759,5 @@ if (typeof PouchDB === 'undefined') {
   PouchDB.plugin(plugin);
 }
 
-}).call(this,_dereq_(6))
-},{"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7}]},{},[8]);
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"1":1,"2":2,"3":3,"4":4,"5":5,"6":6}]},{},[11]);

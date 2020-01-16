@@ -299,6 +299,7 @@
             PricePSF: 12,
             complexName: 16,
             TotalFloorArea: 19,
+            StrataFee: 21,
             houseType: 22,
             lotSize: 23,
             PID: 24,
@@ -314,7 +315,29 @@
             postcode: 34,
             ListPrice: 35,
             SoldPrice: 39,
-            SoldPricePSF: 40
+            SoldPricePSF: 40,
+            YearBuilt: 48,
+            PropertyType: 54,
+            StrataFeePSF: 55,
+            TitleToLand: 58,
+            Units: 59,
+            Storeys: 60,
+            BylawRentalRestriction: 61,
+            FloodPlain: 74,
+            Zoning: 75,
+            BylawRestriction: 77,
+            Parking: 78,
+            ManagementCoName: 82,
+            ManagementCoPhone: 83,
+            BylawPetRestriction: 84,
+            BylawAgeRestriction: 85,
+            NeighborhoodCode: 86,
+            Region: 87,
+            Province: 88,
+            RainScreen: 89,
+            Construction: 90,
+            Amenities: 91,
+            SiteInfluences: 92
           };
           break;
         case "Tour and Open House":

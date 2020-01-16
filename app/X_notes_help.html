@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Project MLSHelper Notes and Helper</title>
+  </head>
+  <body>
+    <h1>MLSHelper Notes</h1>
+    <li>
+      <h3>JSON ONLINE Viewer</h3>
+      <p>copiable: https://codebeautify.org/jsonviewer</p>
+      <p>could not copy: http://jsonviewer.stack.hu/</p>
+
+    </li>
+
+    <tr class="ui-jqgrid-labels ui-sortable" role="rowheader">
+      <th id="grid_rn" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 25px; font-size: 12px; font-weight: bold; background: rgb(134, 155, 179); color: white; outline: none; text-align: center;">
+        <div id="jqgh_rn" style="margin: 0px;"><span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span><a
+            id="spreadsheetInfoTip" title="" style="cursor:pointer;text-align:center;color:white;" href="javascript:;"
+            tabindex="-1">
+            <div style="padding:4px;padding-top:2px;">?</div>
+          </a></div>
+      </th>
+      <th id="grid_cb" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 20px;">
+        <div id="jqgh_cb"><input role="checkbox" id="cb_grid" class="cbox" type="checkbox"><span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid__ID" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px; display: none;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr"
+          style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh__ID" class="ui-jqgrid-sortable">ID<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid__DisplayId" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px; display: none;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr"
+          style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh__DisplayId" class="ui-jqgrid-sortable">DisplayId<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_PictureCount__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 34px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_PictureCount__2" class="ui-jqgrid-sortable">PicCount<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_LISTING_PICTURES__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 75px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_LISTING_PICTURES__2" class="ui-jqgrid-sortable">Pics<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_INTEGRATION__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 247px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_INTEGRATION__2" class="ui-jqgrid-sortable">Action Icons<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_display_id__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_display_id__2" class="ui-jqgrid-sortable">ML #<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_StatusID__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" aria-selected="true"
+        style="width: 34px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_StatusID__2" class="ui-jqgrid-sortable">1) Status<span class="s-ico" style=""><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_Address__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 192px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_Address__2" class="ui-jqgrid-sortable">Address<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char10_5__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 98px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char10_5__2" class="ui-jqgrid-sortable">S/A<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_SystemPrice__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" aria-selected="true"
+        style="width: 78px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_SystemPrice__2" class="ui-jqgrid-sortable">3) Price<span class="s-ico" style=""><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_PRICE_PER_SQFT__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 47px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_PRICE_PER_SQFT__2" class="ui-jqgrid-sortable">PrcSqft<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_ListingDate__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_ListingDate__2" class="ui-jqgrid-sortable">List Date<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_F_DOM__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" aria-selected="true"
+        style="width: 34px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_F_DOM__2" class="ui-jqgrid-sortable">2) DOM<span class="s-ico" style=""><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_listings_cumulative_dom__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 34px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_listings_cumulative_dom__2" class="ui-jqgrid-sortable">CDOM<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char50_5__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 88px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char50_5__2" class="ui-jqgrid-sortable">Complex/Subdivision Name<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int1_4__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 34px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int1_4__2" class="ui-jqgrid-sortable">Tot BR<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int1_19__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 34px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int1_19__2" class="ui-jqgrid-sortable">Tot Baths<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_dec_5__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 35px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_dec_5__2" class="ui-jqgrid-sortable">FlArTotFin<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int2_3__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 34px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int2_3__2" class="ui-jqgrid-sortable">Age<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_dec_22__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 46px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_dec_22__2" class="ui-jqgrid-sortable">StratMtFee<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char10_11__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 34px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char10_11__2" class="ui-jqgrid-sortable">TypeDwel<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_dec_11__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 36px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_dec_11__2" class="ui-jqgrid-sortable">Lot Sz (Sq.Ft.)<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char100_1__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 66px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char100_1__2" class="ui-jqgrid-sortable">PID<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char25_14__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 76px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char25_14__2" class="ui-jqgrid-sortable">Room28Dim1<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char25_15__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 93px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char25_15__2" class="ui-jqgrid-sortable">Room28Dim2<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char25_12__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char25_12__2" class="ui-jqgrid-sortable">Room28Lev<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char25_13__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char25_13__2" class="ui-jqgrid-sortable">Room28Type<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char25_10__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 84px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char25_10__2" class="ui-jqgrid-sortable">Room27Dim1<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char25_11__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 132px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char25_11__2" class="ui-jqgrid-sortable">Room27Dim2<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char25_8__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 131px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char25_8__2" class="ui-jqgrid-sortable">Room27Lev<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_City__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_City__2" class="ui-jqgrid-sortable">City<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_Area__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_Area__2" class="ui-jqgrid-sortable">Area<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_Zip__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_Zip__2" class="ui-jqgrid-sortable">Postal Code<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_AskingPrice__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_AskingPrice__2" class="ui-jqgrid-sortable">List Price<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int4_40__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 35px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int4_40__2" class="ui-jqgrid-sortable">Prev Price<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_PriceDate__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 67px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_PriceDate__2" class="ui-jqgrid-sortable">Price Date<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_ClosingDate__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_ClosingDate__2" class="ui-jqgrid-sortable">Sold Date<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_SoldPrice__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_SoldPrice__2" class="ui-jqgrid-sortable">Sold Price<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_dec_24__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_dec_24__2" class="ui-jqgrid-sortable">SP Sqft<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_datetime_4__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_datetime_4__2" class="ui-jqgrid-sortable">Processed Date<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_InputDate__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_InputDate__2" class="ui-jqgrid-sortable">Entry Date<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_ExpirationDate__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 60px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_ExpirationDate__2" class="ui-jqgrid-sortable">Expiry Date<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_listings_cumulative_domls__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 50px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_listings_cumulative_domls__2" class="ui-jqgrid-sortable">CDOMLS<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_OffMarketDate__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 60px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_OffMarketDate__2" class="ui-jqgrid-sortable">Search Date<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_dec_25__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_dec_25__2" class="ui-jqgrid-sortable">SP/LP Ratio<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_dec_26__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_dec_26__2" class="ui-jqgrid-sortable">SP/OLP Ratio<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int2_2__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 50px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int2_2__2" class="ui-jqgrid-sortable">Yr Blt<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_dec_7__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_dec_7__2" class="ui-jqgrid-sortable">TotFlArea<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int1_8__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 50px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int1_8__2" class="ui-jqgrid-sortable">#Kitchens<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_dec_12__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_dec_12__2" class="ui-jqgrid-sortable">Lot Sz (Acres)<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_dec_8__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 60px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_dec_8__2" class="ui-jqgrid-sortable">Frontage - Feet<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char30_28__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 150px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char30_28__2" class="ui-jqgrid-sortable">Depth<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char1_36__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char1_36__2" class="ui-jqgrid-sortable">Prop Type<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char25_9__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char25_9__2" class="ui-jqgrid-sortable">Room27Type<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int2_6__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 50px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int2_6__2" class="ui-jqgrid-sortable">Parking Places - Covered<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_Remarks__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 250px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_Remarks__2" class="ui-jqgrid-sortable">Legal Description<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char10_12__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char10_12__2" class="ui-jqgrid-sortable">Title to Land<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int4_1__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 50px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int4_1__2" class="ui-jqgrid-sortable">Units in Development<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int2_8__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 50px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int2_8__2" class="ui-jqgrid-sortable">Stories in Building<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char30_5__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 50px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char30_5__2" class="ui-jqgrid-sortable"># or % of Rentals Allowed<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int2_7__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 67px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int2_7__2" class="ui-jqgrid-sortable">TotalPrkng<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char1_13__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 52px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char1_13__2" class="ui-jqgrid-sortable">Locker<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_ListOffice1_600__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_ListOffice1_600__2" class="ui-jqgrid-sortable">List Firm 1 Code - Office Name<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_ListAgent1_600__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_ListAgent1_600__2" class="ui-jqgrid-sortable">List Desig Agt 1 - Agent Name<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_ListOffice2_600__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_ListOffice2_600__2" class="ui-jqgrid-sortable">List Firm 2 Code - Office Name<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_ListAgent2_600__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_ListAgent2_600__2" class="ui-jqgrid-sortable">List Desig Agt 2 - Agent Name<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_SellingOffice1_600__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_SellingOffice1_600__2" class="ui-jqgrid-sortable">Selling Office 1 - Office Name<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_SellingAgent1_600__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_SellingAgent1_600__2" class="ui-jqgrid-sortable">Sell Sales Rep 1 - Agent Name<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_SellingOffice2_600__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_SellingOffice2_600__2" class="ui-jqgrid-sortable">Selling Office 2 - Office Name<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_SellingAgent2_600__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_SellingAgent2_600__2" class="ui-jqgrid-sortable">Sell Sales Rep 2 - Agent Name<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char100_7__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 150px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char100_7__2" class="ui-jqgrid-sortable">Owner Name<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char30_12__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 150px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char30_12__2" class="ui-jqgrid-sortable">Buyer<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char10_16__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char10_16__2" class="ui-jqgrid-sortable">Flood Plain<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char10_17__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 50px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char10_17__2" class="ui-jqgrid-sortable">Zoning<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_int4_2__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 50px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_int4_2__2" class="ui-jqgrid-sortable">Tot Units in Strata Plan<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_Features_58" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 215px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_Features_58" class="ui-jqgrid-sortable">Bylaw Restrictions<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_Features_44" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_Features_44" class="ui-jqgrid-sortable">Parking<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_AgentHitCount__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 50px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_AgentHitCount__2" class="ui-jqgrid-sortable">Agent Hit Count<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_ListAgent1_50__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_ListAgent1_50__2" class="ui-jqgrid-sortable">List Desig Agt 1 - E-mail<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_SellingAgent1_50__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_SellingAgent1_50__2" class="ui-jqgrid-sortable">Sell Sales Rep 1 - E-mail<span class="s-ico"
+            style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char30_2__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 150px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char30_2__2" class="ui-jqgrid-sortable">Mgmt. Co Name<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char25_27__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 84px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char25_27__2" class="ui-jqgrid-sortable">Mgmt. Co Phone#<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char30_4__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char30_4__2" class="ui-jqgrid-sortable"># of Pets<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char30_3__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char30_3__2" class="ui-jqgrid-sortable">Restricted Age<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char5_1__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 50px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char5_1__2" class="ui-jqgrid-sortable">Neighborhood Code<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char10_4__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char10_4__2" class="ui-jqgrid-sortable">Region<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_State__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;"><span
+          class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_State__2" class="ui-jqgrid-sortable">Province<span class="s-ico" style="display:none"><span sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char10_19__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char10_19__2" class="ui-jqgrid-sortable">Rain Screen<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_char30_3__2" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_char30_3__2" class="ui-jqgrid-sortable">Restricted Age<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_Features_41" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_Features_41" class="ui-jqgrid-sortable">Construction<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_Features_56" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_Features_56" class="ui-jqgrid-sortable">Amenities<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_Features_46" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr" style="width: 100px;">
+        <span class="ui-jqgrid-resize ui-jqgrid-resize-ltr" style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_Features_46" class="ui-jqgrid-sortable">Site Influences<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+      <th id="grid_row_highlight" role="columnheader" class="ui-state-default ui-th-column ui-th-ltr"
+        style="width: 100px; display: none;"><span class="ui-jqgrid-resize ui-jqgrid-resize-ltr"
+          style="cursor: col-resize;">&nbsp;</span>
+        <div id="jqgh_row_highlight" class="ui-jqgrid-sortable">row_highlight<span class="s-ico" style="display:none"><span
+              sort="asc"
+              class="ui-grid-ico-sort ui-icon-asc ui-state-disabled ui-icon ui-icon-triangle-1-n ui-sort-ltr"></span><span
+              sort="desc"
+              class="ui-grid-ico-sort ui-icon-desc ui-state-disabled ui-icon ui-icon-triangle-1-s ui-sort-ltr"></span></span>
+        </div>
+      </th>
+    </tr>
+  </body>
+</html>
