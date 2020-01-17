@@ -339,7 +339,8 @@
             RainScreen: 89,
             Construction: 90,
             Amenities: 91,
-            SiteInfluences: 92
+            SiteInfluences: 92,
+            MaintenanceFeeInclude: 93
           };
           break;
         case "Tour and Open House":
@@ -497,37 +498,96 @@
     },
 
     uniqueList: function(stringList) {
-      var lists = stringList.split(",").map(function(list) {
-        return list.trim();
-      });
+      var lists = stringList
+        .trim()
+        .split(",")
+        .map(function(list) {
+          return list.trim();
+        });
+      lists = _.compact(lists);
       lists = _.uniq(lists, false);
       lists = _.sortBy(lists);
 
       return lists.join(", ");
     },
 
-    formatComplexInfos: function(complexInfos) {
-      // var _ = require("underscore");
+    normalizeComplexInfos: function(complexInfos) {
       var uniqueComplexInfos = [];
+      //Group the complex by strataPlanID::
       var complexInfoGroups = _.groupBy(complexInfos, function(complexInfo) {
         return complexInfo.strataPlanID;
       });
       for (const complexInfoGroup in complexInfoGroups) {
-        //make every group contain one unique record
+        //merge records in the every group, make every group contain only one unique record
         var complexInfos = complexInfoGroups[complexInfoGroup];
-        uniqueComplexInfo = _.reduce(
+        var uniqueComplexInfo = _.reduce(
           complexInfos,
           function(cInfo, nInfo) {
             cInfo.units += ", " + nInfo.units;
+            cInfo.units = this.uniqueList(cInfo.units);
+
             cInfo.storeys += ", " + nInfo.storeys;
+            cInfo.storeys = this.uniqueList(cInfo.storeys);
+
+            cInfo.BylawAgeRestriction += ", " + nInfo.BylawAgeRestriction;
+            cInfo.BylawAgeRestriction = this.uniqueList(
+              cInfo.BylawAgeRestriction
+            );
+
+            cInfo.BylawPetRestriction += ", " + nInfo.BylawPetRestriction;
+            cInfo.BylawPetRestriction = this.uniqueList(
+              cInfo.BylawPetRestriction
+            );
+
+            cInfo.BylawRentalRestriction += ", " + nInfo.BylawRentalRestriction;
+            cInfo.BylawRentalRestriction = this.uniqueList(
+              cInfo.BylawRentalRestriction
+            );
+
             cInfo.BylawRestriction += ", " + nInfo.BylawRestriction;
+            cInfo.BylawRestriction = this.uniqueList(cInfo.BylawRestriction);
+
+            cInfo.Zoning += ", " + nInfo.Zoning;
+            cInfo.Zoning = this.uniqueList(cInfo.Zoning);
+
+            cInfo.Parking += ", " + nInfo.Parking;
+            cInfo.Parking = this.uniqueList(cInfo.Parking);
+
+            cInfo.ManagementCoName += ", " + nInfo.ManagementCoName;
+            cInfo.ManagementCoName = this.uniqueList(cInfo.ManagementCoName);
+
+            cInfo.ManagementCoPhone += ", " + nInfo.ManagementCoPhone;
+            cInfo.ManagementCoPhone = this.uniqueList(cInfo.ManagementCoPhone);
+
+            cInfo.RainScreen += ", " + nInfo.RainScreen;
+            cInfo.RainScreen = this.uniqueList(cInfo.RainScreen);
+
+            cInfo.Construction += ", " + nInfo.Construction;
+            cInfo.Construction = this.uniqueList(cInfo.Construction);
+
             cInfo.Amenities += ", " + nInfo.Amenities;
             cInfo.Amenities = this.uniqueList(cInfo.Amenities);
+
+            cInfo.StrataFeePSF += ", " + nInfo.StrataFeePSF;
+            cInfo.StrataFeePSF = this.uniqueList(cInfo.StrataFeePSF);
+
+            cInfo.MaintenanceFeeInclude += ", " + nInfo.MaintenanceFeeInclude;
+            cInfo.MaintenanceFeeInclude = this.uniqueList(
+              cInfo.MaintenanceFeeInclude
+            );
+
             return cInfo;
           }.bind(this)
         );
+        //save the normalized and unique complex record::
         uniqueComplexInfos.push(uniqueComplexInfo);
       }
+      uniqueComplexInfos = uniqueComplexInfos.map(function(complexInfo) {
+        for (complexProperty in complexInfo) {
+          complexInfo[complexProperty] = complexInfo[complexProperty].trim();
+        }
+        return complexInfo;
+      });
       return uniqueComplexInfos;
     }
   };

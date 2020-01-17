@@ -505,7 +505,7 @@ var computeSFPrices = {
 
   postComplexInfo: function() {
     //console.log(this.complexInfos);
-    var uniqueComplexInfos = $fx.formatComplexInfos(this.complexInfos);
+    var uniqueComplexInfos = $fx.normalizeComplexInfos(this.complexInfos);
     $.ajax({
       url:
         "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/dataComplexInfo.php",
@@ -856,7 +856,9 @@ var computeSFPrices = {
             Construction: fields[self.cols.Construction].textContent,
             Amenities: fields[self.cols.Amenities].textContent,
             SiteInfluences: fields[self.cols.SiteInfluences].textContent,
-            StrataFeePSF: fields[self.cols.StrataFeePSF].textContent
+            StrataFeePSF: fields[self.cols.StrataFeePSF].textContent,
+            MaintenanceFeeInclude:
+              fields[self.cols.MaintenanceFeeInclude].textContent
           };
           self.complexInfos.push(complexInfo);
         }
