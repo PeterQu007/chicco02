@@ -5,6 +5,7 @@
 //import Tabs from '../assets/scripts/modules/mlsTabs';
 import MainNavBar, { mainNavItem } from "../assets/scripts/modules/MainNavBar";
 import MainMenu from "../assets/scripts/modules/MainMenu";
+var _ = require("underscore");
 
 (function($) {
   $.fn.inlineStyle = function(prop) {
@@ -15,6 +16,7 @@ import MainMenu from "../assets/scripts/modules/MainMenu";
 let DefaultPage = {
   init: function() {
     // Define Debug
+
     var DEBUG = false;
     if (!DEBUG) {
       if (!window.console) window.console = {};
@@ -183,7 +185,11 @@ let DefaultPage = {
   post() {
     var title = this.mainNavBar.mainNavItems[1].Title;
     var id = this.mainNavBar.mainNavItems[1].tabID;
+    var array1 = [1, 2, 3, 4, 5, 6];
     console.log({ postTitle: title, postID: id });
+    console.log(_);
+    var subArray = _.max(array1);
+    console.log(subArray);
 
     // $.post('http://localhost/ChromeX/MLSHelper/app/test.php', {postTitle: title, postID: id}, function(data){
     //     console.log(data);

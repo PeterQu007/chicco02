@@ -504,12 +504,13 @@ var computeSFPrices = {
   },
 
   postComplexInfo: function() {
-    console.log(this.complexInfos);
+    //console.log(this.complexInfos);
+    var uniqueComplexInfos = $fx.formatComplexInfos(this.complexInfos);
     $.ajax({
       url:
         "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/dataComplexInfo.php",
       method: "post",
-      data: { complexInfos: this.complexInfos },
+      data: { complexInfos: uniqueComplexInfos },
       success: function(res) {
         console.log("ajax::", res);
         res = JSON.parse(res);
@@ -1075,83 +1076,3 @@ $(function() {
 //////////////////////////////////////////////////////////////////////////////
 //////////////                  Recycle Code            //////////////////////
 /////////////////////////////////////////////////////////////////////////////
-
-//console.log(col14, col22, col23, listPricePSF, col24, avgListedSFP, avgSoldSFP);
-//console.log("SpreadSheet Table is: ",self.table);
-////POPULATE THE SQUARE.FEET.PRICE SUMMARY BOX
-// self.uiTable.setHighListedSFP(
-//   Math.max(...col23_ListingPrice).toFixed(0)
-// );
-// self.uiTable.setSumValues(
-//   1,
-//   Math.max(...col23_ListingPrice).toFixed(0),
-//   "high"
-// );
-//self.uiTable.setHighSoldSFP(Math.max(...col24_SoldPrice).toFixed(0));
-// self.uiTable.setSumValues(
-//   2,
-//   Math.max(...col24_SoldPrice).toFixed(0),
-//   "high"
-// );
-
-// var listArray =
-//   col23_ListingPrice.length == 0
-//     ? col23_ListingPrice.push(0, 0)
-//     : col23_ListingPrice;
-// var sumValues = {
-//   high: Math.max(...col23_ListingPrice).toFixed(0),
-//   low: Math.min(...col23_ListingPrice).toFixed(0),
-//   ave: avgListedSFP,
-//   // med: math
-//   //   .chain(
-//   //     col23_ListingPrice.lenght == 0
-//   //       ? col23_ListingPrice.push(0)
-//   //       : col23_ListingPrice
-//   //   )
-//   //   .median()
-//   //   .round(0)
-//   //   .done(),
-//   med: $fx.median(listArray),
-//   total: 0
-// };
-// var sumValues = {
-//   high: Math.max(...col24_SoldPrice).toFixed(0),
-//   low: Math.min(...col24_SoldPrice).toFixed(0),
-//   ave: avgSoldSFP,
-//   // med: math
-//   //   .chain(
-//   //     col24_SoldPrice.length == 0
-//   //       ? col24_SoldPrice.push(0)
-//   //       : col24_SoldPrice
-//   //   )
-//   //   .median()
-//   //   .round(0)
-//   //   .done(),
-//   med: col24_SoldPrice.length == 0 ? 0 : $fx.median(col24_SoldPrice),
-//   total: 0
-// };
-//var soldArray = col24_SoldPrice
-// self.uiTable.setLowListedSFP(
-//   Math.min(...col23_ListingPrice).toFixed(0)
-// );
-// self.uiTable.setLowSoldSFP(Math.min(...col24_SoldPrice).toFixed(0));
-// self.uiTable.setAvgListedSFP(avgListedSFP);
-// self.uiTable.setAvgSoldSFP(avgSoldSFP);
-// self.uiTable.setMedianListedSFP(
-//   math
-//     .chain(col23_ListingPrice)
-//     .median()
-//     .round(0)
-//     .done()
-// );
-// if (col24_SoldPrice.length == 0) {
-//   col24_SoldPrice.push(0);
-// }
-// self.uiTable.setMedianSoldSFP(
-//   math
-//     .chain(col24_SoldPrice)
-//     .median()
-//     .round(0)
-//     .done()
-// );
-////START TO DO TAX.SEARCH

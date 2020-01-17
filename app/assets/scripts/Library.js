@@ -11,6 +11,8 @@
     Land: "Land"
   };
 
+  let _ = require("underscore");
+
   Library.prototype = {
     getDecimalNumber: function(strNum) {
       var result = 0,
@@ -492,6 +494,41 @@
     range: function(numbers) {
       numbers.sort();
       return [numbers[0], numbers[numbers.length - 1]];
+    },
+
+    uniqueList: function(stringList) {
+      var lists = stringList.split(",").map(function(list) {
+        return list.trim();
+      });
+      lists = _.uniq(lists, false);
+      lists = _.sortBy(lists);
+
+      return lists.join(", ");
+    },
+
+    formatComplexInfos: function(complexInfos) {
+      // var _ = require("underscore");
+      var uniqueComplexInfos = [];
+      var complexInfoGroups = _.groupBy(complexInfos, function(complexInfo) {
+        return complexInfo.strataPlanID;
+      });
+      for (const complexInfoGroup in complexInfoGroups) {
+        //make every group contain one unique record
+        var complexInfos = complexInfoGroups[complexInfoGroup];
+        uniqueComplexInfo = _.reduce(
+          complexInfos,
+          function(cInfo, nInfo) {
+            cInfo.units += ", " + nInfo.units;
+            cInfo.storeys += ", " + nInfo.storeys;
+            cInfo.BylawRestriction += ", " + nInfo.BylawRestriction;
+            cInfo.Amenities += ", " + nInfo.Amenities;
+            cInfo.Amenities = this.uniqueList(cInfo.Amenities);
+            return cInfo;
+          }.bind(this)
+        );
+        uniqueComplexInfos.push(uniqueComplexInfo);
+      }
+      return uniqueComplexInfos;
     }
   };
 
