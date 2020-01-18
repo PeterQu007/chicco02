@@ -176,37 +176,37 @@ var computeSFPrices = {
           var headerCells = $(tableHeaderRow[0]).children("th");
           for (var j = 0; j <= headerCells.length; j++) {
             switch (j) {
-              case self.cols.landValue:
+              case self.cols.LandValue:
                 $(headerCells[j])
                   .children("div")
                   .text("landValue");
                 break;
-              case self.cols.improvementValue:
+              case self.cols.ImprovementValue:
                 $(headerCells[j])
                   .children("div")
                   .text("imprvValue");
                 break;
-              case self.cols.totalValue:
+              case self.cols.TotalValue:
                 $(headerCells[j])
                   .children("div")
                   .text("totalValue");
                 break;
-              case self.cols.changeValuePercent:
+              case self.cols.ChangeValuePercent:
                 $(headerCells[j])
                   .children("div")
                   .text("change%");
                 break;
-              case self.cols.strataPlan:
+              case self.cols.StrataPlan:
                 $(headerCells[j])
                   .children("div")
                   .text("strataPlan");
                 break;
-              case self.cols.streetAddress:
+              case self.cols.StreetAddress:
                 $(headerCells[j])
                   .children("div")
                   .text("streetAddress");
                 break;
-              case self.cols.unitNo:
+              case self.cols.UnitNo:
                 $(headerCells[j])
                   .children("div")
                   .text("Unit#");
@@ -220,7 +220,7 @@ var computeSFPrices = {
           }
           for (i = 1; i < rows.length; i++) {
             row.push(i); ////COL 0: ROW.NO
-            status = $(rows[i]).children("td")[self.cols.status].textContent;
+            status = $(rows[i]).children("td")[self.cols.Status].textContent;
             var price = $fx.convertStringToDecimal(
               $(rows[i]).children("td")[self.cols.Price].textContent
             );
@@ -233,11 +233,11 @@ var computeSFPrices = {
             row.push(floorArea); ////COL 2: FLOOR.AREA
             if (self.tabTitle == "Residential Attached") {
               var lotSize = $fx.convertStringToDecimal(
-                $(rows[i]).children("td")[self.cols.lotSize].textContent
+                $(rows[i]).children("td")[self.cols.LotSize].textContent
               );
             } else {
               var lotSize = $fx.convertStringToDecimal(
-                $(rows[i]).children("td")[self.cols.lotSize].textContent
+                $(rows[i]).children("td")[self.cols.LotSize].textContent
               );
             }
             col_LotSize.push(lotSize);
@@ -279,13 +279,13 @@ var computeSFPrices = {
             ////LOOK FOR PID FOR TAX.SEARCH
             //self.recordPointer = i-1;
             var pid = $(rows[i]).children("td")[self.cols.PID].textContent;
-            var complexName = $(rows[i]).children("td")[self.cols.complexName]
+            var complexName = $(rows[i]).children("td")[self.cols.ComplexName]
               .textContent;
-            var address = $(rows[i]).children("td")[self.cols.address]
+            var address = $(rows[i]).children("td")[self.cols.Address]
               .textContent;
-            var houseType = $(rows[i]).children("td")[self.cols.houseType]
+            var houseType = $(rows[i]).children("td")[self.cols.HouseType]
               .textContent;
-            var streetAddress = $(rows[i]).children("td")[self.cols.address]
+            var streetAddress = $(rows[i]).children("td")[self.cols.Address]
               .textContent;
             var unitNo = "";
             var city = "";
@@ -310,7 +310,7 @@ var computeSFPrices = {
             row.push(""); //col 16: placeholder for complexID
             row.push(streetAddress); ////COL 17: STREET ADDRESS
             row.push(unitNo); ////  COL 18: UNIT NO FOR STRATA UNIT
-            city = $(rows[i]).children("td")[self.cols.city].textContent;
+            city = $(rows[i]).children("td")[self.cols.City].textContent;
             row.push(city); //// COL 19: CITY OF GREAT VANCOUVER
             row.push(status); ////COL 20: LISTING STATUS
             var strataFee = $(rows[i]).children("td")[self.cols.StrataFee]
@@ -346,7 +346,7 @@ var computeSFPrices = {
             if (!$fx.inGreatVanArea(self.table[i][19])) {
               ////IF IS NOT GREAT VAN CITIES, PASSED TAX SEARCH
               console.log("[SP]==>BYPASS THE NON GV CITIES!", i);
-              $(rows[i + 1]).children("td")[self.cols.address].textContent +=
+              $(rows[i + 1]).children("td")[self.cols.Address].textContent +=
                 "^";
               self.table[i][10] = true;
               self.table[i][15] = true;
@@ -627,7 +627,7 @@ var computeSFPrices = {
         var x = $("table#grid tbody");
         var rows = x.children("tr");
         var rowNo = self.rowNumber[self.rowNumber.length - 1];
-        $($(rows[rowNo]).children("td")[self.cols.address]).text(
+        $($(rows[rowNo]).children("td")[self.cols.Address]).text(
           self.table[rowNo - 1][13] + "**"
         );
       }
@@ -712,7 +712,7 @@ var computeSFPrices = {
         var x = $("table#grid tbody");
         var rows = x.children("tr");
         var rowNo = self.rowNumber[self.rowNumber.length - 1];
-        $($(rows[rowNo]).children("td")[self.cols.address]).text(
+        $($(rows[rowNo]).children("td")[self.cols.Address]).text(
           self.table[rowNo - 1][13] + "^"
         );
       }
@@ -770,7 +770,7 @@ var computeSFPrices = {
           planNum = self.table[i][9];
           address = self.table[i][13];
           complexName = $fx.normalizeComplexName(self.table[i][12]);
-          $($(rows[i + 1]).children("td")[self.cols.complexName]).text(
+          $($(rows[i + 1]).children("td")[self.cols.ComplexName]).text(
             "**" + self.table[i][12]
           );
 
@@ -814,29 +814,28 @@ var computeSFPrices = {
         for (var j = 1; j <= self.table.length; j++) {
           let fields = $(rows[j]).children("td");
           let strataPlanID =
-            fields[self.cols.strataPlan].textContent.trim() +
+            fields[self.cols.StrataPlan].textContent.trim() +
             " " +
-            fields[self.cols.streetAddress].textContent.trim();
+            fields[self.cols.StreetAddress].textContent.trim();
           strataPlanID = strataPlanID
             .trim()
             .split(" ")
             .join("-");
           complexInfo = {
-            complexName: fields[self.cols.complexName].textContent,
-            address: fields[self.cols.streetAddress].textContent,
-            city: fields[self.cols.city].textContent,
-            postcode: fields[self.cols.postcode].textContent,
-            Province: "BC",
-            DwellingType: fields[self.cols.houseType].textContent,
-            strataPlan: fields[self.cols.strataPlan].textContent,
-            strataPlanID: strataPlanID,
-            neighborhood: fields[self.cols.neighborhood].textContent,
-            cityDistrict: fields[self.cols.subArea].textContent,
+            ComplexName: fields[self.cols.ComplexName].textContent,
+            Address: fields[self.cols.StreetAddress].textContent,
+            City: fields[self.cols.City].textContent,
+            Postcode: fields[self.cols.Postcode].textContent,
+            DwellingType: fields[self.cols.HouseType].textContent,
+            StrataPlan: fields[self.cols.StrataPlan].textContent,
+            StrataPlanID: strataPlanID,
+            Neighborhood: fields[self.cols.Neighborhood].textContent,
+            CityDistrict: fields[self.cols.SubArea].textContent,
             YearBuilt: fields[self.cols.YearBuilt].textContent,
             PropertyType: fields[self.cols.PropertyType].textContent,
-            titleToLand: fields[self.cols.TitleToLand].textContent,
-            units: fields[self.cols.Units].textContent,
-            storeys: fields[self.cols.Storeys].textContent,
+            TitleToLand: fields[self.cols.TitleToLand].textContent,
+            Units: fields[self.cols.Units].textContent,
+            Storeys: fields[self.cols.Storeys].textContent,
             BylawRentalRestriction:
               fields[self.cols.BylawRentalRestriction].textContent,
             FloodPlain: fields[self.cols.FloodPlain].textContent,
@@ -858,7 +857,8 @@ var computeSFPrices = {
             SiteInfluences: fields[self.cols.SiteInfluences].textContent,
             StrataFeePSF: fields[self.cols.StrataFeePSF].textContent,
             MaintenanceFeeInclude:
-              fields[self.cols.MaintenanceFeeInclude].textContent
+              fields[self.cols.MaintenanceFeeInclude].textContent,
+            AddedDate: $fx.formatDate_Y_m_d(new Date())
           };
           self.complexInfos.push(complexInfo);
         }
@@ -912,16 +912,16 @@ var computeSFPrices = {
       var t = $fx.convertStringToDecimal(self.table[j - 1][7]);
       const status = self.table[j - 1][20];
       if (t > 0) {
-        $($(rows[j]).children("td")[self.cols.landValue]).text(
+        $($(rows[j]).children("td")[self.cols.LandValue]).text(
           $fx.removeDecimalFraction(self.table[j - 1][5])
         );
-        $($(rows[j]).children("td")[self.cols.improvementValue]).text(
+        $($(rows[j]).children("td")[self.cols.ImprovementValue]).text(
           $fx.removeDecimalFraction(self.table[j - 1][6])
         );
-        $($(rows[j]).children("td")[self.cols.totalValue]).text(
+        $($(rows[j]).children("td")[self.cols.TotalValue]).text(
           $fx.removeDecimalFraction(self.table[j - 1][7])
         );
-        $($(rows[j]).children("td")[self.cols.changeValuePercent]).text(
+        $($(rows[j]).children("td")[self.cols.ChangeValuePercent]).text(
           self.table[j - 1][8] + "%"
         );
 
@@ -943,10 +943,10 @@ var computeSFPrices = {
         }
       } else {
         ////IF TOTAL.VALUE == 0, THEN DO NOT SHOW ANY NUMBER
-        $($(rows[j]).children("td")[self.cols.landValue]).text("");
-        $($(rows[j]).children("td")[self.cols.improvementValue]).text("");
-        $($(rows[j]).children("td")[self.cols.totalValue]).text("");
-        $($(rows[j]).children("td")[self.cols.changeValuePercent]).text("");
+        $($(rows[j]).children("td")[self.cols.LandValue]).text("");
+        $($(rows[j]).children("td")[self.cols.ImprovementValue]).text("");
+        $($(rows[j]).children("td")[self.cols.TotalValue]).text("");
+        $($(rows[j]).children("td")[self.cols.ChangeValuePercent]).text("");
         switch (status) {
           case "A":
             // assessActive.push(null);
@@ -961,14 +961,14 @@ var computeSFPrices = {
         }
       }
 
-      $($(rows[j]).children("td")[self.cols.strataPlan]).text(
+      $($(rows[j]).children("td")[self.cols.StrataPlan]).text(
         self.table[j - 1][9]
       ); //Show Plan Num in the table
-      $($(rows[j]).children("td")[self.cols.address]).text("");
+      $($(rows[j]).children("td")[self.cols.Address]).text("");
       addressText = self.table[j - 1][13];
       aInfo = new addressInfo(
         addressText,
-        $($(rows[j]).children("td")[self.cols.houseType]).text(),
+        $($(rows[j]).children("td")[self.cols.HouseType]).text(),
         true
       );
       var addressLink = $(
@@ -978,15 +978,15 @@ var computeSFPrices = {
       );
       addressLink.attr("href", aInfo.googleSearchLink);
       addressLink.text(aInfo.formalAddress);
-      addressLink.appendTo($($(rows[j]).children("td")[self.cols.address])); ////ADD A GOOGLE ADDRESS SEARCH ANCHOR
-      $($(rows[j]).children("td")[self.cols.streetAddress]).text(
+      addressLink.appendTo($($(rows[j]).children("td")[self.cols.Address])); ////ADD A GOOGLE ADDRESS SEARCH ANCHOR
+      $($(rows[j]).children("td")[self.cols.StreetAddress]).text(
         self.table[j - 1][17]
       ); ////SHOW THE STREET ADDRESS WITHOUT UNIT#
-      $($(rows[j]).children("td")[self.cols.unitNo]).text(
+      $($(rows[j]).children("td")[self.cols.UnitNo]).text(
         "#" + self.table[j - 1][18]
       ); ////SHOW THE UNIT NO SEPARATELY
       if (self.table[j - 1][12].trim()) {
-        $($(rows[j]).children("td")[self.cols.complexName]).text(
+        $($(rows[j]).children("td")[self.cols.ComplexName]).text(
           self.table[j - 1][12]
         ); ////SHOW NORMALIZED COMPLEX NAME
       }

@@ -189,6 +189,18 @@
       return this;
     },
 
+    formatDate_Y_m_d: function(date) {
+      var d = new Date(date),
+        month = "" + (d.getMonth() + 1),
+        day = "" + d.getDate(),
+        year = d.getFullYear();
+
+      if (month.length < 2) month = "0" + month;
+      if (day.length < 2) day = "0" + day;
+
+      return [year, month, day].join("-");
+    },
+
     getCurrentTab: function(curTabID) {
       chrome.storage.sync.set({ curTabID: curTabID });
       chrome.runtime.sendMessage(
@@ -294,27 +306,27 @@
         case "Quick Search":
           cols = {
             RecordNo: 0, //index 0
-            status: 8,
-            address: 9,
-            neighborhood: 10,
+            Status: 8,
+            Address: 9,
+            Neighborhood: 10,
             Price: 11,
             PricePSF: 12,
-            complexName: 16,
+            ComplexName: 16,
             TotalFloorArea: 19,
             StrataFee: 21,
-            houseType: 22,
-            lotSize: 23,
+            HouseType: 22,
+            LotSize: 23,
             PID: 24,
-            landValue: 25,
-            improvementValue: 26,
-            totalValue: 27,
-            changeValuePercent: 28,
-            strataPlan: 29,
-            streetAddress: 30,
-            unitNo: 31,
-            city: 32,
-            subArea: 33,
-            postcode: 34,
+            LandValue: 25,
+            ImprovementValue: 26,
+            TotalValue: 27,
+            ChangeValuePercent: 28,
+            StrataPlan: 29,
+            StreetAddress: 30,
+            UnitNo: 31,
+            City: 32,
+            SubArea: 33,
+            Postcode: 34,
             ListPrice: 35,
             SoldPrice: 39,
             SoldPricePSF: 40,
@@ -497,7 +509,7 @@
       return [numbers[0], numbers[numbers.length - 1]];
     },
 
-    uniqueList: function(stringList) {
+    uniqueJsonStringList: function(stringList) {
       var lists = stringList
         .trim()
         .split(",")
@@ -507,15 +519,16 @@
       lists = _.compact(lists);
       lists = _.uniq(lists, false);
       lists = _.sortBy(lists);
-
-      return lists.join(", ");
+      // lists = list.join(", ");
+      lists = JSON.stringify(lists);
+      return lists;
     },
 
     normalizeComplexInfos: function(complexInfos) {
       var uniqueComplexInfos = [];
       //Group the complex by strataPlanID::
       var complexInfoGroups = _.groupBy(complexInfos, function(complexInfo) {
-        return complexInfo.strataPlanID;
+        return complexInfo.StrataPlanID;
       });
       for (const complexInfoGroup in complexInfoGroups) {
         //merge records in the every group, make every group contain only one unique record
@@ -523,61 +536,69 @@
         var uniqueComplexInfo = _.reduce(
           complexInfos,
           function(cInfo, nInfo) {
-            cInfo.units += ", " + nInfo.units;
-            cInfo.units = this.uniqueList(cInfo.units);
-
-            cInfo.storeys += ", " + nInfo.storeys;
-            cInfo.storeys = this.uniqueList(cInfo.storeys);
-
+            cInfo.Units += ", " + nInfo.Units;
+            cInfo.Storeys += ", " + nInfo.Storeys;
             cInfo.BylawAgeRestriction += ", " + nInfo.BylawAgeRestriction;
-            cInfo.BylawAgeRestriction = this.uniqueList(
-              cInfo.BylawAgeRestriction
-            );
-
             cInfo.BylawPetRestriction += ", " + nInfo.BylawPetRestriction;
-            cInfo.BylawPetRestriction = this.uniqueList(
-              cInfo.BylawPetRestriction
-            );
-
             cInfo.BylawRentalRestriction += ", " + nInfo.BylawRentalRestriction;
-            cInfo.BylawRentalRestriction = this.uniqueList(
-              cInfo.BylawRentalRestriction
-            );
-
             cInfo.BylawRestriction += ", " + nInfo.BylawRestriction;
-            cInfo.BylawRestriction = this.uniqueList(cInfo.BylawRestriction);
-
             cInfo.Zoning += ", " + nInfo.Zoning;
-            cInfo.Zoning = this.uniqueList(cInfo.Zoning);
-
             cInfo.Parking += ", " + nInfo.Parking;
-            cInfo.Parking = this.uniqueList(cInfo.Parking);
-
             cInfo.ManagementCoName += ", " + nInfo.ManagementCoName;
-            cInfo.ManagementCoName = this.uniqueList(cInfo.ManagementCoName);
-
             cInfo.ManagementCoPhone += ", " + nInfo.ManagementCoPhone;
-            cInfo.ManagementCoPhone = this.uniqueList(cInfo.ManagementCoPhone);
-
             cInfo.RainScreen += ", " + nInfo.RainScreen;
-            cInfo.RainScreen = this.uniqueList(cInfo.RainScreen);
-
             cInfo.Construction += ", " + nInfo.Construction;
-            cInfo.Construction = this.uniqueList(cInfo.Construction);
-
             cInfo.Amenities += ", " + nInfo.Amenities;
-            cInfo.Amenities = this.uniqueList(cInfo.Amenities);
-
             cInfo.StrataFeePSF += ", " + nInfo.StrataFeePSF;
-            cInfo.StrataFeePSF = this.uniqueList(cInfo.StrataFeePSF);
-
             cInfo.MaintenanceFeeInclude += ", " + nInfo.MaintenanceFeeInclude;
-            cInfo.MaintenanceFeeInclude = this.uniqueList(
-              cInfo.MaintenanceFeeInclude
-            );
-
             return cInfo;
           }.bind(this)
+        );
+
+        uniqueComplexInfo.Units = this.uniqueJsonStringList(
+          uniqueComplexInfo.Units
+        );
+        uniqueComplexInfo.Storeys = this.uniqueJsonStringList(
+          uniqueComplexInfo.Storeys
+        );
+        uniqueComplexInfo.BylawAgeRestriction = this.uniqueJsonStringList(
+          uniqueComplexInfo.BylawAgeRestriction
+        );
+        uniqueComplexInfo.BylawPetRestriction = this.uniqueJsonStringList(
+          uniqueComplexInfo.BylawPetRestriction
+        );
+        uniqueComplexInfo.BylawRentalRestriction = this.uniqueJsonStringList(
+          uniqueComplexInfo.BylawRentalRestriction
+        );
+        uniqueComplexInfo.BylawRestriction = this.uniqueJsonStringList(
+          uniqueComplexInfo.BylawRestriction
+        );
+        uniqueComplexInfo.Zoning = this.uniqueJsonStringList(
+          uniqueComplexInfo.Zoning
+        );
+        uniqueComplexInfo.Parking = this.uniqueJsonStringList(
+          uniqueComplexInfo.Parking
+        );
+        uniqueComplexInfo.ManagementCoName = this.uniqueJsonStringList(
+          uniqueComplexInfo.ManagementCoName
+        );
+        uniqueComplexInfo.ManagementCoPhone = this.uniqueJsonStringList(
+          uniqueComplexInfo.ManagementCoPhone
+        );
+        uniqueComplexInfo.RainScreen = this.uniqueJsonStringList(
+          uniqueComplexInfo.RainScreen
+        );
+        uniqueComplexInfo.Construction = this.uniqueJsonStringList(
+          uniqueComplexInfo.Construction
+        );
+        uniqueComplexInfo.Amenities = this.uniqueJsonStringList(
+          uniqueComplexInfo.Amenities
+        );
+        uniqueComplexInfo.StrataFeePSF = this.uniqueJsonStringList(
+          uniqueComplexInfo.StrataFeePSF
+        );
+        uniqueComplexInfo.MaintenanceFeeInclude = this.uniqueJsonStringList(
+          uniqueComplexInfo.MaintenanceFeeInclude
         );
         //save the normalized and unique complex record::
         uniqueComplexInfos.push(uniqueComplexInfo);
