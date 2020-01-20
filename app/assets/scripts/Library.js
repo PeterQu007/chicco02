@@ -514,12 +514,40 @@
         .trim()
         .split(",")
         .map(function(list) {
-          return list.trim();
+          return list.trim().toUpperCase();
         });
       lists = _.compact(lists);
       lists = _.uniq(lists, false);
       lists = _.sortBy(lists);
       // lists = list.join(", ");
+      lists = JSON.stringify(lists);
+      return lists;
+    },
+
+    uniqueJsonStringList_ManagementCo: function(stringList) {
+      var lists = stringList
+        .trim()
+        .split(",")
+        .map(function(list) {
+          return list.trim().toUpperCase();
+        });
+      lists = _.compact(lists);
+      lists = _.uniq(lists, false);
+      lists = _.sortBy(lists, function(list) {
+        return list.length;
+      });
+      if (lists.length >= 3) {
+        lists = lists.map(list => {
+          return list
+            .trim()
+            .split(" ")
+            .slice(0, 2)
+            .join(" ");
+        });
+        lists = _.compact(lists);
+        lists = _.uniq(lists, false);
+      }
+      lists = _.sortBy(lists);
       lists = JSON.stringify(lists);
       return lists;
     },
@@ -579,7 +607,7 @@
         uniqueComplexInfo.Parking = this.uniqueJsonStringList(
           uniqueComplexInfo.Parking
         );
-        uniqueComplexInfo.ManagementCoName = this.uniqueJsonStringList(
+        uniqueComplexInfo.ManagementCoName = this.uniqueJsonStringList_ManagementCo(
           uniqueComplexInfo.ManagementCoName
         );
         uniqueComplexInfo.ManagementCoPhone = this.uniqueJsonStringList(
