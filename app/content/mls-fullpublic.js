@@ -115,8 +115,8 @@ var fullpublic = {
 
 		var PID = this.pid.text();
 		if (!PID) { return; };
-		chrome.storage.sync.set({ 'PID': PID });
-		chrome.storage.sync.get('PID', function (result) {
+		chrome.storage.local.set({ 'PID': PID });
+		chrome.storage.local.get('PID', function (result) {
 			console.log(result.PID);
 			chrome.runtime.sendMessage(
 				{ from: 'ListingReport', todo: 'taxSearch' },
@@ -190,7 +190,7 @@ var fullpublic = {
 
 			chrome.storage.onChanged.addListener(function (changes, area) {
 
-				if (area == "sync" && "from" in changes) {
+				if (area == "local" && "from" in changes) {
 
 					if (changes.from.newValue.indexOf('assess') > -1) {
 						self.updateAssess();
@@ -203,7 +203,7 @@ var fullpublic = {
 
 				};
 
-				if (area == "sync" && "curTabID" in changes) {
+				if (area == "local" && "curTabID" in changes) {
 
 					if (changes.curTabID.newValue) {
 
@@ -243,7 +243,7 @@ var fullpublic = {
 		var listPrice = $fx.convertStringToDecimal(self.lp.text());
 		var soldPrice = $fx.convertStringToDecimal(self.sp.text());
 
-		chrome.storage.sync.get(['totalValue', 'improvementValue', 'landValue', 'lotSize'], function (result) {
+		chrome.storage.local.get(['totalValue', 'improvementValue', 'landValue', 'lotSize'], function (result) {
 			var totalValue = result.totalValue;
 			var improvementValue = result.improvementValue;
 			var landValue = result.landValue;
@@ -273,7 +273,7 @@ var fullpublic = {
 	updateComplexInfo: function () {
 		var self = this;
 		console.log('update Complex info:');
-		chrome.storage.sync.get(['complexName', 'count'], function (result) {
+		chrome.storage.local.get(['complexName', 'count'], function (result) {
 			self.complex.text(result.complexName + '[ ' + result.count.toString() + ' ]');
 		})
 	},

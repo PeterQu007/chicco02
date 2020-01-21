@@ -76,7 +76,7 @@ export default class MainNavBar {
             if(self.enableOnAddNewNavItem && $tabContent.parent().attr('id')=='app_tab_switcher') {
                 self.$subContentPanels.push(this);
             }
-            // chrome.storage.sync.get('showTabQuickSearch',function(result){
+            // chrome.storage.local.get('showTabQuickSearch',function(result){
             //     //console.log('Class.TopTabs.onAddNewTabContent::get showTabQuickSearch:', result.showTabQuickSearch);
             //     self.mainNavItems.forEach(function(mainNavItem){
             //         //console.log('tabInfo.tabTitle:', tabInfo.tabTitle)
@@ -282,7 +282,7 @@ export class mainNavItem {
         $contents.attr("style", "display: none!important"); //hide all sub panles
         self.$tabContent.removeAttr("style","display: none!important"); //show this tab content
         self.$tabContent.attr("style","display: block!important"); //lock this tab content
-        chrome.storage.sync.set({curTabID: this.tabID});
+        chrome.storage.local.set({curTabID: this.tabID});
         self.locked = true;
     }
 

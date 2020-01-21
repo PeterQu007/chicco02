@@ -184,7 +184,7 @@
     },
 
     setHouseType: function(houseType) {
-      chrome.storage.sync.set({ houseType: houseType });
+      chrome.storage.local.set({ houseType: houseType });
       //console.log('current House Type is: ', houseType);
       return this;
     },
@@ -202,7 +202,7 @@
     },
 
     getCurrentTab: function(curTabID) {
-      chrome.storage.sync.set({ curTabID: curTabID });
+      chrome.storage.local.set({ curTabID: curTabID });
       chrome.runtime.sendMessage(
         { todo: "readCurTabID", from: "mls-fullrealtor" },
         function(response) {

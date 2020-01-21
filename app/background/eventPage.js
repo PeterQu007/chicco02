@@ -12,6 +12,7 @@ var taxYear = d.getFullYear();
 taxYear = newTaxYear ? taxYear : taxYear - 1;
 var complexInfoSearchResult = null;
 var chromeTabID;
+var $today = d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
 
 console.clear();
 
@@ -23,7 +24,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
 (function() {
   //console.log("Hello!-1");
 
-  chrome.storage.sync.set({
+  chrome.storage.local.set({
     landValue: 0,
     improvementValue: 0,
     totalValue: 0,
@@ -108,7 +109,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
       //get request to search tax info of Property with PID saved to storage
       //console.log(">>>I got tax search command!");
       try {
-        chrome.storage.sync.get("PID", function(result) {
+        chrome.storage.local.get("PID", function(result) {
           //check database, if assess exist, send it back
           //console.log(">>>PID is: ", result.PID);
           var taxID = result.PID + "-" + taxYear;
@@ -119,20 +120,6 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
               //other wise , send out tax research command:
               try {
                 console.info("Chrome Tab ID is: ", chromeTabID);
-                // chrome.tabs.query(
-                //   { active: true, currentWindow: true },
-                //   function(tabs) {
-                //     let chromeTabId ;
-                //     if(tabs.length !=0){chromeTabID = tabs[0].id};
-                //     try {
-                //       chrome.tabs.sendMessage(chromeTabID, {
-                //         todo: "taxSearchFor" + requester
-                //       });
-                //     } catch (err) {
-                //       console.error("taxSearch Errors in Background: ", err);
-                //     }
-                //   }
-                // );
                 chrome.tabs.query(
                   { active: true, currentWindow: true },
                   function(tabs) {
@@ -149,8 +136,8 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
                       ) {
                         assess.from = assess.from + "-taxSearchFor" + requester;
                       }
-                      assess.from += "-taxSearchFailed";
-                      chrome.storage.sync.set(assess);
+                      assess.from += "-TaxSearchFailed";
+                      chrome.storage.local.set(assess);
                     }
                   }
                 );
@@ -158,10 +145,46 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
                 console.error("taxSearch Errors: ", err);
               }
             } else {
-              if (String(assess.from).indexOf("taxSearchFor" + requester) < 0) {
+              if (String(assess.bcaSearch).indexOf("failed") > -1) {
+                if (String(assess.addedDate).indexOf($today) > -1) {
+                  assess.from =
+                    assess.from + "-TaxSearchFailed-taxSearchFor" + requester;
+                } else {
+                  //Re-Search the tax Data EveryDay
+                  try {
+                    console.info("Chrome Tab ID is: ", chromeTabID);
+                    chrome.tabs.query(
+                      { active: true, currentWindow: true },
+                      function(tabs) {
+                        console.warn("taxSearch get chrome tabs:", tabs);
+                        if (tabs.length > 0) {
+                          chrome.tabs.sendMessage(tabs[0].id, {
+                            todo: "taxSearchFor" + requester
+                          });
+                        } else {
+                          if (
+                            String(assess.from).indexOf(
+                              "taxSearchFor" + requester
+                            ) < 0
+                          ) {
+                            assess.from =
+                              assess.from + "-taxSearchFor" + requester;
+                          }
+                          assess.from += "-TaxSearchFailed";
+                          chrome.storage.local.set(assess);
+                        }
+                      }
+                    );
+                  } catch (err) {
+                    console.error("taxSearch Errors: ", err);
+                  }
+                }
+              } else if (
+                String(assess.from).indexOf("taxSearchFor" + requester) < 0
+              ) {
                 assess.from = assess.from + "-taxSearchFor" + requester;
               }
-              chrome.storage.sync.set(assess);
+              chrome.storage.local.set(assess);
             }
           });
         });
@@ -175,7 +198,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
       //get request to search tax info of Property with PID saved to storage
       //console.log(">>>I got search StrataPlanSummary command!");
 
-      chrome.storage.sync.get(
+      chrome.storage.local.get(
         ["strataPlan", "complexNameForListingCount"],
         function(result) {
           //check database, if assess exist, send it back
@@ -228,7 +251,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
             cInfo.complexName = "::";
           }
 
-          chrome.storage.sync.set(cInfo, function() {
+          chrome.storage.local.set(cInfo, function() {
             console.log("complexInfo is: ", cInfo);
           });
         } else {
@@ -261,7 +284,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
             cInfo.exposureName = "";
           }
 
-          chrome.storage.sync.set(cInfo, function() {
+          chrome.storage.local.set(cInfo, function() {
             console.log("exposureInfo is: ", cInfo);
           });
         } else {
@@ -296,7 +319,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
             cInfo.listingName = "";
           }
 
-          chrome.storage.sync.set(cInfo, function() {
+          chrome.storage.local.set(cInfo, function() {
             console.log("listingInfo is: ", cInfo);
           });
         } else {
@@ -331,7 +354,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
             cInfo.name = "";
           }
 
-          chrome.storage.sync.set(cInfo, function() {
+          chrome.storage.local.set(cInfo, function() {
             console.log("showingInfo is: ", cInfo);
           });
         } else {
@@ -418,7 +441,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
           function(response) {
             result = response;
             console.log("getTabTitle response:", response);
-            chrome.storage.sync.set({
+            chrome.storage.local.set({
               getTabID: result.tabID,
               getTabTitle: result.tabTitle,
               todo: "getTabTitle" + Math.random().toFixed(8),
@@ -443,7 +466,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
           function(response) {
             result = response;
             console.log("addLock response:", response);
-            // chrome.storage.sync.set(
+            // chrome.storage.local.set(
             // 	{getTabID:result.tabID,
             // 	getTabTitle:result.tabTitle,
             // 	todo: 'getTabTitle'+Math.random().toFixed(8),

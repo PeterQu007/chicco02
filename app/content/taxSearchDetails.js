@@ -45,7 +45,7 @@ let taxDetails = {
 
   init: function() {
     let self = this;
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
       ["houseType", "taxSearchRequester", "taxYear"],
       function(result) {
         self.houseType = result.houseType;
@@ -70,6 +70,7 @@ let taxDetails = {
           lotSize: self.lotSize,
           bcaDataUpdateDate: self.bcaDataUpdateDate,
           bcaDescription: self.bcaDescription,
+          bcaSearch: "success",
           from:
             "assess-" +
             result.taxSearchRequester +
@@ -84,9 +85,10 @@ let taxDetails = {
             result.taxSearchRequester +
             "-TaxSearchFailed-" +
             Math.random().toFixed(8);
+          assess.bcaSearch = "failed";
         }
 
-        chrome.storage.sync.set(assess, function() {
+        chrome.storage.local.set(assess, function() {
           console.log("TaxDetails.bcAssessment is...", assess);
           // self.getReportLink(function () {
           // 	self.reportLink[0].click();
@@ -95,24 +97,24 @@ let taxDetails = {
           // 	curTabContentContainer.attr("style", "display:block!important");
           // });
         });
-        if (!self.newTaxAssessRecord) {
-          chrome.runtime.sendMessage(
-            {
-              todo: "saveTax",
-              taxData: assess
-            },
-            function(response) {
-              console.log("tax Data has been save to the database!");
-            }
-          );
-        }
+        // if (!self.newTaxAssessRecord) {
+        chrome.runtime.sendMessage(
+          {
+            todo: "saveTax",
+            taxData: assess
+          },
+          function(response) {
+            console.log("tax Data has been save to the database!");
+          }
+        );
+        // }
       }
     );
   },
 
   // getReportLink: function (callback) {
   // 	let self = this;
-  // 	chrome.storage.sync.get('curTabID', function (result) {
+  // 	chrome.storage.local.get('curTabID', function (result) {
   // 		console.log("2 Current Tab When Doing Tax Search is : ", result.curTabID);
   // 		self.reportLink = $('div#app_tab_switcher a[href="' + result.curTabID + '"]', top.document);
   // 		console.log(self.reportLink);

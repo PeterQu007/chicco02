@@ -70,7 +70,7 @@ var fullRealtor = {
       this.spreadsheetTable = null;
     }
 
-    chrome.storage.sync.set({ curTabID: this.tabID });
+    chrome.storage.local.set({ curTabID: this.tabID });
     //this.lockVisibility();
     this.addLock(this.tabID);
     console.warn("[FR]===>tabContentContainer: ", this.tabContentContainer);
@@ -226,7 +226,7 @@ var fullRealtor = {
     //console.log(divTab);
     divTab.attr("style", "display: block!important");
     divTaxSearch.attr("style", "display: none!important");
-    chrome.storage.sync.set({ curTabID: this.tabID });
+    chrome.storage.local.set({ curTabID: this.tabID });
   },
 
   addLock: function(tabID) {
@@ -376,7 +376,7 @@ var fullRealtor = {
     (function onEvents(self) {
       chrome.storage.onChanged.addListener(function(changes, area) {
         console.debug("====>fullrealtor: got a message: !", changes);
-        if (area == "sync" && "from" in changes) {
+        if (area == "local" && "from" in changes) {
           if (
             changes.from.newValue.indexOf("assess") > -1 &&
             changes.from.newValue.indexOf("ForListingReport") > -1
@@ -484,7 +484,7 @@ var fullRealtor = {
 
     if (planNum != undefined) {
       //Start PlanNum Search:
-      chrome.storage.sync.set({
+      chrome.storage.local.set({
         strataPlan1: legalDesc.strataPlan1,
         strataPlan2: legalDesc.strataPlan2,
         strataPlan3: legalDesc.strataPlan3,
@@ -564,7 +564,7 @@ var fullRealtor = {
     var $inputName = $("#inputComplexName");
     var compName = "";
 
-    chrome.storage.sync.get("complexName", function(result) {
+    chrome.storage.local.get("complexName", function(result) {
       if (result) {
         compName = $fx.normalizeComplexName(result.complexName);
         self.complexName.text(compName);
@@ -708,8 +708,8 @@ var fullRealtor = {
       console.log("[FR] - P.I.D Could not be read, taxSearch Exit");
       return;
     }
-    chrome.storage.sync.set({ PID: PID });
-    chrome.storage.sync.get("PID", function(result) {
+    chrome.storage.local.set({ PID: PID });
+    chrome.storage.local.get("PID", function(result) {
       //console.log(">>>PID saved for tax search: ", result.PID);
       chrome.runtime.sendMessage(
         { from: "ListingReport", todo: "taxSearch" },
@@ -721,7 +721,7 @@ var fullRealtor = {
           console.log(divTab);
           divTab.attr("style", "display: block!important");
           divTaxSearch.attr("style", "display: none!important");
-          chrome.storage.sync.set({ curTabID: self.tabID });
+          chrome.storage.local.set({ curTabID: self.tabID });
         }
       );
     });
@@ -731,7 +731,7 @@ var fullRealtor = {
     var strataPlan = this.legalDesc.strataPlan1;
     var complexName = this.complexOrSubdivision.text();
     complexName = $fx.normalizeComplexName(complexName); ////NORMALIZE THE COMPLEX NAME FROM THE REPORT
-    chrome.storage.sync.set(
+    chrome.storage.local.set(
       { strataPlan: strataPlan, complexNameForListingCount: complexName },
       function(e) {
         chrome.runtime.sendMessage(
@@ -944,7 +944,7 @@ var fullRealtor = {
     var self = this;
     var listPrice = $fx.convertStringToDecimal(self.lp.text());
     var soldPrice = $fx.convertStringToDecimal(self.sp.text());
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
       [
         "totalValue",
         "improvementValue",
@@ -1138,7 +1138,7 @@ var fullRealtor = {
 
   clearAssess: function() {
     var self = this;
-    chrome.storage.sync.set(
+    chrome.storage.local.set(
       {
         totalValue: "",
         improvementValue: "",
@@ -1156,7 +1156,7 @@ var fullRealtor = {
   updateComplexListingQuan: function(changes) {
     var self = this;
     //console.log("update strataPlanSummary:");
-    chrome.storage.sync.get("count", function(result) {
+    chrome.storage.local.get("count", function(result) {
       var complexName =
         self.complexOrSubdivision.text().length > 0
           ? self.complexOrSubdivision.text()
@@ -1172,7 +1172,7 @@ var fullRealtor = {
     var $inputName = $("#inputExposure");
     var exposureName = "";
 
-    chrome.storage.sync.get("exposureName", function(result) {
+    chrome.storage.local.get("exposureName", function(result) {
       exposureName = result.exposureName;
       self.exposure.text(exposureName);
       $inputName.val(exposureName + "::");
@@ -1184,7 +1184,7 @@ var fullRealtor = {
     var $inputName = $("#inputListing");
     var listingName = "";
 
-    chrome.storage.sync.get("listingName", function(result) {
+    chrome.storage.local.get("listingName", function(result) {
       listingName = result.listingName;
       $inputName.val(listingName + "::");
     });
@@ -1197,7 +1197,7 @@ var fullRealtor = {
     var $showingDate = $("#showingDate");
     var $showingTime = $("#showingTime");
 
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
       ["clientName", "name", "showingDate", "showingTime", "showingNote"],
       function(result) {
         $clientName.val(result.name + "::");

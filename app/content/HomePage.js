@@ -92,7 +92,7 @@ let DefaultPage = {
             "ul#tab-bg li.ui-tabs-selected.ui-state-active a"
           );
           self.curTabID = curTabLink.attr("href");
-          chrome.storage.sync.set({ curTabID: self.curTabID });
+          chrome.storage.local.set({ curTabID: self.curTabID });
         }
 
         //Read the Current TabID
@@ -106,7 +106,7 @@ let DefaultPage = {
           self.curTabID = self.curTabLink.attr("href");
           console.log("current Tab ID is: ", self.curTabID);
           // save the curTabID
-          chrome.storage.sync.set({ curTabID: self.curTabID }, function() {
+          chrome.storage.local.set({ curTabID: self.curTabID }, function() {
             console.log("curTabID has been save to storage.");
           });
         }
@@ -168,7 +168,7 @@ let DefaultPage = {
     chrome.storage.onChanged.addListener(function(changes, area) {
       //hide QuickSearchTab & TabContent
       if (
-        area == "sync" &&
+        area == "local" &&
         "todo" in changes &&
         changes.todo.newValue.indexOf("hideQuickSearch") > -1
       ) {

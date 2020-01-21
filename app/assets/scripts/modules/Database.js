@@ -49,7 +49,7 @@ class Database {
         //console.log(">>>read the tax info in database is: ", assess);
         assess.from = "assess-" + Math.random().toFixed(8);
         assess.dataFromDB = true;
-        // chrome.storage.sync.set(
+        // chrome.storage.local.set(
         // 	// {
         // 	// 	landValue: doc.landValue,
         // 	// 	improvementValue: doc.improvementValue,
@@ -99,6 +99,9 @@ class Database {
     var taxID = assess._id;
     var self = this;
     assess.dataFromDB = true;
+    var d = new Date();
+    assess.addedDate =
+      d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
     self.dbAssess
       .put(assess)
       .then(function() {
@@ -130,7 +133,7 @@ class Database {
       .then(function(doc) {
         self.strataPlan = doc;
         //console.log(">>>read the strataPlanSummary in database is: ", self.strataPlan);
-        chrome.storage.sync.set({
+        chrome.storage.local.set({
           active: doc.active,
           sold: doc.sold,
           count: doc.count,
@@ -196,7 +199,7 @@ class Database {
     // self.dbComplex.get(complexInfo._id).then(function (doc) {
     // 	self.complex = doc;
     // 	//console.log(">>>read the Complex info in database is: ", self.complex);
-    // 	// chrome.storage.sync.set({
+    // 	// chrome.storage.local.set({
     // 	// 	complexID: doc._id,
     // 	// 	complexName: doc.name+'*',
     // 	// 	strataPlan: doc.strataPlan,

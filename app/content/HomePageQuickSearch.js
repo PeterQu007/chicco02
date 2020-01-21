@@ -58,7 +58,7 @@ $(function() {
         // jump to detailed page view of the search results
         if (showResult && countResult > 1) {
           btnSearch.click();
-          chrome.storage.sync.set({ showTabQuickSearch: false });
+          chrome.storage.local.set({ showTabQuickSearch: false });
         }
       } else {
         console.log("mls data searching ...", checkTimer);
@@ -84,7 +84,7 @@ $(function() {
       from: "strataPlanSummary" + Math.random().toFixed(8)
     };
     //save results to storage:
-    chrome.storage.sync.set(spSummary);
+    chrome.storage.local.set(spSummary);
     //console.log('mls-data wrap up the complex data: ', spSummary);
     chrome.runtime.sendMessage({
       todo: "saveStrataPlanSummary",
@@ -124,7 +124,7 @@ $(function() {
       .val("")
       .blur();
 
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
       [
         "strataPlan1",
         "strataPlan2",

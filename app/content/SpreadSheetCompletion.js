@@ -354,6 +354,7 @@ var computeSFPrices = {
             }
           }
           self.searchTax();
+          // self.searchTax_New();
         }
       });
     });
@@ -378,7 +379,7 @@ var computeSFPrices = {
         if (self.$spreadSheet.css("display") == "none") {
           return;
         }
-        if (area == "sync" && "from" in changes) {
+        if (area == "local" && "from" in changes) {
           if (
             changes.from.newValue.indexOf("assess") > -1 &&
             changes.from.newValue.indexOf("ForSpreadSheet") > -1
@@ -414,7 +415,7 @@ var computeSFPrices = {
         if (self.$spreadSheet.css("display") == "none") {
           return;
         }
-        if (area == "sync" && "from" in changes) {
+        if (area == "local" && "from" in changes) {
           if (
             changes.from.newValue.indexOf("assess") > -1 &&
             changes.from.newValue.indexOf("ForSpreadSheet") > -1
@@ -433,8 +434,9 @@ var computeSFPrices = {
                 function() {
                   ////LOOP THE TAX.SEARCH IN THE SPREADSHEET.TABLE
                   this.searchTax();
+                  // this.searchTax_New();
                 }.bind(self),
-                1000
+                50
               );
             }
           }
@@ -471,8 +473,8 @@ var computeSFPrices = {
           return;
         }
         ////SEND TAX SEARCH COMMAND TO BACKGROUND SCRIPT
-        chrome.storage.sync.set({ PID: pid });
-        chrome.storage.sync.get("PID", function(result) {
+        chrome.storage.local.set({ PID: pid });
+        chrome.storage.local.get("PID", function(result) {
           //console.log(">>>PID saved for tax search: ", result.PID);
           //////////////////////////////////////////////////////////
           //SEND OUT SEARCH TAX COMMAND
@@ -526,7 +528,7 @@ var computeSFPrices = {
     var self = this;
     var aInfo = null;
 
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
       [
         "PID",
         "totalValue",
@@ -639,7 +641,7 @@ var computeSFPrices = {
     ////BC.TAX.RECORD SHOWS TAX.VALUE = 0
     var self = this;
 
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
       [
         "PID",
         "totalValue",
@@ -728,7 +730,7 @@ var computeSFPrices = {
         if (self.$spreadSheet.css("display") == "none") {
           return;
         }
-        if (area == "sync" && "from" in changes) {
+        if (area == "local" && "from" in changes) {
           if (
             changes.from.newValue.indexOf("complexInfo") > -1 &&
             changes.from.newValue.indexOf("spreadSheetCompletion") > -1
@@ -741,7 +743,7 @@ var computeSFPrices = {
                 //go to next listing for assess date
                 this.searchComplex();
               }.bind(self),
-              1000
+              50
             );
           }
         }
@@ -872,7 +874,7 @@ var computeSFPrices = {
   updateComplex: function() {
     var self = this;
 
-    chrome.storage.sync.get(["_id", "name"], function(result) {
+    chrome.storage.local.get(["_id", "name"], function(result) {
       var complexID = result._id;
       var complexName = result.name;
       complexName = $fx.normalizeComplexName(complexName);

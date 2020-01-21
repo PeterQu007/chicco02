@@ -69,15 +69,15 @@ var quickSearch = {
         let self = this;
         chrome.storage.onChanged.addListener(function (changes, area) {
             
-            if (area == "sync" && "todo" in changes) {
+            if (area == "local" && "todo" in changes) {
                 if (changes.todo.newValue.indexOf('getTabTitle') > -1) {
                     console.log("command::getTabTitle:", changes.todo.newValue);
-                    chrome.storage.sync.get(['getTabTitle','from', 'showTabQuickSearch'], function (result) {
+                    chrome.storage.local.get(['getTabTitle','from', 'showTabQuickSearch'], function (result) {
                         self.tabTitle = result.getTabTitle;
                         console.log("OnTabTitle.getTabTitle:", result);
                         //showQuickSearchTab
                         if (!result.showTabQuickSearch && result.getTabTitle.trim()=="Quick Search") {
-                            chrome.storage.sync.set(
+                            chrome.storage.local.set(
                                 {
                                     from: 'QuickSearch' ,
                                     todo: 'hideQuickSearch'+ Math.random().toFixed(8),
@@ -106,7 +106,7 @@ var quickSearch = {
 
     getTabStatus: function () {
         let self = this;
-        chrome.storage.sync.get('showTabQuickSearch', function (result) {
+        chrome.storage.local.get('showTabQuickSearch', function (result) {
 
             if (result.showTabQuickSearch) {
                 self.showQuickSearch();
