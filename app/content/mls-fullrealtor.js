@@ -833,9 +833,9 @@ var fullRealtor = {
       var recordRow = $(recordRows[recordNo]);
       var cells = recordRow.children();
       var cols = $fx.setCols(self.tabTitle);
-      var complexCell = cells[cols.complexName];
-      var strataPlan = cells[cols.strataPlan].textContent;
-      var streetAddress = cells[cols.streetAddress].textContent;
+      var complexCell = cells[cols.ComplexName];
+      var strataPlan = cells[cols.StrataPlan].textContent;
+      var streetAddress = cells[cols.StreetAddress].textContent;
       var recordRow_i = null;
       var strataPlan_i = "";
       var streetAddress_i = "";
@@ -844,9 +844,9 @@ var fullRealtor = {
       for (var i = 1; i < recordRows.length; i++) {
         recordRow_i = $(recordRows[i]);
         cells_i = recordRow_i.children();
-        complexCell_i = cells_i[cols.complexName];
-        strataPlan_i = cells_i[cols.strataPlan].textContent;
-        streetAddress_i = cells_i[cols.streetAddress].textContent;
+        complexCell_i = cells_i[cols.ComplexName];
+        strataPlan_i = cells_i[cols.StrataPlan].textContent;
+        streetAddress_i = cells_i[cols.StreetAddress].textContent;
         if (strataPlan == strataPlan_i && streetAddress == streetAddress_i) {
           complexCell_i.textContent = inputName;
         }

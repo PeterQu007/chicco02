@@ -1,0 +1,1 @@
+SELECT * FROM `local`.`pid_complex` WHERE Added_DATE="2020-01-21";

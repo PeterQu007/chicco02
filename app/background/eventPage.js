@@ -6,7 +6,7 @@ import { callbackify } from "util";
 
 var db = new database();
 var $fx = L$();
-var newTaxYear = false; //beginning of new year, MLS tax db has not been updated, still use last year's assess. set newTaxYear to false
+var newTaxYear = true; //beginning of new year, MLS tax db has not been updated, still use last year's assess. set newTaxYear to false
 var d = new Date();
 var taxYear = d.getFullYear();
 taxYear = newTaxYear ? taxYear : taxYear - 1;

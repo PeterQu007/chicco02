@@ -103,25 +103,25 @@ class SumBoxButtons extends React.Component {
         case "DisplayId":
           colName = "MLS";
           break;
-        case "Room28Dim1":
+        case "landValue": //"Room28Dim1":
           colName = "LandValue";
           break;
-        case "Room28Dim2":
+        case "imprvValue": //"Room28Dim2":
           colName = "ImproveValue";
           break;
-        case "Room28Lev":
+        case "totalValue": //"Room28Lev":
           colName = "BCAValue";
           break;
-        case "Room28Type":
+        case "change%": //"Room28Type":
           colName = "Change%";
           break;
-        case "Room27Dim1":
+        case "strataPlan": //"Room27Dim1":
           colName = "PlanNum";
           break;
-        case "Room27Dim2":
+        case "streetAddress": //"Room27Dim2":
           colName = "Address2"; //FORMAL.ADDRESS FROM TAX REPORT
           break;
-        case "Room27Lev":
+        case "Unit#": //"Room27Lev":
           colName = "Unit#";
           break;
       }
@@ -360,8 +360,8 @@ class SumBoxButtons extends React.Component {
     var recordRow = $(recordRows[recordNo]); ////FETCH THE SELECTED ROW AND ITS CELLS
     var cells = recordRow.children();
 
-    var strataPlan = cells[cols.strataPlan].textContent;
-    var streetAddress = cells[cols.streetAddress].textContent;
+    var strataPlan = cells[cols.StrataPlan].textContent;
+    var streetAddress = cells[cols.StreetAddress].textContent;
 
     for (var i = 1; i < recordRows.length; i++) {
       recordRow_i = $(recordRows[i]); ////LOOP ALL THE ROWS IN THE TABLE
@@ -370,9 +370,9 @@ class SumBoxButtons extends React.Component {
       recordCheckbox_i = $(cells_i[2])
         .children()
         .find('input[type="checkbox'); ////HARDWIRED THE COL NO 2 TO THE CHECKBOX COLUMN
-      complexCell_i = cells_i[cols.complexName];
-      strataPlan_i = cells_i[cols.strataPlan].textContent;
-      streetAddress_i = cells_i[cols.streetAddress].textContent;
+      complexCell_i = cells_i[cols.ComplexName];
+      strataPlan_i = cells_i[cols.StrataPlan].textContent;
+      streetAddress_i = cells_i[cols.StreetAddress].textContent;
       if (strataPlan == strataPlan_i && streetAddress == streetAddress_i) {
         complexCell_i.textContent = complexName;
       }
@@ -381,14 +381,14 @@ class SumBoxButtons extends React.Component {
     ////SAVE THE COMPLEX.INFO INTO THE DATABASE
     if (complexName.length > 0) {
       ////PREPARE THE FIELDS FOR THE COMPLEX.INFO OBJECT
-      var subArea = cells[cols.subArea].textContent;
-      var neighborhood = cells[cols.neighborhood].textContent;
-      var postcode = cells[cols.postcode].textContent;
-      var houseType = cells[cols.houseType].textContent;
-      var formalAddress = cells[cols.address].textContent;
+      var subArea = cells[cols.SubArea].textContent;
+      var neighborhood = cells[cols.Neighborhood].textContent;
+      var postcode = cells[cols.Postcode].textContent;
+      var houseType = cells[cols.HouseType].textContent;
+      var formalAddress = cells[cols.Address].textContent;
       var isFormalAddress = true;
       var address = new addressInfo(formalAddress, houseType, isFormalAddress);
-      var strataPlan = cells[cols.strataPlan].textContent;
+      var strataPlan = cells[cols.StrataPlan].textContent;
       var totalUnits = 0;
       var devUnits = 0;
 
