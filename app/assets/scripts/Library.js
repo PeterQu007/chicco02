@@ -313,6 +313,7 @@
             PricePSF: 12,
             ComplexName: 16,
             TotalFloorArea: 19,
+            Age: 20,
             StrataFee: 21,
             HouseType: 22,
             LotSize: 23,

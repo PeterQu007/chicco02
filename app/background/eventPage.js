@@ -476,6 +476,19 @@ chrome.tabs.query({ title: "Paragon 5" }, function(tabs) {
         );
       });
     }
+
+    if (request.todo == "saveSubjectInfo") {
+      var subjectInfo = request;
+      $.ajax({
+        url:
+          "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/dbAddSubjectProperty.php",
+        method: "post",
+        data: subjectInfo,
+        success: function(res) {
+          console.log("res::", JSON.stringify(res));
+        }
+      });
+    }
   });
 
   //End of Main Function

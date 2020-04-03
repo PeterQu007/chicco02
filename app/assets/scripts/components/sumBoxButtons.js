@@ -32,6 +32,9 @@ class SumBoxButtons extends React.Component {
         <div>
           <button onClick={() => this.onSaveComplexInfo()}>Cpx</button>
         </div>
+        <div>
+          <button onClick={() => this.onSaveSubjectInfo()}>Sub</button>
+        </div>
       </div>
     );
   }
@@ -310,6 +313,99 @@ class SumBoxButtons extends React.Component {
     if (!table.nodeType) table = document.querySelector(table); //document.getElementById(table)
     var ctx = { worksheet: name || "Worksheet", table: table.innerHTML };
     window.location.href = uri + base64(format(template, ctx));
+  }
+
+  onSaveSubjectInfo() {
+    console.log("add button clicked!");
+    var address = "16180 109A AVE";
+    var id = "1234";
+    ////////////////////
+    ////MANUALLY SAVE OR UPDATE COMPLEX NAME TO THE DATABASE
+    ////RECORD NO HAS TO BE LOOK UP THE CHECKED ONE IN THE TABLE
+    const { tabTitle } = this.props;
+    //var self = this;
+    var cols = $fx.setCols(tabTitle);
+    ////SEARCH CHECKED RECORD NO
+    var recordNo = 0;
+    var recordRow_i = null;
+    var SubjectAddress = "";
+    var streetAddress_i = "";
+    var cells_i = null;
+    var complexCell_i = null;
+    var recordNo_i = 0;
+    var recordCheckbox_i = null;
+    var htmlTable = document.querySelector("#grid");
+    var recordRows = $(htmlTable)
+      .children()
+      .find("tr");
+
+    for (var i = 1; i < recordRows.length; i++) {
+      recordRow_i = $(recordRows[i]); ////LOOP ALL THE ROWS IN THE TABLE
+      cells_i = recordRow_i.children();
+      recordNo_i = cells_i[cols.RecordNo];
+      recordCheckbox_i = $(cells_i[1]).children('input[type="checkbox"]'); ////HARDWIRED THE COL NO 1 TO THE CHECKBOX COLUMN
+      if ($(recordCheckbox_i).prop("checked") == true) {
+        recordNo = recordNo_i.textContent;
+        break;
+      }
+      recordNo = -1;
+    }
+    if (recordNo == -1) {
+      console.warn("No Record Selected!");
+      return;
+    } else {
+      recordNo = ((recordNo - 1) % 250) + 1;
+    }
+
+    ////UPDATE THE COMPLEX NAME IN THE SPREAD SHEET
+    var recordRow = $(recordRows[recordNo]); ////FETCH THE SELECTED ROW AND ITS CELLS
+    var cells = recordRow.children();
+    ////PREPARE THE FIELDS FOR THE COMPLEX.INFO OBJECT
+    var subjectStreetAddress = cells[cols.StreetAddress].textContent;
+    var subjectUnitNo = cells[cols.UnitNo].textContent;
+    var subjectAge = cells[cols.Age].textContent;
+    var landSize = $fx.convertStringToDecimal(cells[cols.LotSize].textContent);
+    var floorArea = $fx.convertStringToDecimal(
+      cells[cols.TotalFloorArea].textContent
+    );
+    var bcAssessImprove = $fx.convertStringToDecimal(
+      cells[cols.ImprovementValue].textContent
+    );
+    var bcAssessLand = $fx.convertStringToDecimal(
+      cells[cols.LandValue].textContent
+    );
+    var bcAssessTotal = $fx.convertStringToDecimal(
+      cells[cols.TotalValue].textContent
+    );
+    var subjectHouseType = cells[cols.PropertyType].textContent;
+    var subjectCity = cells[cols.City].textContent;
+    var maintenanceFee = cells[cols.StrataFeePSF].textContent;
+    var neighborhood = cells[cols.Neighborhood].textContent;
+
+    var subjectInfo = {
+      address: subjectStreetAddress,
+      unitNo: subjectUnitNo,
+      age: subjectAge,
+      landSize: landSize,
+      floorArea: floorArea,
+      bcAssessImprove: bcAssessImprove,
+      bcAssessLand: bcAssessLand,
+      bcAssessTotal: bcAssessTotal,
+      subjectHouseType: subjectHouseType,
+      maintenanceFee: maintenanceFee,
+      city: subjectCity,
+      neighborhood: neighborhood,
+      todo: "saveSubjectInfo",
+      from: "uiSummaryTable"
+    };
+
+    ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
+    chrome.runtime.sendMessage(subjectInfo, function(response) {});
+
+    ////FEEDBACK THE INPUT AREA WITH ADDED STAR SIGN
+    // this.state.complexName.val(complexName + "*");
+
+    ///////////////
   }
 
   onSaveComplexInfo() {

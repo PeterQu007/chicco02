@@ -9,6 +9,21 @@ export default class MainMenu {
     this.appMidBanner = $('<div id = "app_banner_mid"></div>');
     this.appMainMenu = $("#app_banner_menu");
 
+    //insert Subject Setting Button
+    (this.txtSubjectProperty = $(`<div>
+                                <input type="TEXT" id="SubjectProperty">
+                                </div>
+                            `)),
+      this.txtSubjectProperty.insertAfter(this.appLeftBanner);
+    this.txtSubjectAddress = document.getElementById("SubjectProperty");
+
+    //insert Subject Add Button
+    this.btnSubjectProperty = $(`<div> 
+                  <input type = "button" id="SubjectPropertySubmit" value="Add Subject">
+                  </div>`);
+    this.btnSubjectProperty.insertAfter(this.appLeftBanner);
+    this.btnAddSubject = document.getElementById("SubjectPropertySubmit");
+
     (this.chkShowSmallMap = $(`<div class="languagebox">
                                 <div id="checkShowSmallMapWrapper">
                                     <label>Lock Map Size</label>
@@ -55,6 +70,7 @@ export default class MainMenu {
 
   events() {
     //todo::
+    this.btnAddSubject.addEventListener("click", () => this.post());
   }
 
   showLargeMap() {
@@ -77,5 +93,23 @@ export default class MainMenu {
 
   openListingCarts() {
     this.listingCarts[0].click();
+  }
+
+  post() {
+    var address = this.txtSubjectAddress.value;
+    var id = "1234";
+
+    $.ajax({
+      url:
+        "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/data.php",
+      method: "post",
+      data: { address: address, postID: id },
+      success: function(res) {
+        console.log("res", res);
+        $('input[name="textbox"]').val(
+          JSON.stringify(res) + ":: connect to MySQL successfully!!!!"
+        );
+      }
+    });
   }
 }
