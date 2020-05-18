@@ -4,6 +4,7 @@ let countTimer = setInterval(checkComplete, 100);
 let loginCount = 0;
 let x1 = $("input#inputListingInfo", top.document);
 let lockMapSize = $("input#checkShowSmallMap", top.document).is(":checked");
+let lockRoadMap = $("input#checkLockRoadMap", top.document).is(":checked");
 let zoomNumber;
 if (x1.val() == "Attached") {
   zoomNumber = 18;
@@ -125,6 +126,7 @@ function checkComplete() {
       menu.append(newScript);
 
       var y = $("div.jqMpCntlTopMenuBtn.zoomInChange");
+      // var y = $("div.jqMpCntlTopMenuBtn.zoomOutChange");
       y.click();
       var z = $("#divMap");
       if (!lockMapSize) {
@@ -132,9 +134,36 @@ function checkComplete() {
       } else {
         z.removeClass("mapBox__large");
       }
-      var x = $("div.jqMpCntlSubMenuImg.jqMpCntlSubMenuMpTypeAerial");
-
+      var x = lockRoadMap
+        ? $("div.jqMpCntlSubMenuImg.jqMpCntlSubMenuMpTypeRoad")
+        : $("div.jqMpCntlSubMenuImg.jqMpCntlSubMenuMpTypeAerial");
       x.click();
+
+      // var x2 = $("#jqMpCntlTopMenuActionLayers");
+      // var x2_div = x2.children("div")[0];
+      // x2_div.click();
+
+      var x3 = $("div.jqMpCntlLayerCheckBox");
+      var x3_div0 = x3[0]; //Fraser Valley Board
+      var x3_div1 = x3[1]; //Vancouver Board
+      var x3_div2 = x3[2]; //Vancouver Board
+
+      var x4 = $("div.jqMpCntlCheckSlider");
+      var x4_div0 = x4[0]; //Fraser Valley Lables
+      var x4_div1 = x4[1]; //Vancouver Board Lables
+      var x4_div2 = x4[2]; //Vancouver Board sub area lables
+
+      var buttonClosePanel = $("#jqMpCntlLyrsPnlCloser");
+      var x5 = buttonClosePanel.children("div")[0];
+
+      setTimeout(() => {
+        x3_div0.click();
+        x4_div0.click();
+        x3_div1.click();
+        x4_div1.click();
+        // x5.click();
+      }, 1000);
+
       // var z = $("div.jqMpCntlTopMenuBtn.zoomOutChange");
       // //  onclick="$.bkfsMap.divMap.setZoom(15).setMapTypeId('roadmap'
       // z.bind("click", function() {
@@ -147,7 +176,7 @@ function checkComplete() {
     clearInterval(countTimer);
     var x = $("#changeSizeButton");
     var y = $("#showSmallMap").val();
-    x.click(function() {
+    x.click(function () {
       // console.log("test");
       showLargeMap();
     });

@@ -24,6 +24,7 @@ export default class MainMenu {
     this.btnSubjectProperty.insertAfter(this.appLeftBanner);
     this.btnAddSubject = document.getElementById("SubjectPropertySubmit");
 
+    //lock the map size
     (this.chkShowSmallMap = $(`<div class="languagebox">
                                 <div id="checkShowSmallMapWrapper">
                                     <label>Lock Map Size</label>
@@ -31,6 +32,15 @@ export default class MainMenu {
                                 </div>
                             </div>`)),
       this.chkShowSmallMap.insertAfter(this.appLeftBanner);
+
+    //lock the map type
+    (this.chkLockRoadMapType = $(`<div class="languagebox">
+                                <div id="checkLockMapTypeWrapper">
+                                    <label>Lock Road Map Type</label>
+                                    <input id="checkLockRoadMap" name="buttonShowMaptype" type = "checkbox" style="width: 14px!important"/>
+                                </div>
+                            </div>`)),
+      this.chkLockRoadMapType.insertAfter(this.appLeftBanner);
 
     (this.txtResponse = $(`<div class="languagebox">
                                 <div id="textResponse">
@@ -104,12 +114,12 @@ export default class MainMenu {
         "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/data.php",
       method: "post",
       data: { address: address, postID: id },
-      success: function(res) {
+      success: function (res) {
         console.log("res", res);
         $('input[name="textbox"]').val(
           JSON.stringify(res) + ":: connect to MySQL successfully!!!!"
         );
-      }
+      },
     });
   }
 }
