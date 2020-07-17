@@ -232,7 +232,8 @@
       "run_at": "document_end",
       "matches": [
         "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c63*",
-        "https://bcres.paragonrels.com/publink/default.aspx*Report=Yes"
+        "https://bcres.paragonrels.com/publink/Report.aspx?outputtype=HTML&GUID=*&Report=Yes&view=29&layout_id=63&screenWidth=1720",
+        "https://bcres.paragonrels.com/publink/Report.aspx*"
       ],
       "js": [
         //"https://maps.googleapis.com/maps/api/js?callback=initMap&signed_in=true&key=AIzaSyD1QvoySzCNvNj3Dffh0uMJfGMLf-NtOME",

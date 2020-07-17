@@ -85,6 +85,15 @@ var fullpublic = {
         self.pid = $(
           'div[style="top:283px;left:636px;width:82px;height:15px;"]'
         );
+        self.address = $(
+          'div[style="top:110px;left:134px;width:483px;height:17px;"]'
+        );
+        self.lp = $(
+          'div[style="top:129px;left:555px;width:143px;height:13px;"]'
+        );
+        self.sp = $(
+          'div[style="top:147px;left:555px;width:143px;height:13px;"]'
+        );
         self.lotArea = $(
           'div[style="top:219px;left:376px;width:79px;height:14px;"]'
         );
@@ -397,8 +406,8 @@ var fullpublic = {
 
   houseType: $('div[style="top:111px;left:578px;width:147px;height:16px;"]'),
   listingHouseType: null,
-  lp: $('div[style="top:129px;left:555px;width:143px;height:13px;"]'),
-  sp: $('div[style="top:147px;left:555px;width:143px;height:13px;"]'),
+  lp: $('div[style="top:129px;left:555px;width:146px;height:13px;"]'),
+  sp: $('div[style="top:147px;left:555px;width:146px;height:13px;"]'),
   lpSuffix: $('div[style="top:129px;left:703px;width:23px;height:14px;"]'),
   bcAssess: $('div[style="top:111px;left:578px;width:147px;height:16px;"]'),
   finishedFloorArea: $(
@@ -426,7 +435,7 @@ var fullpublic = {
 
   //complex info:
   legal: $('div[style="top:532px;left:75px;width:688px;height:24px;"'),
-  address: $('div[style="top:110px;left:134px;width:483px;height:17px;"]'),
+  address: $('div[style="top:110px;left:134px;width:482px;height:17px;"]'),
   subArea: $('div[style="top:126px;left:134px;width:480px;height:13px;"]'),
   neighborhood: $('div[style="top:139px;left:134px;width:479px;height:13px;"]'),
   postcode: $('div[style="top:152px;left:132px;width:484px;height:13px;"]'),
