@@ -12,7 +12,7 @@ class SumBoxButtons extends React.Component {
       complexName: $(
         "div#app_banner_links_left input.select2-search__field",
         top.document
-      )
+      ),
     };
   }
 
@@ -49,22 +49,14 @@ class SumBoxButtons extends React.Component {
     let { tabTitle } = this.props;
     ////---- Get the col name row, push names to the cloned table head row
     var htmlHead = document.querySelector(".ui-jqgrid-htable");
-    var cloneHead = $(htmlHead)
-      .clone()
-      .attr("id", "newClonedHead");
+    var cloneHead = $(htmlHead).clone().attr("id", "newClonedHead");
     var htmlTable = document.querySelector("#grid");
-    var cloneTable = $(htmlTable)
-      .clone()
-      .attr("id", "newClonedTable");
+    var cloneTable = $(htmlTable).clone().attr("id", "newClonedTable");
 
-    var rowHead = $(cloneHead)
-      .children()
-      .find("tr");
+    var rowHead = $(cloneHead).children().find("tr");
 
     var originalHeadCells = $(rowHead).children("th");
-    var exportTableRows = $(cloneTable)
-      .children()
-      .find("tr");
+    var exportTableRows = $(cloneTable).children().find("tr");
     var row0 = $(exportTableRows[0]);
     row0.height(40); //set the height of the table header
     var newHeadCells = row0.children("td");
@@ -210,31 +202,38 @@ class SumBoxButtons extends React.Component {
     ) {
       for (var i = 0; i < tableRows.length; i++) {
         var row = tableRows[i];
-        if (
-          !$fx.inGreatVanArea(
-            $(row)
-              .children("td")
-              .eq(32)
-              .text()
-          )
-        ) {
+        if (!$fx.inGreatVanArea($(row).children("td").eq(32).text())) {
           $(row).remove();
         } else {
           $(row).height(40);
           //REMOVE TAIL.CELLS
-          for (var j = 79; j >= 74; j--) {
-            $(row)
-              .children("td")
-              .eq(j)
-              .remove();
+          for (var j = 94; j >= 50; j--) {
+            $(row).children("td").eq(j).remove();
           }
+          for (var j = 47; j >= 41; j--) {
+            $(row).children("td").eq(j).remove();
+          }
+
           //REMOVE HEADER.CELLS
-          let RemovalHeadCellsNo = [7, 6, 5, 4, 2, 1];
+          let RemovalHeadCellsNo = [
+            39,
+            38,
+            37,
+            36,
+            34,
+            33,
+            24,
+            14,
+            9,
+            7,
+            6,
+            5,
+            4,
+            2,
+            1,
+          ];
           for (var j in RemovalHeadCellsNo) {
-            $(row)
-              .children("td")
-              .eq(RemovalHeadCellsNo[j])
-              .remove();
+            $(row).children("td").eq(RemovalHeadCellsNo[j]).remove();
           }
         }
       }
@@ -243,19 +242,16 @@ class SumBoxButtons extends React.Component {
     if (tabTitle == "Tour and Open House") {
       for (var i = 0; i < tableRows.length; i++) {
         var row = tableRows[i];
-        if (
-          !$fx.inGreatVanArea(
-            $(row)
-              .children("td")
-              .eq(32)
-              .text()
-          )
-        ) {
+        if (!$fx.inGreatVanArea($(row).children("td").eq(32).text())) {
           $(row).remove();
         } else {
           $(row).height(40);
           //REMOVE CELLS
           let RemovalHeadCellsNo = [
+            94,
+            93,
+            92,
+            91,
             40,
             39,
             38,
@@ -272,13 +268,10 @@ class SumBoxButtons extends React.Component {
             5,
             4,
             2,
-            1
+            1,
           ];
           for (var j in RemovalHeadCellsNo) {
-            $(row)
-              .children("td")
-              .eq(RemovalHeadCellsNo[j])
-              .remove();
+            $(row).children("td").eq(RemovalHeadCellsNo[j]).remove();
           }
         }
       }
@@ -300,11 +293,11 @@ class SumBoxButtons extends React.Component {
             <table>{table}</table>
           </body>
         </html>`,
-      base64 = function(s) {
+      base64 = function (s) {
         return window.btoa(unescape(encodeURIComponent(s)));
       },
-      format = function(s, c) {
-        return s.replace(/{(\w+)}/g, function(m, p) {
+      format = function (s, c) {
+        return s.replace(/{(\w+)}/g, function (m, p) {
           return c[p];
         });
       };
@@ -335,9 +328,7 @@ class SumBoxButtons extends React.Component {
     var recordNo_i = 0;
     var recordCheckbox_i = null;
     var htmlTable = document.querySelector("#grid");
-    var recordRows = $(htmlTable)
-      .children()
-      .find("tr");
+    var recordRows = $(htmlTable).children().find("tr");
 
     for (var i = 1; i < recordRows.length; i++) {
       recordRow_i = $(recordRows[i]); ////LOOP ALL THE ROWS IN THE TABLE
@@ -396,11 +387,11 @@ class SumBoxButtons extends React.Component {
       city: subjectCity,
       neighborhood: neighborhood,
       todo: "saveSubjectInfo",
-      from: "uiSummaryTable"
+      from: "uiSummaryTable",
     };
 
     ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
-    chrome.runtime.sendMessage(subjectInfo, function(response) {});
+    chrome.runtime.sendMessage(subjectInfo, function (response) {});
 
     ////FEEDBACK THE INPUT AREA WITH ADDED STAR SIGN
     // this.state.complexName.val(complexName + "*");
@@ -430,9 +421,7 @@ class SumBoxButtons extends React.Component {
     var recordNo_i = 0;
     var recordCheckbox_i = null;
     var htmlTable = document.querySelector("#grid");
-    var recordRows = $(htmlTable)
-      .children()
-      .find("tr");
+    var recordRows = $(htmlTable).children().find("tr");
 
     for (var i = 1; i < recordRows.length; i++) {
       recordRow_i = $(recordRows[i]); ////LOOP ALL THE ROWS IN THE TABLE
@@ -463,9 +452,7 @@ class SumBoxButtons extends React.Component {
       recordRow_i = $(recordRows[i]); ////LOOP ALL THE ROWS IN THE TABLE
       cells_i = recordRow_i.children();
       recordNo_i = cells_i[cols.RecordNo];
-      recordCheckbox_i = $(cells_i[2])
-        .children()
-        .find('input[type="checkbox'); ////HARDWIRED THE COL NO 2 TO THE CHECKBOX COLUMN
+      recordCheckbox_i = $(cells_i[2]).children().find('input[type="checkbox'); ////HARDWIRED THE COL NO 2 TO THE CHECKBOX COLUMN
       complexCell_i = cells_i[cols.ComplexName];
       strataPlan_i = cells_i[cols.StrataPlan].textContent;
       streetAddress_i = cells_i[cols.StreetAddress].textContent;
@@ -511,11 +498,11 @@ class SumBoxButtons extends React.Component {
         totalUnits: totalUnits,
         devUnits: devUnits,
         todo: "saveComplexInfo",
-        from: "uiSummaryTable"
+        from: "uiSummaryTable",
       };
 
       ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
-      chrome.runtime.sendMessage(complexInfo, function(response) {});
+      chrome.runtime.sendMessage(complexInfo, function (response) {});
 
       ////FEEDBACK THE INPUT AREA WITH ADDED STAR SIGN
       this.state.complexName.val(complexName + "*");
