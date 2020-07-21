@@ -16,18 +16,14 @@ import addressInfo from "../assets/scripts/modules/AddressInfo";
 var $fx = L$(); //add library module
 
 var computeSFPrices = {
-  init: function() {
+  init: function () {
     console.log("Spreadsheet Document URL: ", document.URL); ////THIS URL CONTAINS TAB.ID
 
     this.tabID = $fx.getTabID(document.URL); ////LOOK FOR TAB.ID PREFIXED WITH # ID.SIGN
     this.tabNo = parseInt(this.tabID.replace("#tab", "")); ////LOOK FOR TAB.NO
     var x = $("ul#tab-bg", top.document); ////find the top tab panel
     var y = x.children("li")[this.tabNo];
-    this.tabTitle = $(y)
-      .children()
-      .find("span")
-      .text()
-      .trim(); ////LOOK FOR TAB.TITLE
+    this.tabTitle = $(y).children().find("span").text().trim(); ////LOOK FOR TAB.TITLE
     console.warn(
       "tabID, tabNo, tabTitle",
       this.tabID,
@@ -104,8 +100,8 @@ var computeSFPrices = {
     var self = this;
     var tableLoading = document.querySelector("#grid tbody"); ////MONITOR THE #grid.tbody, CHECK THE LISTING RECORDS
 
-    var $mutationObserver = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
+    var $mutationObserver = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
         var x = $("table#grid tbody"); //Spreadsheet table body
         var y = $("table.ui-jqgrid-htable thead"); //Spreadsheet Table header
         var rows = x.children("tr");
@@ -177,44 +173,28 @@ var computeSFPrices = {
           for (var j = 0; j <= headerCells.length; j++) {
             switch (j) {
               case self.cols.LandValue:
-                $(headerCells[j])
-                  .children("div")
-                  .text("landValue");
+                $(headerCells[j]).children("div").text("landValue");
                 break;
               case self.cols.ImprovementValue:
-                $(headerCells[j])
-                  .children("div")
-                  .text("imprvValue");
+                $(headerCells[j]).children("div").text("imprvValue");
                 break;
               case self.cols.TotalValue:
-                $(headerCells[j])
-                  .children("div")
-                  .text("totalValue");
+                $(headerCells[j]).children("div").text("totalValue");
                 break;
               case self.cols.ChangeValuePercent:
-                $(headerCells[j])
-                  .children("div")
-                  .text("change%");
+                $(headerCells[j]).children("div").text("change%");
                 break;
               case self.cols.StrataPlan:
-                $(headerCells[j])
-                  .children("div")
-                  .text("strataPlan");
+                $(headerCells[j]).children("div").text("strataPlan");
                 break;
               case self.cols.StreetAddress:
-                $(headerCells[j])
-                  .children("div")
-                  .text("streetAddress");
+                $(headerCells[j]).children("div").text("streetAddress");
                 break;
               case self.cols.UnitNo:
-                $(headerCells[j])
-                  .children("div")
-                  .text("Unit#");
+                $(headerCells[j]).children("div").text("Unit#");
                 break;
               case self.cols.StrataFeePSF:
-                $(headerCells[j])
-                  .children("div")
-                  .text("StrFeePSF");
+                $(headerCells[j]).children("div").text("StrFeePSF");
                 break;
             }
           }
@@ -365,17 +345,17 @@ var computeSFPrices = {
       childList: true,
       subtree: false,
       attributeOldValue: true,
-      characterDataOldValue: true
+      characterDataOldValue: true,
     });
   },
 
   //////////////////////////////////////////////////////////////////////////////
   ///////////////////          Assessment Search Code              /////////////
   //////////////////////////////////////////////////////////////////////////////
-  onTaxSearch_old: function() {
+  onTaxSearch_old: function () {
     ////DEFINE THE TAX.SEARCH EVENT
     (function onEvents(self) {
-      chrome.storage.onChanged.addListener(function(changes, area) {
+      chrome.storage.onChanged.addListener(function (changes, area) {
         if (self.$spreadSheet.css("display") == "none") {
           return;
         }
@@ -395,7 +375,7 @@ var computeSFPrices = {
             }
             if (!self.stopSearch.is(":checked")) {
               setTimeout(
-                function() {
+                function () {
                   ////LOOP THE TAX.SEARCH IN THE SPREADSHEET.TABLE
                   this.searchTax();
                 }.bind(self),
@@ -408,10 +388,10 @@ var computeSFPrices = {
     })(this);
   },
 
-  onTaxSearch: function() {
+  onTaxSearch: function () {
     ////DEFINE THE TAX.SEARCH EVENT
     (function onEvents(self) {
-      chrome.storage.onChanged.addListener(function(changes, area) {
+      chrome.storage.onChanged.addListener(function (changes, area) {
         if (self.$spreadSheet.css("display") == "none") {
           return;
         }
@@ -431,7 +411,7 @@ var computeSFPrices = {
             }
             if (!self.stopSearch.is(":checked")) {
               setTimeout(
-                function() {
+                function () {
                   ////LOOP THE TAX.SEARCH IN THE SPREADSHEET.TABLE
                   this.searchTax();
                   // this.searchTax_New();
@@ -445,7 +425,7 @@ var computeSFPrices = {
     })(this);
   },
 
-  searchTax: function() {
+  searchTax: function () {
     ////SEARCH PROPERTY.TAX BY PID THRU BC.TAX.SEARCH #TAB1
     var self = this;
     var i = 0;
@@ -474,13 +454,13 @@ var computeSFPrices = {
         }
         ////SEND TAX SEARCH COMMAND TO BACKGROUND SCRIPT
         chrome.storage.local.set({ PID: pid });
-        chrome.storage.local.get("PID", function(result) {
+        chrome.storage.local.get("PID", function (result) {
           //console.log(">>>PID saved for tax search: ", result.PID);
           //////////////////////////////////////////////////////////
           //SEND OUT SEARCH TAX COMMAND
           chrome.runtime.sendMessage(
             { from: "SpreadSheet", todo: "taxSearch" },
-            function(response) {
+            function (response) {
               console.log("SpreadSheet got tax response:", response);
               self.table[unTaxed][10] = true; ////SET UP THE ROW.SEARCHED TO TRUE
             }
@@ -505,25 +485,25 @@ var computeSFPrices = {
     }
   },
 
-  postComplexInfo: function() {
+  postComplexInfo: function () {
     //console.log(this.complexInfos);
     var uniqueComplexInfos = $fx.normalizeComplexInfos(this.complexInfos);
     $.ajax({
       url:
-        "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/dataComplexInfo.php",
+        "https://localhost/pidrealty3/wp-content/themes/pidHomes-PhaseI/db/dataComplexInfo.php",
       method: "post",
       data: { complexInfos: uniqueComplexInfos },
-      success: function(res) {
+      success: function (res) {
         console.log("ajax::", res);
         res = JSON.parse(res);
-        res.forEach(complexInfo => {
+        res.forEach((complexInfo) => {
           console.log(complexInfo);
         });
-      }
+      },
     });
   },
 
-  updateAssess: function() {
+  updateAssess: function () {
     ////ON TAX.SEARCH EVENT, CHROME.STORAGE GET A NEW.VALUE CONTAINS 'assess' AND 'ForSpreadSheet'
     var self = this;
     var aInfo = null;
@@ -538,9 +518,9 @@ var computeSFPrices = {
         "address",
         "bcaDataUpdateDate",
         "planNum",
-        "dataFromDB"
+        "dataFromDB",
       ],
-      function(result) {
+      function (result) {
         var pid = result.PID;
         var totalValue = result.totalValue;
         var improvementValue = result.improvementValue;
@@ -636,7 +616,7 @@ var computeSFPrices = {
     );
   },
 
-  updateAssessWhenTaxSearchFailed: function() {
+  updateAssessWhenTaxSearchFailed: function () {
     ////FOR NO BC.TAX.RECORD
     ////BC.TAX.RECORD SHOWS TAX.VALUE = 0
     var self = this;
@@ -649,9 +629,9 @@ var computeSFPrices = {
         "landValue",
         "address",
         "planNum",
-        "dataFromDB"
+        "dataFromDB",
       ],
-      function(result) {
+      function (result) {
         var pid = result.PID;
         var totalValue = result.totalValue;
         var improvementValue = result.improvementValue;
@@ -724,9 +704,9 @@ var computeSFPrices = {
   //////////////////////////////////////////////////////////////////////////////
   ///////////////////             Complex Search Code              /////////////
   //////////////////////////////////////////////////////////////////////////////
-  onComplexSearch: function() {
+  onComplexSearch: function () {
     (function onEvents(self) {
-      chrome.storage.onChanged.addListener(function(changes, area) {
+      chrome.storage.onChanged.addListener(function (changes, area) {
         if (self.$spreadSheet.css("display") == "none") {
           return;
         }
@@ -739,7 +719,7 @@ var computeSFPrices = {
             self.updateComplex();
 
             setTimeout(
-              function() {
+              function () {
                 //go to next listing for assess date
                 this.searchComplex();
               }.bind(self),
@@ -751,7 +731,7 @@ var computeSFPrices = {
     })(this);
   },
 
-  searchComplex: function() {
+  searchComplex: function () {
     var self = this;
     var i = 0;
     var unSearchComplex = 0;
@@ -798,10 +778,10 @@ var computeSFPrices = {
             _id: complexID,
             name: complexName,
             todo: "searchComplexInfo",
-            from: "spreadSheetCompletion"
+            from: "spreadSheetCompletion",
           };
 
-          chrome.runtime.sendMessage(complexInfo, function(response) {});
+          chrome.runtime.sendMessage(complexInfo, function (response) {});
           ////////////////////////////////////////
           break;
         }
@@ -819,10 +799,7 @@ var computeSFPrices = {
             fields[self.cols.StrataPlan].textContent.trim() +
             " " +
             fields[self.cols.StreetAddress].textContent.trim();
-          strataPlanID = strataPlanID
-            .trim()
-            .split(" ")
-            .join("-");
+          strataPlanID = strataPlanID.trim().split(" ").join("-");
           complexInfo = {
             ComplexName: fields[self.cols.ComplexName].textContent,
             Address: fields[self.cols.StreetAddress].textContent,
@@ -860,7 +837,7 @@ var computeSFPrices = {
             StrataFeePSF: fields[self.cols.StrataFeePSF].textContent,
             MaintenanceFeeInclude:
               fields[self.cols.MaintenanceFeeInclude].textContent,
-            AddedDate: $fx.formatDate_Y_m_d(new Date())
+            AddedDate: $fx.formatDate_Y_m_d(new Date()),
           };
           self.complexInfos.push(complexInfo);
         }
@@ -871,10 +848,10 @@ var computeSFPrices = {
     }
   },
 
-  updateComplex: function() {
+  updateComplex: function () {
     var self = this;
 
-    chrome.storage.local.get(["_id", "name"], function(result) {
+    chrome.storage.local.get(["_id", "name"], function (result) {
       var complexID = result._id;
       var complexName = result.name;
       complexName = $fx.normalizeComplexName(complexName);
@@ -889,7 +866,7 @@ var computeSFPrices = {
     });
   },
 
-  updateSpreadsheet: function() {
+  updateSpreadsheet: function () {
     var self = this;
 
     var x = $("table#grid tbody");
@@ -1050,18 +1027,18 @@ var computeSFPrices = {
 
   /////////////////////////////////////////////////////////////////////////////
 
-  addLock: function(tabID) {
+  addLock: function (tabID) {
     chrome.runtime.sendMessage(
       { from: "SpreadSheet", todo: "addLock", tabID, tabID },
-      function(response) {
+      function (response) {
         console.log("SpreadSheet got tax response:", response);
       }
     );
-  }
+  },
 };
 
 //entry point:
-$(function() {
+$(function () {
   console.log("Spreadsheet Document State:", document.readyState);
   var $loadingNotice = document.querySelector("#load_grid");
   // Define Debug Status::
@@ -1070,7 +1047,7 @@ $(function() {
     if (!window.console) window.console = {};
     var methods = ["log", "debug", "warn", "info"];
     for (var i = 0; i < methods.length; i++) {
-      console[methods[i]] = function() {};
+      console[methods[i]] = function () {};
     }
   }
   console.log($loadingNotice);

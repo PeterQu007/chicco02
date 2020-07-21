@@ -57,6 +57,7 @@ class SumBoxButtons extends React.Component {
 
     var originalHeadCells = $(rowHead).children("th");
     var exportTableRows = $(cloneTable).children().find("tr");
+
     var row0 = $(exportTableRows[0]);
     row0.height(40); //set the height of the table header
     var newHeadCells = row0.children("td");
@@ -71,6 +72,38 @@ class SumBoxButtons extends React.Component {
 
     ////----SELECT COLUMNS FOR EXPORTING, MAKE THE TABLE FOR EXPORTING
     this.selectExportTableRows(tabTitle, exportTableRows);
+
+    //////----PREPARE DATASET FOR MYSQL SERVER
+    var rowValues = [];
+    for (var i = 0; i < exportTableRows.length; i++) {
+      var row = exportTableRows[i];
+      var cells = $(row).children("td");
+      var cellValues = [];
+      var cellValue = null;
+      for (var j = 0; j < cells.length; j++) {
+        cellValue = cells[j].innerText;
+        cellValues.push(cellValue);
+      }
+      // ADD cma_ID to the array
+      let subjectOptions = $("select#SubjectProperty", top.document); // get the select element defined by MainMenu.js
+      let cmaSubject = subjectOptions.children()[
+        subjectOptions.prop("selectedIndex")
+      ];
+      let cmaID = cmaSubject.getAttribute("cmaID");
+      cellValues.push(cmaID); //push the cma Subject ID into the array
+      rowValues.push(cellValues);
+    }
+    //////----DEFINE CMA OBJECT DATA
+    var cmaInfo = {
+      cmaData: rowValues,
+      todo: "saveCMAInfo",
+      from: "uiSummaryTable::onExp(save CMA Date)",
+    };
+
+    ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
+    chrome.runtime.sendMessage(cmaInfo, function (response) {
+      console.log("save CMA Info");
+    });
 
     cloneTable.appendTo($(htmlTable));
 

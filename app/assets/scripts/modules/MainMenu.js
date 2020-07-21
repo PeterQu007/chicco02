@@ -9,20 +9,44 @@ export default class MainMenu {
     this.appMidBanner = $('<div id = "app_banner_mid"></div>');
     this.appMainMenu = $("#app_banner_menu");
 
+    //Add Subject Loading form
+
+    this.formLoadSubject = $(
+      `<form class="languagebox" name='pid_load_subjects' style="display:block"></form>`
+    );
+
+    //Add Subject Load Button
+    this.btnSubjectProperty = $(`<div class="languagebox"> 
+                  <input type = "button" id="SubjectPropertySubmit" value="LoadSubject">
+                  </div>`);
+    this.formLoadSubject.append(this.btnSubjectProperty);
+
+    //insert remote/local radio
+    this.radioSubjectLoadingLink = $(`<div class = "languagebox">
+        <input type="radio" class = "pid_subject_property_options" id='pid_local' name="LoadSubjects" value="local" checked='checked' />
+        <label for='pid_local'>Local&nbsp</label>
+        <input type="radio" class = "pid_subject_property_options" id='pid_remote; ?>' name="LoadSubjects" value="remote" />
+        <label for='pid_remote'>Remote&nbsp</label>
+      </div>`);
+    this.formLoadSubject.append(this.radioSubjectLoadingLink);
+
     //insert Subject Setting Button
-    (this.txtSubjectProperty = $(`<div>
-                                <input type="TEXT" id="SubjectProperty">
-                                </div>
-                            `)),
-      this.txtSubjectProperty.insertAfter(this.appLeftBanner);
+    this.selectSubjectProperty = $(`<div class="languagebox">
+                                <select id="SubjectProperty" name="SubjectProperty" >
+                                <option value = "205">205<option>
+                                <option value = "805">805<option>
+                                </select>
+                                </div>`);
+    this.formLoadSubject.append(this.selectSubjectProperty);
+    // this.selectSubjectProperty.insertAfter(this.appLeftBanner);
     this.txtSubjectAddress = document.getElementById("SubjectProperty");
 
-    //insert Subject Add Button
-    this.btnSubjectProperty = $(`<div> 
-                  <input type = "button" id="SubjectPropertySubmit" value="Add Subject">
-                  </div>`);
-    this.btnSubjectProperty.insertAfter(this.appLeftBanner);
-    this.btnAddSubject = document.getElementById("SubjectPropertySubmit");
+    //insert form to the banner
+    this.formLoadSubject.insertAfter(this.appLeftBanner);
+    this.subjectPropertyOptions = document.getElementsByClassName(
+      "pid_subject_property_options"
+    );
+    this.btnLoadSubject = document.getElementById("SubjectPropertySubmit");
 
     //lock the map size
     (this.chkShowSmallMap = $(`<div class="languagebox">
@@ -45,7 +69,7 @@ export default class MainMenu {
     (this.txtResponse = $(`<div class="languagebox">
                                 <div id="textResponse">
                                     <label>res</label>
-                                    <input id="inputListingInfo" type="text" name="textbox" style="width: 350px!important" />
+                                    <input id="inputListingInfo" type="text" name="textbox" style="width: 150px!important" />
                                 </div>
                             </div>`)),
       this.txtResponse.insertAfter(this.appLeftBanner);
@@ -80,7 +104,15 @@ export default class MainMenu {
 
   events() {
     //todo::
-    this.btnAddSubject.addEventListener("click", () => this.post());
+    this.btnLoadSubject.addEventListener("click", () =>
+      this.loadSubjectProperties()
+    );
+    var rad = this.subjectPropertyOptions;
+    for (var i = 0; i < rad.length; i++) {
+      rad[i].addEventListener("change", (e) => {
+        $('input[name="textbox"]').val("remote change OK!");
+      });
+    }
   }
 
   showLargeMap() {
@@ -105,20 +137,63 @@ export default class MainMenu {
     this.listingCarts[0].click();
   }
 
-  post() {
-    var address = this.txtSubjectAddress.value;
+  loadSubjectProperties() {
+    var address = "TEST";
     var id = "1234";
+    var urlOption = document.getElementById("pid_local").checked;
+    var ajax_url = "";
+    if (urlOption) {
+      ajax_url =
+        "http://localhost/pidrealty3/wp-content/themes/realhomes-child/db/loadSubjectData.php";
+    } else {
+      ajax_url =
+        "https://pidhomes.ca/wp-content/themes/realhomes-child/db/loadSubjectData.php";
+    }
 
     $.ajax({
-      url:
-        "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/data.php",
+      url: ajax_url,
       method: "post",
       data: { address: address, postID: id },
+      dataType: "json",
       success: function (res) {
         console.log("res", res);
-        $('input[name="textbox"]').val(
-          JSON.stringify(res) + ":: connect to MySQL successfully!!!!"
-        );
+        var subjectProperties = res;
+        var htmlSelect = document.getElementById("SubjectProperty");
+        //clear old optionis in the htmlSelect
+        htmlSelect.length = 0;
+        let defaultOption = document.createElement("option");
+        defaultOption.text = "Choose Subject Property";
+
+        htmlSelect.add(defaultOption);
+        htmlSelect.selectedIndex = 0;
+        let option;
+        let subjectAddress;
+        let unitNo;
+        //SELECT Subject_Address, Unit_No, City, Neighborhood FROM wp_pid_cma_subjects WHERE CMA_ACTION=1
+        for (var i = 0; i < subjectProperties.length; i++) {
+          let tempUnitNo = subjectProperties[i].Unit_No;
+          tempUnitNo = tempUnitNo ? tempUnitNo : "";
+          tempUnitNo = tempUnitNo.replace("#", "").trim();
+          unitNo = tempUnitNo == "" ? "" : "#" + tempUnitNo + " ";
+
+          subjectAddress = unitNo + subjectProperties[i].Subject_Address.trim();
+          option = document.createElement("option");
+          option.text = subjectAddress;
+          option.value = subjectAddress;
+          option.setAttribute("cmaID", subjectProperties[i].ID);
+          option.setAttribute(
+            "address",
+            subjectProperties[i].Subject_Address.trim()
+          );
+          option.setAttribute("unitno", unitNo.trim());
+          option.setAttribute("city", subjectProperties[i].City.trim());
+          option.setAttribute(
+            "district",
+            subjectProperties[i].Neighborhood.trim()
+          );
+          htmlSelect.add(option);
+        }
+        // $('input[name="textbox"]').val(JSON.stringify(res));
       },
     });
   }

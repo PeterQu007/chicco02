@@ -572,6 +572,19 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
       });
     }
 
+    if (request.todo == "saveCMAInfo") {
+      var cmaInfo = request;
+      $.ajax({
+        url:
+          "http://localhost/pidrealty3/wp-content/themes/Realhomes-child/db/dbSaveCMAInfo.php",
+        method: "post",
+        data: cmaInfo,
+        success: function (res) {
+          console.log("res::", JSON.stringify(res));
+        },
+      });
+    }
+
     return true;
   });
 
