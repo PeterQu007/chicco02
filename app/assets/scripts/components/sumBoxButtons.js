@@ -93,9 +93,24 @@ class SumBoxButtons extends React.Component {
       cellValues.push(cmaID); //push the cma Subject ID into the array
       rowValues.push(cellValues);
     }
+
+    // Check the URL local or remote
+    let urlLocationOptionLocal = $("#pid_local", top.document);
+    let urlLocation = urlLocationOptionLocal.prop("checked");
+    let ajax_url = "";
+
+    if (urlLocation) {
+      ajax_url =
+        "http://localhost/pidrealty3/wp-content/themes/Realhomes-child/db/dbSaveCMAInfo.php";
+    } else {
+      ajax_url =
+        "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dbSaveCMAInfo.php";
+    }
+
     //////----DEFINE CMA OBJECT DATA
     var cmaInfo = {
       cmaData: rowValues,
+      ajax_url: ajax_url,
       todo: "saveCMAInfo",
       from: "uiSummaryTable::onExp(save CMA Date)",
     };
@@ -406,6 +421,18 @@ class SumBoxButtons extends React.Component {
     var maintenanceFee = cells[cols.StrataFeePSF].textContent;
     var neighborhood = cells[cols.Neighborhood].textContent;
 
+    let urlLocationOptionLocal = $("#pid_local", top.document);
+    let urlLocation = urlLocationOptionLocal.prop("checked");
+    let ajax_url = "";
+
+    if (urlLocation) {
+      ajax_url =
+        "http://localhost/pidrealty3/wp-content/themes/Realhomes-child/db/dbAddSubjectProperty.php";
+    } else {
+      ajax_url =
+        "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dbAddSubjectProperty.php";
+    }
+
     var subjectInfo = {
       address: subjectStreetAddress,
       unitNo: subjectUnitNo,
@@ -419,6 +446,7 @@ class SumBoxButtons extends React.Component {
       maintenanceFee: maintenanceFee,
       city: subjectCity,
       neighborhood: neighborhood,
+      ajax_url: ajax_url,
       todo: "saveSubjectInfo",
       from: "uiSummaryTable",
     };

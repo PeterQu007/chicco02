@@ -561,9 +561,9 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
     // "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/dbAddSubjectProperty.php"
     if (request.todo == "saveSubjectInfo") {
       var subjectInfo = request;
+      let ajax_url = request.ajax_url;
       $.ajax({
-        url:
-          "http://localhost/pidrealty3/wp-content/themes/Realhomes-child/db/dbAddSubjectProperty.php",
+        url: ajax_url,
         method: "post",
         data: subjectInfo,
         success: function (res) {
@@ -574,9 +574,9 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
 
     if (request.todo == "saveCMAInfo") {
       var cmaInfo = request;
+      let ajax_url = request.ajax_url;
       $.ajax({
-        url:
-          "http://localhost/pidrealty3/wp-content/themes/Realhomes-child/db/dbSaveCMAInfo.php",
+        url: ajax_url,
         method: "post",
         data: cmaInfo,
         success: function (res) {

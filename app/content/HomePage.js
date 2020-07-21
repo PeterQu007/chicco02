@@ -7,14 +7,14 @@ import MainNavBar, { mainNavItem } from "../assets/scripts/modules/MainNavBar";
 import MainMenu from "../assets/scripts/modules/MainMenu";
 var _ = require("underscore");
 
-(function($) {
-  $.fn.inlineStyle = function(prop) {
+(function ($) {
+  $.fn.inlineStyle = function (prop) {
     return this.prop("style")[$.camelCase(prop)];
   };
 })(jQuery);
 
 let DefaultPage = {
-  init: function() {
+  init: function () {
     // Define Debug
 
     var DEBUG = false;
@@ -22,13 +22,14 @@ let DefaultPage = {
       if (!window.console) window.console = {};
       var methods = ["log", "debug", "warn", "info"];
       for (var i = 0; i < methods.length; i++) {
-        console[methods[i]] = function() {};
+        console[methods[i]] = function () {};
       }
     }
     // Open frequently used tabs:
     this.mainMenu.openTaxSearch();
     this.mainMenu.openListingCarts();
     this.mainMenu.openSavedSearches();
+    this.mainMenu.loadSubjectProperties();
 
     this.mainNavBar = new MainNavBar();
     //console.log(this.topTabs);
@@ -42,8 +43,8 @@ let DefaultPage = {
   mainNavBar: null,
 
   onMessage() {
-    (function(self) {
-      chrome.runtime.onMessage.addListener(function(
+    (function (self) {
+      chrome.runtime.onMessage.addListener(function (
         request,
         sender,
         sendResponse
@@ -106,7 +107,7 @@ let DefaultPage = {
           self.curTabID = self.curTabLink.attr("href");
           console.log("current Tab ID is: ", self.curTabID);
           // save the curTabID
-          chrome.storage.local.set({ curTabID: self.curTabID }, function() {
+          chrome.storage.local.set({ curTabID: self.curTabID }, function () {
             console.log("curTabID has been save to storage.");
           });
         }
@@ -114,7 +115,7 @@ let DefaultPage = {
         //Sync Tab to Content
         if (request.todo == "syncTabToContent") {
           console.group("defaultpage.syncTabToContent");
-          self.mainNavBar.topTabInfos.forEach(function(tabInfo) {
+          self.mainNavBar.topTabInfos.forEach(function (tabInfo) {
             console.info("tab in topTabInfos: ", tabInfo);
             tabInfo.syncTabToContent();
           });
@@ -124,7 +125,7 @@ let DefaultPage = {
         //Hide QuickSearch Tab Content
         if (request.todo == "hideQuickSearch") {
           console.group("defaultPage.hideQuickSearch.tabID:", request.tabID);
-          self.mainNavBar.topTabInfos.forEach(function(tabInfo) {
+          self.mainNavBar.topTabInfos.forEach(function (tabInfo) {
             if (tabInfo.tabID == request.tabID) {
               console.info("defaultPage.QuickSearch.tabInfo:", tabInfo);
               tabInfo.DeactivateThisTab();
@@ -136,7 +137,7 @@ let DefaultPage = {
         //get TabTitle by TabID
         if (request.todo == "getTabTitle") {
           console.group("getTabTitle", request.tabID);
-          self.mainNavBar.mainNavItems.forEach(function(navItem) {
+          self.mainNavBar.mainNavItems.forEach(function (navItem) {
             if (navItem.ID == request.tabID) {
               console.log("find tabTitle:", navItem.ID, navItem.Title);
               sendResponse({ tabID: navItem.ID, tabTitle: navItem.Title });
@@ -165,7 +166,7 @@ let DefaultPage = {
   onChanged() {
     let self = this;
     //listen the change from QuickSearch
-    chrome.storage.onChanged.addListener(function(changes, area) {
+    chrome.storage.onChanged.addListener(function (changes, area) {
       //hide QuickSearchTab & TabContent
       if (
         area == "local" &&
@@ -173,7 +174,7 @@ let DefaultPage = {
         changes.todo.newValue.indexOf("hideQuickSearch") > -1
       ) {
         console.log("onTabStatusUpdate.command::", changes.todo.newValue);
-        self.mainNavBar.topTabInfos.forEach(function(tabInfo) {
+        self.mainNavBar.topTabInfos.forEach(function (tabInfo) {
           if (tabInfo.tabTitle.trim() == "Quick Search") {
             tabInfo.DeactivateThisTab();
           }
@@ -207,20 +208,20 @@ let DefaultPage = {
 
     $.ajax({
       url:
-        "https://pidrealty.local/wp-content/themes/pidHomes-PhaseI/db/data.php",
+        "http://localhost/pidrealty3/wp-content/themes/RealHomes-child/db/data.php",
       method: "post",
       data: { postTitle: title, postID: id },
-      success: function(res) {
+      success: function (res) {
         console.log(res);
         $('input[name="textbox"]').val(
           JSON.stringify(res) + ":: connect to MySQL successfully!"
         );
-      }
+      },
     });
-  }
+  },
 };
 
 // Start point
-$(function() {
+$(function () {
   DefaultPage.init();
 });

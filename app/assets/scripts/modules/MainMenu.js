@@ -147,7 +147,7 @@ export default class MainMenu {
         "http://localhost/pidrealty3/wp-content/themes/realhomes-child/db/loadSubjectData.php";
     } else {
       ajax_url =
-        "https://pidhomes.ca/wp-content/themes/realhomes-child/db/loadSubjectData.php";
+        "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/loadSubjectData.php";
     }
 
     $.ajax({
@@ -176,7 +176,12 @@ export default class MainMenu {
           tempUnitNo = tempUnitNo.replace("#", "").trim();
           unitNo = tempUnitNo == "" ? "" : "#" + tempUnitNo + " ";
 
-          subjectAddress = unitNo + subjectProperties[i].Subject_Address.trim();
+          subjectAddress =
+            unitNo +
+            subjectProperties[i].Subject_Address.trim() +
+            "[" +
+            subjectProperties[i].ID +
+            "]";
           option = document.createElement("option");
           option.text = subjectAddress;
           option.value = subjectAddress;

@@ -38,6 +38,7 @@ var computeSFPrices = {
       ////EXCLUDE #TAB1: BC.TAX.SEARCH.RESULTS
       this.addLock(this.tabID);
       this.$tabContentContainer = $("div" + this.tabID, top.document);
+      // this.$LoadSubject = $("#SubjectPropertySubmit", top.document);
 
       this.$spreadSheet = $("#ifSpreadsheet");
       this.$searchCount = $("#SearchCount", parent.document);
@@ -48,6 +49,9 @@ var computeSFPrices = {
         this.recordCount = parseInt(this.$searchCount.text()); ////SAME RECORD.COUNT SHOWS IN THE TOP.SECTION
       }
       console.log("[SPREADSHEET] Record Count: ", this.recordCount);
+
+      //// Load Active Subject Properties
+      // this.$LoadSubject.click();
 
       ////HOOK UP EVENTS:
       this.onTaxSearch(); ////TAX.SEARCH EVENT
@@ -488,9 +492,20 @@ var computeSFPrices = {
   postComplexInfo: function () {
     //console.log(this.complexInfos);
     var uniqueComplexInfos = $fx.normalizeComplexInfos(this.complexInfos);
+    let urlLocationOptionLocal = $("#pid_local", top.document);
+    let urlLocation = urlLocationOptionLocal.prop("checked");
+    let ajax_url = "";
+
+    if (urlLocation) {
+      ajax_url =
+        "http://localhost/pidrealty3/wp-content/themes/Realhomes-child/db/dataComplexInfo.php";
+    } else {
+      ajax_url =
+        "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dataComplexInfo.php";
+    }
+
     $.ajax({
-      url:
-        "https://localhost/pidrealty3/wp-content/themes/pidHomes-PhaseI/db/dataComplexInfo.php",
+      url: ajax_url,
       method: "post",
       data: { complexInfos: uniqueComplexInfos },
       success: function (res) {
