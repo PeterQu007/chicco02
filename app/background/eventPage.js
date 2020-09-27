@@ -34,9 +34,11 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
 
   chrome.browserAction.onClicked.addListener(function (activeTab) {
     //open a link
-    var newURL = "http://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword";
-    //var newURL = "http://stackoverflow.com/"
-    chrome.tabs.create({ url: newURL });
+    // var newURL = "http://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword";
+    let newURL = "https://gvfv.clareityiam.net/idp/login";
+    chrome.tabs.create({
+      url: newURL,
+    });
   });
 
   chrome.webNavigation.onCompleted.addListener(

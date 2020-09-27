@@ -17,7 +17,7 @@ import uiListingInfo from "../assets/scripts/ui/uiListingInfo";
 var $fx = L$();
 
 var fullRealtor = {
-  init: function() {
+  init: function () {
     //console.clear();
     //read full realtor report, get listing data
     //$fx.getCurrentTab(curTabID);
@@ -47,11 +47,7 @@ var fullRealtor = {
     this.tabNo = parseInt(this.tabID.replace("#tab", ""));
     var x = $("ul#tab-bg", top.document); //find the top tab panel
     var y = x.children("li")[this.tabNo];
-    this.tabTitle = $(y)
-      .children()
-      .find("span")
-      .text()
-      .trim();
+    this.tabTitle = $(y).children().find("span").text().trim();
     console.warn(
       "[FR]===>tabID, tabNo, tabTitle",
       this.tabID,
@@ -118,12 +114,7 @@ var fullRealtor = {
 
     //send out data to topdocuemnts
     var propertyType = $("input#inputListingInfo", top.document);
-    propertyType.val(
-      this.houseType
-        .text()
-        .replace(",", "")
-        .replace(" ", "")
-    );
+    propertyType.val(this.houseType.text().replace(",", "").replace(" ", ""));
 
     this.populateUiListing();
     //add event listeners:
@@ -143,7 +134,7 @@ var fullRealtor = {
     //do searches:
     this.searchStrataPlanSummary();
     var that = this;
-    setTimeout(function() {
+    setTimeout(function () {
       that.searchTax();
     }, 500); //delay does not help the tab jumps issue
     //this.lockVisibility();
@@ -219,7 +210,7 @@ var fullRealtor = {
   tabTitle: "",
   tabContentContainer: null,
 
-  lockVisibility: function() {
+  lockVisibility: function () {
     var divTab = $("div" + this.tabID, top.document);
     var divTaxSearch = $("div#tab1", top.document);
     this.tabContentContainer = divTab;
@@ -229,16 +220,16 @@ var fullRealtor = {
     chrome.storage.local.set({ curTabID: this.tabID });
   },
 
-  addLock: function(tabID) {
+  addLock: function (tabID) {
     chrome.runtime.sendMessage(
       { from: "FullRealtorReport", todo: "addLock", tabID, tabID },
-      function(response) {
+      function (response) {
         console.log("FullRealtorReport got tax response:", response);
       }
     );
   },
 
-  getMorePropertyInfo: function() {
+  getMorePropertyInfo: function () {
     var self = this;
     var listingHouseType = self.houseType
       .text()
@@ -340,7 +331,7 @@ var fullRealtor = {
     }
   },
 
-  calculateSFPrice: function() {
+  calculateSFPrice: function () {
     //console.log(this.lp.text(), this.sp.text(), this.finishedFloorArea.text());
     var listPrice = $fx.convertStringToDecimal(this.lp.text());
     var soldPrice = $fx.convertStringToDecimal(this.sp.text());
@@ -359,7 +350,7 @@ var fullRealtor = {
     }
   },
 
-  populateUiListing: function() {
+  populateUiListing: function () {
     this.addMLSNo();
     this.addStrataPlan(); //move this operation inside updateAssessment
     this.addComplexInfo(); //
@@ -372,9 +363,9 @@ var fullRealtor = {
     this.addShowingInfo(); //add showing schedule info
   },
 
-  addDataEvents: function() {
+  addDataEvents: function () {
     (function onEvents(self) {
-      chrome.storage.onChanged.addListener(function(changes, area) {
+      chrome.storage.onChanged.addListener(function (changes, area) {
         console.debug("====>fullrealtor: got a message: !", changes);
         if (area == "local" && "from" in changes) {
           if (
@@ -419,7 +410,7 @@ var fullRealtor = {
     })(this);
   },
 
-  addPics: function() {
+  addPics: function () {
     let totalPics = this.picLinkValues.length;
     let i = 0;
 
@@ -433,9 +424,11 @@ var fullRealtor = {
         .attr("src", this.picLinkValues[i]);
       let elementPic = document.getElementById("img" + i);
       if (i != 0) {
-        elementPic.addEventListener("click", function() {
-          window.open(elementPic.src);
-        });
+        if (elementPic) {
+          elementPic.addEventListener("click", function () {
+            window.open(elementPic.src);
+          });
+        }
       }
     }
 
@@ -446,12 +439,12 @@ var fullRealtor = {
     }
   },
 
-  addMLSNo: function() {
+  addMLSNo: function () {
     var mlsNO = this.mlsNo.text();
     this.uiListingInfo.mlsNo.text(mlsNO);
   },
 
-  addStrataPlan: function(planNum) {
+  addStrataPlan: function (planNum) {
     var legal = "";
 
     if (planNum == undefined) {
@@ -488,12 +481,12 @@ var fullRealtor = {
         strataPlan1: legalDesc.strataPlan1,
         strataPlan2: legalDesc.strataPlan2,
         strataPlan3: legalDesc.strataPlan3,
-        strataPlan4: legalDesc.strataPlan4
+        strataPlan4: legalDesc.strataPlan4,
       });
     }
   },
 
-  addComplexInfo: function(complex) {
+  addComplexInfo: function (complex) {
     var self = this;
     var subArea = self.subArea.text();
     var neighborhood = self.neighborhood.text();
@@ -547,11 +540,11 @@ var fullRealtor = {
       totalUnits: totalUnits,
       devUnits: devUnits,
       todo: complex != undefined ? "saveComplexInfo" : "searchComplexInfo",
-      from: "fullRealtorReport"
+      from: "fullRealtorReport",
     };
 
     //console.log('===>add ComplexInfo: ', complexInfo);
-    chrome.runtime.sendMessage(complexInfo, function(response) {
+    chrome.runtime.sendMessage(complexInfo, function (response) {
       if (response) {
         self.complexName.text(response.name);
         self.complexOrSubdivision.text(response.name);
@@ -559,12 +552,12 @@ var fullRealtor = {
     });
   },
 
-  updateComplexInfo: function() {
+  updateComplexInfo: function () {
     var self = this;
     var $inputName = $("#inputComplexName");
     var compName = "";
 
-    chrome.storage.local.get("complexName", function(result) {
+    chrome.storage.local.get("complexName", function (result) {
       if (result) {
         compName = $fx.normalizeComplexName(result.complexName);
         self.complexName.text(compName);
@@ -574,7 +567,7 @@ var fullRealtor = {
     });
   },
 
-  addExposureInfo: function(exposure) {
+  addExposureInfo: function (exposure) {
     var self = this;
 
     var exposureName = exposure || self.exposure.text().trim();
@@ -589,18 +582,18 @@ var fullRealtor = {
       exposureName: exposureName,
       addDate: $fx.getToday(),
       todo: exposure != undefined ? "saveExposure" : "searchExposure",
-      from: "fullRealtorReport"
+      from: "fullRealtorReport",
     };
 
     console.log("===>add ExposureInfo: ", exposureInfo);
-    chrome.runtime.sendMessage(exposureInfo, function(response) {
+    chrome.runtime.sendMessage(exposureInfo, function (response) {
       if (response) {
         self.exposure.text(response.name);
       }
     });
   },
 
-  addListingInfo: function(listing) {
+  addListingInfo: function (listing) {
     var self = this;
 
     var listingName = listing || "";
@@ -615,18 +608,18 @@ var fullRealtor = {
       listingName: listingName,
       addDate: $fx.getToday(),
       todo: listing != undefined ? "saveListing" : "searchListing",
-      from: "fullRealtorReport"
+      from: "fullRealtorReport",
     };
 
     console.log("===>add ListingInfo: ", listingInfo);
-    chrome.runtime.sendMessage(listingInfo, function(response) {
+    chrome.runtime.sendMessage(listingInfo, function (response) {
       if (response) {
         self.uiListingInfo.inputListing.text(response.name);
       }
     });
   },
 
-  addBCAssessment: function() {
+  addBCAssessment: function () {
     //set bc assessment properties:
     this.bcAssess = $("#totalValue");
     this.bcLand = $("#landValue");
@@ -638,7 +631,7 @@ var fullRealtor = {
     this.marketValuePerSF = $("#marketValuePerSF");
   },
 
-  addRemarks: function() {
+  addRemarks: function () {
     //get realtor remarks:
     var realtorRemarks = this.realtorRemarks.text();
     this.uiListingInfo.realtorRemarks.text(realtorRemarks);
@@ -646,12 +639,9 @@ var fullRealtor = {
     var publicRemarks = this.publicRemarks.text();
     this.uiListingInfo.publicRemarks.text(publicRemarks);
     //highlight keyword in public remarks:
-    var keywordArray = this.keyword
-      .val()
-      .toString()
-      .split(",");
+    var keywordArray = this.keyword.val().toString().split(",");
     var self = this;
-    keywordArray.forEach(function(element) {
+    keywordArray.forEach(function (element) {
       $fx.highlight_words(element, self.uiListingInfo.publicRemarks);
     });
   },
@@ -664,7 +654,7 @@ var fullRealtor = {
    * 4) addShowingInfo: search or save showingInfo from dbShowing
    * 5) updateShowingInfo: update the showingInfo to Screen
    */
-  addShowingInfo: function(showing) {
+  addShowingInfo: function (showing) {
     var self = this;
     var showingID = showing || self.mlsNo.text();
 
@@ -686,18 +676,18 @@ var fullRealtor = {
       showingDate: showingDate,
       showingTime: showingTime,
       todo: showing != undefined ? "saveShowing" : "searchShowing",
-      from: "fullRealtorReport"
+      from: "fullRealtorReport",
     };
 
     //console.log('===>add ComplexInfo: ', complexInfo);
-    chrome.runtime.sendMessage(showingInfo, function(response) {
+    chrome.runtime.sendMessage(showingInfo, function (response) {
       if (response) {
         self.uiListingInfo.clientName.text(response.name);
       }
     });
   },
 
-  searchTax: function() {
+  searchTax: function () {
     var PID = this.pid.text();
     var self = this;
     console.log(
@@ -709,11 +699,11 @@ var fullRealtor = {
       return;
     }
     chrome.storage.local.set({ PID: PID });
-    chrome.storage.local.get("PID", function(result) {
+    chrome.storage.local.get("PID", function (result) {
       //console.log(">>>PID saved for tax search: ", result.PID);
       chrome.runtime.sendMessage(
         { from: "ListingReport", todo: "taxSearch" },
-        function(response) {
+        function (response) {
           //console.log('>>>mls-fullpublic got tax response:', response);
           var divTab = $("div" + self.tabID, top.document);
           var divTaxSearch = $("div#tab1", top.document);
@@ -727,30 +717,30 @@ var fullRealtor = {
     });
   },
 
-  searchStrataPlanSummary: function() {
+  searchStrataPlanSummary: function () {
     var strataPlan = this.legalDesc.strataPlan1;
     var complexName = this.complexOrSubdivision.text();
     complexName = $fx.normalizeComplexName(complexName); ////NORMALIZE THE COMPLEX NAME FROM THE REPORT
     chrome.storage.local.set(
       { strataPlan: strataPlan, complexNameForListingCount: complexName },
-      function(e) {
+      function (e) {
         chrome.runtime.sendMessage(
           {
             from: "ListingReport",
             todo: "searchStrataPlanSummary",
             showResult: true,
-            saveResult: true
+            saveResult: true,
           },
-          function(response) {}
+          function (response) {}
         );
       }
     );
   },
   //send strata plan number to Home Tab - Quick search
-  addStrataEvents: function() {
+  addStrataEvents: function () {
     var self = this;
 
-    this.strataPlanLink.click(function(e) {
+    this.strataPlanLink.click(function (e) {
       e.preventDefault();
       var homeTab = $("#HomeTabLink", top.document);
       homeTab[0].click();
@@ -766,47 +756,47 @@ var fullRealtor = {
           from: "ListingReport",
           todo: "switchTab",
           showResult: false,
-          saveResult: true
+          saveResult: true,
         },
 
-        function(response) {
+        function (response) {
           //console.log('mls-fullrealtor got response: ', response);
         }
       );
     });
   },
 
-  addComplexEvent: function() {
+  addComplexEvent: function () {
     (function event(self) {
       self.saveComplexButton.click(self.saveComplexInfo.bind(self));
     })(this);
   },
 
-  addExposureEvent: function() {
+  addExposureEvent: function () {
     (function event(self) {
       self.saveExposureButton.click(self.saveExposureInfo.bind(self));
     })(this);
   },
 
-  addListingEvent: function() {
+  addListingEvent: function () {
     (function event(self) {
       self.saveListingButton.click(self.saveListingInfo.bind(self));
     })(this);
   },
 
-  addShowingEvent: function() {
+  addShowingEvent: function () {
     (function event(self) {
       self.saveShowingButton.click(self.saveShowingInfo.bind(self));
     })(this);
   },
 
-  addLargeMapEvent: function() {
+  addLargeMapEvent: function () {
     (function event(self) {
       self.showLargeMapButton.click(self.showLargeMap.bind(self));
     })(this);
   },
 
-  saveComplexInfo: function() {
+  saveComplexInfo: function () {
     console.log("save button clicked!");
     //manually save or update complex name to the database
 
@@ -827,9 +817,7 @@ var fullRealtor = {
         return;
       }
       var recordNo = parseInt(self.curPage.value);
-      var recordRows = $(self.spreadsheetTable)
-        .children()
-        .find("tr");
+      var recordRows = $(self.spreadsheetTable).children().find("tr");
       var recordRow = $(recordRows[recordNo]);
       var cells = recordRow.children();
       var cols = $fx.setCols(self.tabTitle);
@@ -854,7 +842,7 @@ var fullRealtor = {
     }
   },
 
-  saveExposureInfo: function() {
+  saveExposureInfo: function () {
     //console.log('save button clicked!');
     //manually save or update complex name to the database
 
@@ -868,7 +856,7 @@ var fullRealtor = {
     }
   },
 
-  saveListingInfo: function() {
+  saveListingInfo: function () {
     console.log("save Listing button clicked!");
     //manually save or update complex name to the database
 
@@ -880,7 +868,7 @@ var fullRealtor = {
     }
   },
 
-  saveShowingInfo: function() {
+  saveShowingInfo: function () {
     console.log("save Showing button clicked!");
     //manually save or update complex name to the database
 
@@ -892,7 +880,7 @@ var fullRealtor = {
     }
   },
 
-  showLargeMap: function() {
+  showLargeMap: function () {
     console.log("show large map clicked");
     var x = $("iframe#mapViewFrame");
     var y = x.contents();
@@ -940,7 +928,7 @@ var fullRealtor = {
     }
   },
 
-  updateAssess: function() {
+  updateAssess: function () {
     var self = this;
     var listPrice = $fx.convertStringToDecimal(self.lp.text());
     var soldPrice = $fx.convertStringToDecimal(self.sp.text());
@@ -953,9 +941,9 @@ var fullRealtor = {
         "address",
         "bcaDataUpdateDate",
         "planNum",
-        "dataFromDB"
+        "dataFromDB",
       ],
-      function(result) {
+      function (result) {
         var totalValue = result.totalValue;
         var formalAddress = result.address.trim();
         if (!formalAddress) {
@@ -1136,7 +1124,7 @@ var fullRealtor = {
     );
   },
 
-  clearAssess: function() {
+  clearAssess: function () {
     var self = this;
     chrome.storage.local.set(
       {
@@ -1145,18 +1133,18 @@ var fullRealtor = {
         landValue: "",
         lotSize: "",
         address: "",
-        bcaDataUpdateDate: ""
+        bcaDataUpdateDate: "",
       },
-      function() {
+      function () {
         //console.log("mls-fullpublic clear AssessInfo! ");
       }
     );
   },
 
-  updateComplexListingQuan: function(changes) {
+  updateComplexListingQuan: function (changes) {
     var self = this;
     //console.log("update strataPlanSummary:");
-    chrome.storage.local.get("count", function(result) {
+    chrome.storage.local.get("count", function (result) {
       var complexName =
         self.complexOrSubdivision.text().length > 0
           ? self.complexOrSubdivision.text()
@@ -1167,30 +1155,30 @@ var fullRealtor = {
     });
   },
 
-  updateExposureInfo: function() {
+  updateExposureInfo: function () {
     var self = this;
     var $inputName = $("#inputExposure");
     var exposureName = "";
 
-    chrome.storage.local.get("exposureName", function(result) {
+    chrome.storage.local.get("exposureName", function (result) {
       exposureName = result.exposureName;
       self.exposure.text(exposureName);
       $inputName.val(exposureName + "::");
     });
   },
 
-  updateListingInfo: function() {
+  updateListingInfo: function () {
     var self = this;
     var $inputName = $("#inputListing");
     var listingName = "";
 
-    chrome.storage.local.get("listingName", function(result) {
+    chrome.storage.local.get("listingName", function (result) {
       listingName = result.listingName;
       $inputName.val(listingName + "::");
     });
   },
   //update showing fields:
-  updateShowingInfo: function() {
+  updateShowingInfo: function () {
     var self = this;
     var $clientName = $("#clientName");
     var $showingNote = $("#showingNote");
@@ -1199,17 +1187,17 @@ var fullRealtor = {
 
     chrome.storage.local.get(
       ["clientName", "name", "showingDate", "showingTime", "showingNote"],
-      function(result) {
+      function (result) {
         $clientName.val(result.name + "::");
         $showingNote.val(result.showingNote);
         $showingDate.val(result.showingDate);
         $showingTime.val(result.showingTime);
       }
     );
-  }
+  },
 };
 
 //star the app
-$(function() {
+$(function () {
   fullRealtor.init();
 });

@@ -498,7 +498,7 @@ var computeSFPrices = {
 
     if (urlLocation) {
       ajax_url =
-        "http://localhost/pidrealty3/wp-content/themes/Realhomes-child/db/dataComplexInfo.php";
+        "http://localhost/pidrealty4/wp-content/themes/Realhomes-child-3/db/dataComplexInfo.php";
     } else {
       ajax_url =
         "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dataComplexInfo.php";

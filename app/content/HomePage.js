@@ -208,7 +208,7 @@ let DefaultPage = {
 
     $.ajax({
       url:
-        "http://localhost/pidrealty3/wp-content/themes/RealHomes-child/db/data.php",
+        "http://localhost/pidrealty4/wp-content/themes/RealHomes-child-3/db/data.php",
       method: "post",
       data: { postTitle: title, postID: id },
       success: function (res) {

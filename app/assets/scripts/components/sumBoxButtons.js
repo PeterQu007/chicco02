@@ -101,7 +101,7 @@ class SumBoxButtons extends React.Component {
 
     if (urlLocation) {
       ajax_url =
-        "http://localhost/pidrealty3/wp-content/themes/Realhomes-child/db/dbSaveCMAInfo.php";
+        "http://localhost/pidrealty4/wp-content/themes/Realhomes-child-3/db/dbSaveCMAInfo.php";
     } else {
       ajax_url =
         "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dbSaveCMAInfo.php";
@@ -277,8 +277,8 @@ class SumBoxButtons extends React.Component {
             6,
             5,
             4,
-            2,
             1,
+            0,
           ];
           for (var j in RemovalHeadCellsNo) {
             $(row).children("td").eq(RemovalHeadCellsNo[j]).remove();
@@ -315,8 +315,8 @@ class SumBoxButtons extends React.Component {
             6,
             5,
             4,
-            2,
             1,
+            0,
           ];
           for (var j in RemovalHeadCellsNo) {
             $(row).children("td").eq(RemovalHeadCellsNo[j]).remove();
@@ -427,7 +427,7 @@ class SumBoxButtons extends React.Component {
 
     if (urlLocation) {
       ajax_url =
-        "http://localhost/pidrealty3/wp-content/themes/Realhomes-child/db/dbAddSubjectProperty.php";
+        "http://localhost/pidrealty4/wp-content/themes/Realhomes-child-3/db/dbAddSubjectProperty.php";
     } else {
       ajax_url =
         "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dbAddSubjectProperty.php";

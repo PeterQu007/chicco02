@@ -31,8 +31,8 @@
       //Paragon Login Page
       //Function: Automatically login with Username and Password
       "matches": [
-        "https://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword",
-        "https://gvfv.clareityiam.net/idp/login"
+        "https://gvfv.clareityiam.net/idp/login",
+        "https://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword"
       ],
       "js": [
         "./assets/lib/jquery/dist/jquery.min.js",

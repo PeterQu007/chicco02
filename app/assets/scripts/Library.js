@@ -1,20 +1,20 @@
 //common functions module
 
-(function(global, $) {
-  let Library = function() {
+(function (global, $) {
+  let Library = function () {
     return new Library.init();
   };
 
   let HouseType = {
     Attached: "Attached",
     Detached: "Detached",
-    Land: "Land"
+    Land: "Land",
   };
 
   let _ = require("underscore");
 
   Library.prototype = {
-    getDecimalNumber: function(strNum) {
+    getDecimalNumber: function (strNum) {
       var result = 0,
         numbers = "";
       strNum = strNum.replace(/,/g, "");
@@ -32,7 +32,7 @@
       return result.toFixed(0);
     },
 
-    getRecordCount: function(url) {
+    getRecordCount: function (url) {
       //recordCount number is between recordCount= AND &
       //console.log("URL",url);
       var pos = url.indexOf("recordCount=");
@@ -43,7 +43,7 @@
       return recordCount;
     },
 
-    convertStringToDecimal: function(strNum, keepFraction) {
+    convertStringToDecimal: function (strNum, keepFraction) {
       //convert Number String To Decimal number
       //example: "$345,890.78" --> 345890
       var result = 0,
@@ -83,7 +83,7 @@
       return result;
     },
 
-    removeDecimalFraction: function(strNum) {
+    removeDecimalFraction: function (strNum) {
       var result = 0;
       strNum = strNum.toString();
       //remove the fraction
@@ -94,30 +94,30 @@
       return result;
     },
 
-    convertUnit: function(sf) {
+    convertUnit: function (sf) {
       if (!isNaN(sf)) sf = sf.toString();
       sf = this.convertStringToDecimal(sf);
       var result = parseInt(sf) / 10.76;
       return result.toFixed(1);
     },
 
-    numberWithCommas: function(x) {
+    numberWithCommas: function (x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     },
 
-    highlight_words: function(keywords, element) {
+    highlight_words: function (keywords, element) {
       if (keywords) {
         var textNodes;
         keywords = keywords.replace(/\W/g, "");
         var str = keywords.split(" ");
-        $(str).each(function() {
+        $(str).each(function () {
           var term = this;
           var textNodes = $(element)
             .contents()
-            .filter(function() {
+            .filter(function () {
               return this.nodeType === 3;
             });
-          textNodes.each(function() {
+          textNodes.each(function () {
             var content = $(this).text();
             var regex = new RegExp(term, "gi");
             content = content.replace(
@@ -130,7 +130,7 @@
       }
     },
 
-    isInt: function(value) {
+    isInt: function (value) {
       return (
         !isNaN(value) &&
         parseInt(Number(value)) == value &&
@@ -138,7 +138,7 @@
       );
     },
 
-    getToday: function() {
+    getToday: function () {
       var today = new Date();
       var dd = today.getDate();
       var mm = today.getMonth() + 1; //January is 0!
@@ -153,7 +153,7 @@
       return today;
     },
 
-    getToday_mmddyyyy: function() {
+    getToday_mmddyyyy: function () {
       /*return format dd/mm/yyyy*/
       var today = new Date();
       var dd = today.getDate();
@@ -169,7 +169,7 @@
       return today;
     },
 
-    formatDate: function(date) {
+    formatDate: function (date) {
       let dd = date.getDate();
       let mm = date.getMonth() + 1; // January is 0!
       let yyyy = date.getFullYear();
@@ -183,13 +183,13 @@
       return date;
     },
 
-    setHouseType: function(houseType) {
+    setHouseType: function (houseType) {
       chrome.storage.local.set({ houseType: houseType });
       //console.log('current House Type is: ', houseType);
       return this;
     },
 
-    formatDate_Y_m_d: function(date) {
+    formatDate_Y_m_d: function (date) {
       var d = new Date(date),
         month = "" + (d.getMonth() + 1),
         day = "" + d.getDate(),
@@ -201,18 +201,18 @@
       return [year, month, day].join("-");
     },
 
-    getCurrentTab: function(curTabID) {
+    getCurrentTab: function (curTabID) {
       chrome.storage.local.set({ curTabID: curTabID });
       chrome.runtime.sendMessage(
         { todo: "readCurTabID", from: "mls-fullrealtor" },
-        function(response) {
+        function (response) {
           //console.log('current Tab ID is: ', response);
         }
       );
       return this;
     },
 
-    getTabID: function(str) {
+    getTabID: function (str) {
       let src, start, end;
       src = str;
       start = src.indexOf("searchID=");
@@ -231,7 +231,7 @@
       return "#" + src; //add id sign # as prefix
     },
 
-    getListingID: function(str) {
+    getListingID: function (str) {
       let src, start, end;
       src = str;
       start = src.indexOf("listingID=");
@@ -247,7 +247,7 @@
       return src; //return listingID
     },
 
-    getPicLinkValues: function(str) {
+    getPicLinkValues: function (str) {
       let linkValues = [];
       ////cdnparap130.paragonrels.com/ParagonImages/Property/p13/BCRES/262361168/0/640/480/c31e77b82df3263ed3d56417ed3e3fe5/15/a4f6984091a0e4a0f6208c31f244e095/262361168.JPG,//cdnparap130.paragonrels.com/ParagonImages/Property/p13/BCRES/262361168/1/640/480/f85c89e089f88721e22e62bf1e379b9f/15/a4f6984091a0e4a0f6208c31f244e095/262361168-1.JPG
       linkValues = str.split(",");
@@ -255,7 +255,7 @@
       return linkValues;
     },
 
-    getSubTabID: function(str) {
+    getSubTabID: function (str) {
       let src, start, end;
       src = str;
       start = src.indexOf("searchID=");
@@ -270,7 +270,7 @@
       return "#" + src; //add id sign # as prefix
     },
 
-    normalizeComplexName: function(complexName) {
+    normalizeComplexName: function (complexName) {
       var normalizedName = "";
       if (typeof complexName == "string") {
         complexName = complexName.trim();
@@ -281,10 +281,7 @@
         for (var i = 0; i < nameParts.length; i++) {
           nameParts[i] = nameParts[i].trim();
           firstChar = nameParts[i].charAt(0).toUpperCase();
-          remainingChar = nameParts[i]
-            .slice(1)
-            .toLowerCase()
-            .trim();
+          remainingChar = nameParts[i].slice(1).toLowerCase().trim();
           normalizedName += firstChar + remainingChar + " ";
         }
         normalizedName = normalizedName.trim();
@@ -295,7 +292,7 @@
       return normalizedName;
     },
 
-    setCols: function(tabTitle) {
+    setCols: function (tabTitle) {
       var cols = null;
       switch (tabTitle) {
         case "Listing Carts":
@@ -353,7 +350,7 @@
             Construction: 90,
             Amenities: 91,
             SiteInfluences: 92,
-            MaintenanceFeeInclude: 93
+            MaintenanceFeeInclude: 93,
           };
           break;
         case "Tour and Open House":
@@ -376,7 +373,7 @@
             changeValuePercent: 25,
             strataPlan: 34,
             lotSize: 33,
-            houseType: 9
+            houseType: 9,
           };
           break;
         default:
@@ -394,14 +391,14 @@
             improvementValue: 33,
             totalValue: 34,
             changeValuePercent: 35,
-            strataPlan: 36
+            strataPlan: 36,
           };
           break;
       }
       return cols;
     },
 
-    inGreatVanArea: function(city) {
+    inGreatVanArea: function (city) {
       var cities = [
         "City" /*FOR KEEPING THE TABLE HEAD*/,
         "Vancouver",
@@ -421,7 +418,8 @@
         "West Vancouver",
         "Ladner",
         "Lions Bay",
-        "Abbotsford"
+        "Abbotsford",
+        "Anmore",
       ];
       if (cities.includes(city)) {
         return true;
@@ -430,7 +428,7 @@
       }
     },
 
-    mean: function(numbers) {
+    mean: function (numbers) {
       var total = 0,
         i;
       for (i = 0; i < numbers.length; i += 1) {
@@ -439,7 +437,7 @@
       return (total / numbers.length).toFixed(0);
     },
 
-    median: function(numbers) {
+    median: function (numbers) {
       // median of [3, 5, 4, 4, 1, 1, 2, 3] = 3
       var median = 0,
         numsLen = numbers.length;
@@ -468,7 +466,7 @@
      * @param {Array} numbers An array of numbers.
      * @return {Array} The mode of the specified numbers.
      */
-    mode: function(numbers) {
+    mode: function (numbers) {
       // as result can be bimodal or multi-modal,
       // the returned result is provided as an array
       // mode of [3, 5, 4, 4, 1, 1, 2, 3] = [1, 3, 4]
@@ -505,16 +503,16 @@
      * @param {Array} numbers An array of numbers.
      * @return {Array} The range of the specified numbers.
      */
-    range: function(numbers) {
+    range: function (numbers) {
       numbers.sort();
       return [numbers[0], numbers[numbers.length - 1]];
     },
 
-    uniqueJsonStringList: function(stringList) {
+    uniqueJsonStringList: function (stringList) {
       var lists = stringList
         .trim()
         .split(",")
-        .map(function(list) {
+        .map(function (list) {
           return list.trim().toUpperCase();
         });
       lists = _.compact(lists);
@@ -525,25 +523,21 @@
       return lists;
     },
 
-    uniqueJsonStringList_ManagementCo: function(stringList) {
+    uniqueJsonStringList_ManagementCo: function (stringList) {
       var lists = stringList
         .trim()
         .split(",")
-        .map(function(list) {
+        .map(function (list) {
           return list.trim().toUpperCase();
         });
       lists = _.compact(lists);
       lists = _.uniq(lists, false);
-      lists = _.sortBy(lists, function(list) {
+      lists = _.sortBy(lists, function (list) {
         return list.length;
       });
       if (lists.length >= 3) {
-        lists = lists.map(list => {
-          return list
-            .trim()
-            .split(" ")
-            .slice(0, 2)
-            .join(" ");
+        lists = lists.map((list) => {
+          return list.trim().split(" ").slice(0, 2).join(" ");
         });
         lists = _.compact(lists);
         lists = _.uniq(lists, false);
@@ -553,10 +547,10 @@
       return lists;
     },
 
-    normalizeComplexInfos: function(complexInfos) {
+    normalizeComplexInfos: function (complexInfos) {
       var uniqueComplexInfos = [];
       //Group the complex by strataPlanID::
-      var complexInfoGroups = _.groupBy(complexInfos, function(complexInfo) {
+      var complexInfoGroups = _.groupBy(complexInfos, function (complexInfo) {
         return complexInfo.StrataPlanID;
       });
       for (const complexInfoGroup in complexInfoGroups) {
@@ -564,7 +558,7 @@
         var complexInfos = complexInfoGroups[complexInfoGroup];
         var uniqueComplexInfo = _.reduce(
           complexInfos,
-          function(cInfo, nInfo) {
+          function (cInfo, nInfo) {
             cInfo.Units += ", " + nInfo.Units;
             cInfo.Storeys += ", " + nInfo.Storeys;
             cInfo.BylawAgeRestriction += ", " + nInfo.BylawAgeRestriction;
@@ -632,17 +626,17 @@
         //save the normalized and unique complex record::
         uniqueComplexInfos.push(uniqueComplexInfo);
       }
-      uniqueComplexInfos = uniqueComplexInfos.map(function(complexInfo) {
+      uniqueComplexInfos = uniqueComplexInfos.map(function (complexInfo) {
         for (complexProperty in complexInfo) {
           complexInfo[complexProperty] = complexInfo[complexProperty].trim();
         }
         return complexInfo;
       });
       return uniqueComplexInfos;
-    }
+    },
   };
 
-  Library.init = function(houseType) {
+  Library.init = function (houseType) {
     var self = this;
     self.name = "General Function Library";
     self.version = "1.0";
