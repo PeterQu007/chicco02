@@ -117,3 +117,20 @@
   color: rgb(0, 123, 255) !important;
   font-weight: bold !important;
 }
+
+.flex-container {
+  display: flex;
+  background-color: DodgerBlue;
+}
+
+.flex-container > div {
+  background-color: #f1f1f1;
+  margin: 0 10px;
+  padding: 0;
+}
+
+.flex-container > div > div{
+  background-color: #f1f1f1;
+  margin: 0 2px;
+  padding: 0;
+}

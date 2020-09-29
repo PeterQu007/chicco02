@@ -79,7 +79,7 @@ class uiSumBox extends React.Component {
         </div>
         <div
           id="sumPanelContainer"
-          style="top: 0px; left: 60px; position: absolute"
+          style="top: 0px; left: 230px; position: absolute"
         >
           <SumBoxPanels panels={this.state.panels} />
         </div>

@@ -30,8 +30,7 @@ module.exports = {
     "MLS-TaxSearchResult": "./app/content/taxSearchResult.js",
     "MLS-TaxSearchDetails": "./app/content/taxSearchDetails.js",
     //Bypass Listing Search Criteria Page when loading saved search criteria
-    "MLS-BypassListingSearchCriteria":
-      "./app/content/BypassListingSearchCriteria.js",
+    "MLS-BypassListingSearchCriteria": "./app/content/BypassListingSearchCriteria.js",
 
     //Add SquareFeet Price Summary Box to Spreadsheet View Summary Box
     "MLS-AddSFPriceSummaryBox": "./app/content/AddSFPriceSummaryBox.js",
@@ -39,8 +38,9 @@ module.exports = {
     //'MLS-ComputeSFPrices': './app/content/ComputeSFPrices.js',
     "MLS-SpreadSheetCompletion": "./app/content/SpreadSheetCompletion.js",
     //
-    "MLS-QuickSearch": "./app/content/mls-QuickSearch.js"
+    "MLS-QuickSearch": "./app/content/mls-QuickSearch.js",
     //'REACT-BTN': './app/content/btnAdd.js'
+    "MLS-QuickSearch2": "./app/content/mls-QuickSearch2.js"
   },
 
   output: {
@@ -52,16 +52,14 @@ module.exports = {
   // integrid babel with webpack
   // transpile js files
   module: {
-    rules: [
-      {
-        // "test" is commonly used to match the file extension
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader"
-        }
+    rules: [{
+      // "test" is commonly used to match the file extension
+      test: /\.js$/,
+      exclude: /node_modules/,
+      use: {
+        loader: "babel-loader"
       }
-    ]
+    }]
   },
 
   optimization: {

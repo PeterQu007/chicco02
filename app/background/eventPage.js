@@ -13,6 +13,7 @@ taxYear = newTaxYear ? taxYear : taxYear - 1;
 var complexInfoSearchResult = null;
 var chromeTabID;
 var $today = d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
+var mlsTable = [];
 
 console.clear();
 
@@ -585,6 +586,24 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
           console.log("res::", JSON.stringify(res));
         },
       });
+    }
+
+    if (request.todo == "saveTableInfo") {
+      mlsTable = JSON.parse(request.table);
+      sendResponse("Table Saved!");
+    }
+
+    if (request.todo == "readMLSTableInfo") {
+      // sendResponse(mlsTable);
+      let mlsNo = request.mlsNo;
+      let listingInfo = [];
+      // search tax value
+      mlsTable.forEach((row) => {
+        if (row['ML #'] = mlsNo) {
+          listingInfo = row;
+        }
+      })
+      sendResponse(listingInfo);
     }
 
     return true;

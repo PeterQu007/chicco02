@@ -22,18 +22,25 @@ class SumBoxButtons extends React.Component {
     }
 
     return (
-      <div>
+      <div class="flex-container">
         <div>
-          <button onClick={this.onExp.bind(this)}>Exp</button>
+          <div>
+            <button onClick={this.onExp.bind(this)}>Exp</button>
+          </div>
+          <div>
+            <button onClick={() => this.onTaxSearch()}>Bca</button>
+          </div>
+          <div>
+            <button onClick={() => this.onSaveComplexInfo()}>Cpx</button>
+          </div>
         </div>
         <div>
-          <button onClick={() => this.onTaxSearch()}>Bca</button>
-        </div>
-        <div>
-          <button onClick={() => this.onSaveComplexInfo()}>Cpx</button>
-        </div>
-        <div>
-          <button onClick={() => this.onSaveSubjectInfo()}>Sub</button>
+          <div>
+            <button onClick={() => this.onSaveSubjectInfo()}>Sub</button>
+          </div>
+          <div>
+            < button onClick={() => this.onSendTableInfoToBackground()}>Tbl</button>
+          </div>
         </div>
       </div>
     );
@@ -452,7 +459,7 @@ class SumBoxButtons extends React.Component {
     };
 
     ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
-    chrome.runtime.sendMessage(subjectInfo, function (response) {});
+    chrome.runtime.sendMessage(subjectInfo, function (response) { });
 
     ////FEEDBACK THE INPUT AREA WITH ADDED STAR SIGN
     // this.state.complexName.val(complexName + "*");
@@ -563,11 +570,54 @@ class SumBoxButtons extends React.Component {
       };
 
       ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
-      chrome.runtime.sendMessage(complexInfo, function (response) {});
+      chrome.runtime.sendMessage(complexInfo, function (response) { });
 
       ////FEEDBACK THE INPUT AREA WITH ADDED STAR SIGN
       this.state.complexName.val(complexName + "*");
     }
+  }
+
+  onSendTableInfoToBackground() {
+    console.log("save the table !!");
+    var htmlTable = document.querySelector("#grid");
+    var htmlHead = document.querySelector(".ui-jqgrid-htable");
+    var tableData = JSON.stringify(htmlTable.innerHTML);
+    var tagsToReplace = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;'
+    };
+
+    function replaceTag(tag) {
+      return tagsToReplace[tag] || tag;
+    }
+
+    function safe_tags_replace(str) {
+      return str.replace(/[&<>]/g, replaceTag);
+    }
+    var array = [];
+    var headers = [];
+    $('.ui-jqgrid-htable th').each(function (index, item) {
+      headers[index] = $(item).html().replace(/(<([^>]+)>)/gi, "").replace('&nbsp;', '').substr(0, 50);
+    });
+    $('#grid tr').has('td').each(function () {
+      var arrayItem = {};
+      $('td', $(this)).each(function (index, item) {
+        arrayItem[headers[index]] = $(item).html().replace(/(<([^>]+)>)/gi, "").replace('&nbsp;', '');
+      });
+      array.push(arrayItem);
+    });
+
+    var tableInfo = {
+      table: JSON.stringify(array),
+      todo: "saveTableInfo",
+      from: "uiSummaryTable::onSendTableToBackground",
+    };
+
+    ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
+    chrome.runtime.sendMessage(tableInfo, function (response) {
+      console.log("save CMA Info");
+    });
   }
 }
 

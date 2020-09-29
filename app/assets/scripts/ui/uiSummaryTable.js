@@ -71,9 +71,9 @@ export default class UISummaryTable {
     };
     this.$UITable = $(`<div id = "SummaryFunctionBox" style = 'top: 30px; left: 850px; position: absolute'>
                             <div id = "sumButtonContainer" style = "z-index: 999" ></div>
-                            <div id = "sumPanelContainer" style = 'top: 0px; left: 60px; position: absolute'></div>
-                            <div id = "sumPanelBCAChangeContainer" style = 'top: 0px; left: 320px; position: absolute'></div>
-                            <div id = "sumPanelBCAContainer" style = 'top: 0px; left: 560px; position: absolute'></div>
+                            <div id = "sumPanelContainer" style = 'top: 0px; left: 100px; position: absolute'></div>
+                            <div id = "sumPanelBCAChangeContainer" style = 'top: 0px; left: 360px; position: absolute'></div>
+                            <div id = "sumPanelBCAContainer" style = 'top: 0px; left: 600px; position: absolute'></div>
                         </div>`);
   }
 
