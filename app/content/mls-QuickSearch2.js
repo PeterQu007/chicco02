@@ -7,7 +7,7 @@ var mlsTable = [];
 // chrome.runtime.sendMessage(tableInfo, function (response) {
 //   console.log(response);
 // });
-var mlsContent = document.getElementById("jqMpCntlToolboxInfobox");
+var mlsContent = null;
 var mlsVeOverlay = document.getElementById('veOverlay');
 var mlsDiv = mlsVeOverlay.firstElementChild;
 var startMonitor = false;
@@ -38,11 +38,12 @@ setTimeout(respondToVisibility(mlsDiv, options, visible => {
     if (startMonitor) {
       // start monitor context box
       mlsContent = document.getElementById("jqMpCntlToolboxInfobox");
+      mlsContent.style.display = 'block';
       let mlsPropertyInfo = document.getElementById('propertyInfo');
       let elmArea = $('<div><span class="jqMpCntlInfoxboxLabel">Area:</span><span id="mls-area"></span></div>');
-      let elmCDOM = $('<div><span class="jqMpCntlInfoxboxLabel">CDOM:</span><span id="mls-cdom"></span></div>');
+      // let elmCDOM = $('<div><span class="jqMpCntlInfoxboxLabel">CDOM:</span><span id="mls-cdom"></span></div>');
       let elmFlrTotFin = $('<div><span class="jqMpCntlInfoxboxLabel">Total Finished:</span><span id="mls-flrtotfin"></span></div>');
-      let elmFrontage = $('<div><span class="jqMpCntlInfoxboxLabel">Frontage:</span><span id="mls-frontage"></span></div>');
+      // let elmFrontage = $('<div><span class="jqMpCntlInfoxboxLabel">Frontage:</span><span id="mls-frontage"></span></div>');
       let elmFloodPlain = $('<div><span class="jqMpCntlInfoxboxLabel">Flood Plain:</span><span id="mls-flood-plain"></span></div>');
       let elmListDate = $('<div><span class="jqMpCntlInfoxboxLabel">List Date:</span><span id="mls-list-date"></span></div>');
       let elmLotSize = $('<div><span class="jqMpCntlInfoxboxLabel">Lot Size /Frontage:</span><span id="mls-lot-size"></span></div>');
@@ -51,13 +52,13 @@ setTimeout(respondToVisibility(mlsDiv, options, visible => {
       let elmStyleOfHome = $('<div><span class="jqMpCntlInfoxboxLabel">Style of Home:</span><span id="mls-style-of-home"></span></div>');
       let elmTotFlArea = $('<div><span class="jqMpCntlInfoxboxLabel">Total Floor Area:</span><span id="mls-total-floor-area"></span></div>');
       let elmTotalBed = $('<div><span class="jqMpCntlInfoxboxLabel">Tot Bed/Bath:</span><span id="mls-total-bed"></span></div>');
-      let elmTotalBath = $('<div><span class="jqMpCntlInfoxboxLabel">Total Bath:</span><span id="mls-total-bath"></span></div>');
+      // let elmTotalBath = $('<div><span class="jqMpCntlInfoxboxLabel">Total Bath:</span><span id="mls-total-bath"></span></div>');
       let elmHr = $('<hr class="mls-hr">');
       let elmYearBuilt = $('<div><span class="jqMpCntlInfoxboxLabel">Year built:</span><span id="mls-year-built"></span></div>');
       let elmBCAImprove = $('<div><span class="jqMpCntlInfoxboxLabel">Improve/Land:</span><span id="mls-bca-improve-value"></span></div>');
-      let elmBCALand = $('<div><span class="jqMpCntlInfoxboxLabel">BCA Land:</span><span id="mls-bca-land-value"></span></div>');
+      // let elmBCALand = $('<div><span class="jqMpCntlInfoxboxLabel">BCA Land:</span><span id="mls-bca-land-value"></span></div>');
       let elmTotalValue = $('<div><span class="jqMpCntlInfoxboxLabel">BCA Total:</span><span id="mls-bca-total-value"></span></div>');
-      let elmBCAChange = $('<div><span class="jqMpCntlInfoxboxLabel">BCA Change:</span><span id="mls-bca-change"></span></div>');
+      // let elmBCAChange = $('<div><span class="jqMpCntlInfoxboxLabel">BCA Change:</span><span id="mls-bca-change"></span></div>');
       let elmMLSNO = $('<div><span class="jqMpCntlInfoxboxLabel">MLS NO#:</span><span id="mls-mls-no"></span></div>');
 
       let htmlListingData = $('div.jqMpCntlDataScroll')[0];
@@ -82,7 +83,7 @@ setTimeout(respondToVisibility(mlsDiv, options, visible => {
         $(htmlListingData).append(elmBCAImprove);
         // $(htmlListingData).append(elmBCALand);
         $(htmlListingData).append(elmTotalValue);
-        $(htmlListingData).append(elmBCAChange);
+        // $(htmlListingData).append(elmBCAChange);
         $(htmlListingData).append(elmMLSNO);
       }
 
@@ -116,7 +117,7 @@ setTimeout(respondToVisibility(mlsDiv, options, visible => {
       }
 
       mlsPropertyInfo.appendChild(htmlButton);
-
+      htmlButton.click();
       // let htmlImgs = $('#divMap Img');
       // htmlImgs.click((img) => {
       //   $(img).addClass('map-image-border');
@@ -165,12 +166,14 @@ getListingData = function (mlsNo) {
   chrome.runtime.sendMessage(listInfo, function (response) {
     console.log(response);
     let listingInfo = response;
+    let dwellingType = listingInfo['Prop Type'];
+    let listingStatus = listingInfo['1) Status'];
     // show listing info:
 
     let htmlArea = $('#mls-area');
-    let htmlCDOM = $('#mls-cdom');
+    // let htmlCDOM = $('#mls-cdom');
     let htmlFlrTotFin = $('#mls-flrtotfin');
-    let htmlFrontage = $('#mls-frontage');
+    // let htmlFrontage = $('#mls-frontage');
     let htmlFloodPlain = $('#mls-flood-plain');
     let htmlListDate = $('#mls-list-date');
     let htmlLotSize = $('#mls-lot-size');
@@ -179,32 +182,47 @@ getListingData = function (mlsNo) {
     let htmlStyleOfHome = $('#mls-style-of-home');
     let htmlTotFlArea = $('#mls-total-floor-area');
     let htmlTotalBed = $('#mls-total-bed');
-    let htmlTotalBath = $('#mls-total-bath');
+    // let htmlTotalBath = $('#mls-total-bath');
     let htmlYearBuilt = $('#mls-year-built');
     let htmlBCAImprove = $('#mls-bca-improve-value');
-    let htmlBCALand = $('#mls-bca-land-value');
+    // let htmlBCALand = $('#mls-bca-land-value');
     let htmlTotalValue = $('#mls-bca-total-value');
-    let htmlBCAChange = $('#mls-bca-change');
+    // let htmlBCAChange = $('#mls-bca-change');
     let htmlMLSNO = $('#mls-mls-no');
 
     htmlArea.text(listingInfo['Area'] + ' | ' + listingInfo['S/A']);
     htmlSubArea.text(listingInfo['S/A'])
     htmlFlrTotFin.text(listingInfo['FlArTotFin']);
-    htmlFloodPlain.text(listingInfo['Flood Plain']);
-    htmlListDate.text(listingInfo['List Date'] + ' [ ' + listingInfo['CDOM'] + ' ]');
+    if (dwellingType.indexOf('Detached') >= 0) {
+      htmlFloodPlain.text(listingInfo['Flood Plain']);
+    } else {
+      htmlFloodPlain.text(listingInfo['TypeDwel']);
+      htmlFloodPlain.prev('span').text('Type Dwell');
+    }
+    htmlListDate.html(listingInfo['List Date'] + '<span class="mls-highlighted"> [ ' + listingInfo['CDOM'] + ' ] </span>');
     // htmlCDOM.text(listingInfo['CDOM']);
     htmlLotSize.text(listingInfo['Lot Sz (Sq.Ft.)'] + ' [ ' + listingInfo['Frontage - Feet'] + ' ]');
     // htmlFrontage.text(listingInfo['Frontage - Feet']);
-    htmlPriceSqFt.text(listingInfo['PrcSqft']);
-    htmlStyleOfHome.text(listingInfo['Style of Home']);
+    if (listingStatus == 'A') {
+      htmlPriceSqFt.html(listingInfo['List Price'] + '<span class="mls-highlighted"> [ ' + listingInfo['PrcSqft'] + ' ] </span>');
+    } else {
+      htmlPriceSqFt.html(listingInfo['Sold Price'] + '<span class="mls-highlighted"> [ ' + listingInfo['SP Sqft'] + ' ] </span>');
+      htmlPriceSqFt.prev().text('Sold Price');
+    }
+    if (dwellingType.indexOf('Detached') >= 0) {
+      htmlStyleOfHome.text(listingInfo['Style of Home']);
+    } else {
+      htmlStyleOfHome.html(listingInfo['StratMtFee'] + '<span class="mls-highlighted"> [ ' + listingInfo['StrFeePSF'] + ' ] </span>');
+      htmlStyleOfHome.prev('span').text('Strata Fee');
+    }
     htmlTotFlArea.text(listingInfo['TotFlArea']);
     htmlTotalBed.text(listingInfo['Tot BR'] + ' | ' + listingInfo['Tot Baths']);
     // htmlTotalBath.text(listingInfo['Tot Baths']);
-    htmlYearBuilt.text(listingInfo['Yr Blt']);
+    htmlYearBuilt.html(listingInfo['Yr Blt'] + '<span class="mls-highlighted"> [ ' + listingInfo['Age'] + ' ] </span>');
     htmlBCAImprove.text(listingInfo['imprvValue'] + ' | ' + listingInfo['landValue']);
     // htmlBCALand.text(listingInfo['landValue']);
-    htmlTotalValue.text(listingInfo['totalValue']);
-    htmlBCAChange.text(listingInfo['change%']);
+    htmlTotalValue.html(listingInfo['totalValue'] + '<span class="mls-highlighted"> [ ' + listingInfo['change%'] + ' ] </span>');
+    // htmlBCAChange.text(listingInfo['change%']);
     htmlMLSNO.text(listingInfo['ML #']);
   });
 }

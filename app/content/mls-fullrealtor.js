@@ -44,7 +44,7 @@ var fullRealtor = {
       this.listingID = $fx.getListingID(window.frameElement.src);
     }
 
-    if (this.listingID.indexOf('https') >= 0) {
+    if (!this.listingID || this.listingID.indexOf('https') >= 0) {
       this.subTabID = $fx.getSubTabID(window.frameElement.src);
       this.listingID = $fx.getListingID(window.frameElement.src);
     }

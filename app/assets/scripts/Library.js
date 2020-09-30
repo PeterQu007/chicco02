@@ -243,7 +243,13 @@
       }
       start = src.indexOf("=");
       src = src.substring(start + 1);
-
+      let listingRegex = /\d{9}/;
+      if (!listingRegex.test(src)) {
+        src = str.match(listingRegex);
+        if (src) {
+          src = src[0];
+        }
+      }
       return src; //return listingID
     },
 

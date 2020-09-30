@@ -144,6 +144,10 @@
   height: 1px;
 }
 
+.mls-highlighted{
+  font-weight: bold;
+}
+
 .map-image-border{
   border: 1px solid #C1E0FF; 
 }

@@ -206,6 +206,7 @@
       "run_at": "document_end",
       "matches": [
         "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc/VirtualEarth*",
+        // "https://bcres.paragonrels.com/ParagonLS/Controls/VirtualEarth.mvc*",
         "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=77*",
         "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?*viewID=77*listingIDs=*"
       ],
