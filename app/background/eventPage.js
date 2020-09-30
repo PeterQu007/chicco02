@@ -599,7 +599,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
       let listingInfo = [];
       // search tax value
       mlsTable.forEach((row) => {
-        if (row['ML #'] = mlsNo) {
+        if (row['ML #'] == mlsNo) {
           listingInfo = row;
         }
       })

@@ -39,7 +39,7 @@ class SumBoxButtons extends React.Component {
             <button onClick={() => this.onSaveSubjectInfo()}>Sub</button>
           </div>
           <div>
-            < button onClick={() => this.onSendTableInfoToBackground()}>Tbl</button>
+            < button id="mls-send-table-to-background" onClick={() => this.onSendTableInfoToBackground()}>Tbl</button>
           </div>
         </div>
       </div>
@@ -578,7 +578,7 @@ class SumBoxButtons extends React.Component {
   }
 
   onSendTableInfoToBackground() {
-    console.log("save the table !!");
+    console.log("send the listing table to background event page !!");
     var htmlTable = document.querySelector("#grid");
     var htmlHead = document.querySelector(".ui-jqgrid-htable");
     var tableData = JSON.stringify(htmlTable.innerHTML);

@@ -228,7 +228,7 @@ var computeSFPrices = {
             listingPricePSF = Number(
               Number(
                 col14_Price[col14_Price.length - 1] /
-                  col22_FloorArea[col22_FloorArea.length - 1]
+                col22_FloorArea[col22_FloorArea.length - 1]
               ).toFixed(2)
             );
             sumPSFListedPrice += listingPricePSF;
@@ -796,7 +796,7 @@ var computeSFPrices = {
             from: "spreadSheetCompletion",
           };
 
-          chrome.runtime.sendMessage(complexInfo, function (response) {});
+          chrome.runtime.sendMessage(complexInfo, function (response) { });
           ////////////////////////////////////////
           break;
         }
@@ -896,8 +896,8 @@ var computeSFPrices = {
     var aInfo = null;
     var addressLink = $(
       '<a id="addressLink" target="_blank" href="https://www.google.com/search?q=Google+tutorial+create+link">' +
-        "Google tutorial create link" +
-        "</a> "
+      "Google tutorial create link" +
+      "</a> "
     );
     var addressText = "";
     var i;
@@ -967,8 +967,8 @@ var computeSFPrices = {
       );
       var addressLink = $(
         '<a id="addressLink" target="_blank" href="https://www.google.com/search?q=Google+tutorial+create+link">' +
-          "Google tutorial create link" +
-          "</a> "
+        "Google tutorial create link" +
+        "</a> "
       );
       addressLink.attr("href", aInfo.googleSearchLink);
       addressLink.text(aInfo.formalAddress);
@@ -1037,6 +1037,10 @@ var computeSFPrices = {
       "$"
     );
     self.uiTable.render(3);
+
+    //table data to background
+    let btnSendTable = self.uiTable.$UITable[0].querySelector("#mls-send-table-to-background");
+    btnSendTable.click();
   },
   /////////////////////////////////////////////////////////////////////////////
 
@@ -1062,7 +1066,7 @@ $(function () {
     if (!window.console) window.console = {};
     var methods = ["log", "debug", "warn", "info"];
     for (var i = 0; i < methods.length; i++) {
-      console[methods[i]] = function () {};
+      console[methods[i]] = function () { };
     }
   }
   console.log($loadingNotice);
