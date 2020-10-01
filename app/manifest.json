@@ -297,7 +297,7 @@
     {
       "run_at": "document_end",
       "matches": [
-        "https://bcres.paragonrels.com/ParagonLS/Controls/VirtualEarth.mvc/Index/*SearchCount=*&IsFromSearch=true&tabName=tab4_1_1"
+        "https://bcres.paragonrels.com/ParagonLS/Controls/VirtualEarth.mvc/Index/*SearchCount=*&IsFromSearch=true&tabName=tab*"
       ],
       "js": [
         "./assets/lib/jquery/dist/jquery.min.js",

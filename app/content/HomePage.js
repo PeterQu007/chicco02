@@ -22,7 +22,7 @@ let DefaultPage = {
       if (!window.console) window.console = {};
       var methods = ["log", "debug", "warn", "info"];
       for (var i = 0; i < methods.length; i++) {
-        console[methods[i]] = function () {};
+        console[methods[i]] = function () { };
       }
     }
     // Open frequently used tabs:
@@ -155,8 +155,13 @@ let DefaultPage = {
           //         sendResponse({ tabID: navItem.ID, tabTitle: navItem.Title })
           //     }
           // })
-          self.mainNavBar.update();
-          self.mainNavBar.addLock(request.tabID);
+          if (request.tabID != "#") {
+            self.mainNavBar.update();
+            self.mainNavBar.addLock(request.tabID);
+            console.group("addLock Succeed");
+          } else {
+            console.group("Cannot addLock");
+          }
           console.groupEnd();
         }
       });

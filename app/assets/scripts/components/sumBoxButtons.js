@@ -22,7 +22,7 @@ class SumBoxButtons extends React.Component {
     }
 
     return (
-      <div class="flex-container">
+      <div className="flex-container">
         <div>
           <div>
             <button onClick={this.onExp.bind(this)}>Exp</button>

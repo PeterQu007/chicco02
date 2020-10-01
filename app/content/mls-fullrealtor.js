@@ -15,6 +15,7 @@ import uiListingInfo from "../assets/scripts/ui/uiListingInfo";
 
 //var curTabID = null;
 var $fx = L$();
+console.clear();
 
 var fullRealtor = {
   init: function () {
@@ -23,6 +24,10 @@ var fullRealtor = {
     //$fx.getCurrentTab(curTabID);
     //link to iframe's tabID
     this.tabID = $fx.getTabID(window.frameElement.src);
+    if (this.tabID == "#") {
+      // if could not find the tabID, goes to the parent windows
+      this.tabID = $fx.getTabID(window.parent.frameElement.src);
+    }
     this.lockMapSize = $("input#checkShowSmallMap", top.document).is(
       ":checked"
     );

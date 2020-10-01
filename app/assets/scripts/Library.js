@@ -213,6 +213,18 @@
     },
 
     getTabID: function (str) {
+      // does not work for uri: 
+      //"https://bcres.paragonrels.com/ParagonLS/Controls/VirtualEarth.mvc/Index/0?&Address=&City=&State=&Zip=&MapZoom=15&
+      //CenterLat=49.1592529817306&CenterLng=-122.799000899396&SearchCount=11&IsFromSearch=true&tabName=tab4_1_1"
+      let tabRegex = /tabName=tab(\d_)+\d$/g;
+      let tabIDRegex = /tab\d/g;
+      if (tabIDRegex.test(str)) {
+        src = str.match(tabIDRegex)[0];
+        return "#" + src;
+      } else {
+        return "#";
+      };
+
       let src, start, end;
       src = str;
       start = src.indexOf("searchID=");
@@ -228,6 +240,14 @@
       //only need the main tab id, remove the sub tab ids:
       src = src.substring(0, end);
       //console.log('QuickSearch Page\'s tabID is:', src);
+
+      if (start > 0 && src.trim() == '') {
+        src = src.match(tabRegex);
+        if (src.length > 0) {
+          src = src[0];
+          src = src.match(tabIDRegex)[0];
+        }
+      }
       return "#" + src; //add id sign # as prefix
     },
 

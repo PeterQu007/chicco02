@@ -50,9 +50,9 @@ setTimeout(respondToVisibility(mlsDiv, options, visible => {
       let elmPriceSqFt = $('<div><span class="jqMpCntlInfoxboxLabel">Price SqFt:</span><span id="mls-price-sqft"></span></div>');
       let elmSubArea = $('<div><span class="jqMpCntlInfoxboxLabel">Sub Area:</span><span id="mls-sub-area"></span></div>')
       let elmStyleOfHome = $('<div><span class="jqMpCntlInfoxboxLabel">Style of Home:</span><span id="mls-style-of-home"></span></div>');
-      let elmTotFlArea = $('<div><span class="jqMpCntlInfoxboxLabel">Total Floor Area:</span><span id="mls-total-floor-area"></span></div>');
+      // let elmTotFlArea = $('<div><span class="jqMpCntlInfoxboxLabel">Total Floor Area:</span><span id="mls-total-floor-area"></span></div>');
       let elmTotalBed = $('<div><span class="jqMpCntlInfoxboxLabel">Tot Bed/Bath:</span><span id="mls-total-bed"></span></div>');
-      // let elmTotalBath = $('<div><span class="jqMpCntlInfoxboxLabel">Total Bath:</span><span id="mls-total-bath"></span></div>');
+      let elmTotalKitchen = $('<div><span class="jqMpCntlInfoxboxLabel">Total Kitchens:</span><span id="mls-total-kitchen"></span></div>');
       let elmHr = $('<hr class="mls-hr">');
       let elmYearBuilt = $('<div><span class="jqMpCntlInfoxboxLabel">Year built:</span><span id="mls-year-built"></span></div>');
       let elmBCAImprove = $('<div><span class="jqMpCntlInfoxboxLabel">Improve/Land:</span><span id="mls-bca-improve-value"></span></div>');
@@ -74,10 +74,10 @@ setTimeout(respondToVisibility(mlsDiv, options, visible => {
         $(htmlListingData).append(elmLotSize);
         // $(htmlListingData).append(elmFrontage);
         $(htmlListingData).append(elmPriceSqFt);
-        $(htmlListingData).append(elmTotFlArea);
+        // $(htmlListingData).append(elmTotFlArea);
         $(htmlListingData).append(elmFlrTotFin);
         $(htmlListingData).append(elmTotalBed);
-        // $(htmlListingData).append(elmTotalBath);
+        $(htmlListingData).append(elmTotalKitchen);
         $(htmlListingData).append(elmYearBuilt);
         $(htmlListingData).append(elmHr);
         $(htmlListingData).append(elmBCAImprove);
@@ -89,6 +89,7 @@ setTimeout(respondToVisibility(mlsDiv, options, visible => {
 
       let htmlButton = document.createElement('button');
       htmlButton.innerHTML = "Show More";
+      htmlButton.id = "mls-show-more";
       htmlButton.onclick = function () {
         console.log('click me');
         let htmlMLSNo = document.getElementById('mlsNumLabelText');
@@ -116,8 +117,11 @@ setTimeout(respondToVisibility(mlsDiv, options, visible => {
         getListingData(mlsNo);
       }
 
-      mlsPropertyInfo.appendChild(htmlButton);
-      htmlButton.click();
+      let elmShowMoreButton = document.getElementById("mls-show-more");
+      if (!elmShowMoreButton) {
+        mlsPropertyInfo.appendChild(htmlButton);
+        htmlButton.click();
+      }
       // let htmlImgs = $('#divMap Img');
       // htmlImgs.click((img) => {
       //   $(img).addClass('map-image-border');
@@ -167,7 +171,7 @@ getListingData = function (mlsNo) {
     console.log(response);
     let listingInfo = response;
     let dwellingType = listingInfo['Prop Type'];
-    let listingStatus = listingInfo['1) Status'];
+    let listingStatus = listingInfo['1) Status'] || listingInfo['Status'];
     // show listing info:
 
     let htmlArea = $('#mls-area');
@@ -192,7 +196,6 @@ getListingData = function (mlsNo) {
 
     htmlArea.text(listingInfo['Area'] + ' | ' + listingInfo['S/A']);
     htmlSubArea.text(listingInfo['S/A'])
-    htmlFlrTotFin.text(listingInfo['FlArTotFin']);
     if (dwellingType.indexOf('Detached') >= 0) {
       htmlFloodPlain.text(listingInfo['Flood Plain']);
     } else {
@@ -205,8 +208,9 @@ getListingData = function (mlsNo) {
     // htmlFrontage.text(listingInfo['Frontage - Feet']);
     if (listingStatus == 'A') {
       htmlPriceSqFt.html(listingInfo['List Price'] + '<span class="mls-highlighted"> [ ' + listingInfo['PrcSqft'] + ' ] </span>');
+      htmlPriceSqFt.prev().text('List Price');
     } else {
-      htmlPriceSqFt.html(listingInfo['Sold Price'] + '<span class="mls-highlighted"> [ ' + listingInfo['SP Sqft'] + ' ] </span>');
+      htmlPriceSqFt.html('<span class="mls-highlighted">' + listingInfo['Sold Price'] + '</span><span class="mls-highlighted"> [ ' + listingInfo['List Price'] + ' | ' + listingInfo['SP Sqft'] + ' ] </span>');
       htmlPriceSqFt.prev().text('Sold Price');
     }
     if (dwellingType.indexOf('Detached') >= 0) {
@@ -215,8 +219,8 @@ getListingData = function (mlsNo) {
       htmlStyleOfHome.html(listingInfo['StratMtFee'] + '<span class="mls-highlighted"> [ ' + listingInfo['StrFeePSF'] + ' ] </span>');
       htmlStyleOfHome.prev('span').text('Strata Fee');
     }
-    htmlTotFlArea.text(listingInfo['TotFlArea']);
-    htmlTotalBed.text(listingInfo['Tot BR'] + ' | ' + listingInfo['Tot Baths']);
+    htmlFlrTotFin.html(listingInfo['FlArTotFin'] + ' | ' + '<span class="mls-highlighted"> [ ' + listingInfo['TotFlArea'] + ' ] </span>');
+    htmlTotalBed.text(listingInfo['Tot BR'] + ' | ' + listingInfo['Tot Baths'] + ' | ' + listingInfo['#Kitchens']);
     // htmlTotalBath.text(listingInfo['Tot Baths']);
     htmlYearBuilt.html(listingInfo['Yr Blt'] + '<span class="mls-highlighted"> [ ' + listingInfo['Age'] + ' ] </span>');
     htmlBCAImprove.text(listingInfo['imprvValue'] + ' | ' + listingInfo['landValue']);
