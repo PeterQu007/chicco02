@@ -588,6 +588,19 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
       });
     }
 
+    if (request.todo == "UpdateCommunityInfoToWP") {
+      var listingInfo = { listingInfo: request.listings };
+      let ajax_url = request.ajax_url;
+      $.ajax({
+        url: ajax_url,
+        method: "post",
+        data: listingInfo,
+        success: function (res) {
+          console.log("res::", JSON.stringify(res));
+        },
+      })
+    }
+
     if (request.todo == "saveTableInfo") {
       mlsTable = JSON.parse(request.table);
       sendResponse("Table Saved!");

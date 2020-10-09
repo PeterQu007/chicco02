@@ -41,9 +41,70 @@ class SumBoxButtons extends React.Component {
           <div>
             < button id="mls-send-table-to-background" onClick={() => this.onSendTableInfoToBackground()}>Tbl</button>
           </div>
+          <div>
+            < button id="mls-get-data" onClick={() => this.onGetData()}>Get</button>
+          </div>
         </div>
       </div>
     );
+  }
+
+  onGetData() {
+    console.log('get data');
+    //{"viewID":1,"searchID":"tab4_1_2","paging":{"_search":false,"nd":1602269249984,"rows":250,"page":1,"sidx":"0_13_","sord":"asc","sidx2":null,"sord2":null,"sidx3":null,"sord3":null}}
+    // https://bcres.paragonrels.com/ParagonLS/Services/Listing.svc/json/v1/GetData
+    let ajax_url = "https://bcres.paragonrels.com/ParagonLS/Services/Listing.svc/json/v1/GetData";
+    let listingData = {
+      viewID: 1,
+      searchID: "tab4_1_2",
+      paging: {
+        _search: false,
+        nd: 1602269249984,
+        rows: 250,
+        page: 1,
+        sidx: "0_13_",
+        sord: "asc",
+        sidx2: null,
+        sord2: null,
+        sidx3: null,
+        sord3: null
+      }
+    };
+    $.ajax({
+      url: ajax_url,
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(listingData),
+      dataType: 'json',
+      success: function (res) {
+        //console.log("res::", JSON.stringify(res));
+        let urlLocationOptionLocal = $("#pid_local", top.document);
+        let urlLocation = urlLocationOptionLocal.prop("checked");
+        let ajax_url = "";
+
+        if (urlLocation) {
+          ajax_url =
+            "http://localhost/pidrealty4/wp-content/themes/Realhomes-child-3/db/updateRPSCommunity.php";
+        } else {
+          ajax_url =
+            "https://cn.pidhomes.ca/wp-content/themes/realhomes-child-3/db/updateRPSCommunity.php";
+        }
+
+        let listings = res.rows;
+        let listingData = {
+          listings: listings,
+          ajax_url: ajax_url,
+          todo: "UpdateCommunityInfoToWP",
+          from: "spreadsheet_get_data"
+        };
+        chrome.runtime.sendMessage(listingData, (res) => {
+          console.log(res);
+        })
+      },
+      error: function (jqXhr, textStatus, errorThrown) {
+        console.log(errorThrown);
+      }
+    })
   }
 
   onTaxSearch() {
