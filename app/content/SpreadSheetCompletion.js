@@ -20,6 +20,7 @@ var computeSFPrices = {
     console.log("Spreadsheet Document URL: ", document.URL); ////THIS URL CONTAINS TAB.ID
 
     this.tabID = $fx.getTabID(document.URL); ////LOOK FOR TAB.ID PREFIXED WITH # ID.SIGN
+    this.searchTabID = $fx.getSearchTabID(document.URL);
     this.tabNo = parseInt(this.tabID.replace("#tab", "")); ////LOOK FOR TAB.NO
     var x = $("ul#tab-bg", top.document); ////find the top tab panel
     var y = x.children("li")[this.tabNo];
@@ -52,12 +53,21 @@ var computeSFPrices = {
 
       //// Load Active Subject Properties
       // this.$LoadSubject.click();
-
-      ////HOOK UP EVENTS:
-      this.onTaxSearch(); ////TAX.SEARCH EVENT
-      // this.onConnect(); ///long live port
-      this.onMutation(); ////SPREADSHEET.TABLE READY EVENT
-      this.onComplexSearch(); ////COMPLEX.NAME.SEARCH EVENT
+      // if not the correct table, skip all events
+      let searchViewName = $(this.tabID, top.document).find("[rel='" + this.searchTabID + "']").text();
+      // Update WP View :: update community and neighborhood to wordpress
+      // Listing Extra Info:: get bca, complex... extra info
+      let listingExtraInfo = "Listing Extra Info";
+      let updateWPViewName = 'Update WP View';
+      if (searchViewName.indexOf(listingExtraInfo) > -1) {
+        ////HOOK UP EVENTS:
+        this.onTaxSearch(); ////TAX.SEARCH EVENT
+        // this.onConnect(); ///long live port
+        this.onMutation(); ////SPREADSHEET.TABLE READY EVENT
+        this.onComplexSearch(); ////COMPLEX.NAME.SEARCH EVENT
+      } else {
+        this.onMutation_Only_for_SummaryUi();
+      }
     } else {
       console.warn(
         "THIS MODULE DOES NOT APPLY TO THIS TAB.ID: ",
@@ -341,6 +351,64 @@ var computeSFPrices = {
           // self.searchTax_New();
         }
       });
+    });
+
+    $mutationObserver.observe(tableLoading, {
+      attributes: true,
+      characterData: true,
+      childList: true,
+      subtree: false,
+      attributeOldValue: true,
+      characterDataOldValue: true,
+    });
+  },
+
+  onMutation_Only_for_SummaryUi() {
+    var self = this;
+    var tableLoading = document.querySelector("#grid tbody"); ////MONITOR THE #grid.tbody, CHECK THE LISTING RECORDS
+    var $mutationObserver = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+
+        var x = $("table#grid tbody"); //Spreadsheet table body
+        var y = $("table.ui-jqgrid-htable thead"); //Spreadsheet Table header
+        var rows = x.children("tr");
+        var tableHeaderRow = y.children("tr");
+        var name = mutation.attributeName;
+        var value = mutation.target.getAttribute(name);
+        if (
+          mutation.type == "childList" &&
+          mutation.target.tagName == "TBODY"
+        ) {
+          if (mutation.addedNodes.length != rows.length - 1) {
+            return;
+          } else {
+            self.recordCount = mutation.addedNodes.length;
+          }
+        } else {
+          return;
+        }
+
+        self.table.length = 0; ////INIT THIS.table
+        self.rowNumber.length = 0; ////INIT THIS.rowNumber
+
+        if (
+          x.children("tr").length - 1 == self.recordCount ||
+          x.children("tr").length - 1 == 250
+        ) {
+          self.recordCount = parseInt(self.$searchCount.text());
+          console.log(
+            "Table Rows currently is: ",
+            x.children("tr").length,
+            "RecordCount: ",
+            self.recordCount
+          );
+          var x0 = $("div#dialogStats", parent.document); ////LOOK FOR THE SUMMARY.SECTION FOR ADDING EXTRA THIS.uiTable
+          self.uiTable.showUI(x0);
+          self.table.length = 0;
+
+        }
+      })
+
     });
 
     $mutationObserver.observe(tableLoading, {

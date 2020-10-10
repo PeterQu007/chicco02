@@ -212,20 +212,73 @@
       return this;
     },
 
-    getTabID: function (str) {
+    getSearchTabID: function (str = '') {
+      //"https://bcres.paragonrels.com/ParagonLS/Controls/VirtualEarth.mvc/Index/0?&Address=&City=&State=&Zip=&MapZoom=15&
+      //CenterLat=49.1592529817306&CenterLng=-122.799000899396&SearchCount=11&IsFromSearch=true&tabName=tab4_1_1"
+      let searchTabIDRegex = /tab\d_\d_\d/g;
+      let src, start, end;
+
+      if (str == '') {
+        uri1 = window.frameElement.src;
+        if (searchTabIDRegex.test(uri1)) {
+          src = uri1.match(searchTabIDRegex)[0];
+          return `#${src}`;
+        }
+        uri2 = window.parent.frameElement.src;
+        if (searchTabIDRegex.test(uri2)) {
+          src = uri2.match(searchTabIDRegex)[0];
+          return `#${src}`;
+        }
+        uri3 = parent.document.URL;
+        if (searchTabIDRegex.test(uri3)) {
+          src = uri3.match(searchTabIDRegex)[0];
+          return `#${src}`;
+        }
+        return '#';
+      } else {
+        if (searchTabIDRegex.test(str)) {
+          src = str.match(searchTabIDRegex)[0];
+          return "#" + src;
+        } else {
+          return "#";
+        };
+      }
+    },
+
+    getTabID: function (str = '') {
       // does not work for uri: 
       //"https://bcres.paragonrels.com/ParagonLS/Controls/VirtualEarth.mvc/Index/0?&Address=&City=&State=&Zip=&MapZoom=15&
       //CenterLat=49.1592529817306&CenterLng=-122.799000899396&SearchCount=11&IsFromSearch=true&tabName=tab4_1_1"
       let tabRegex = /tabName=tab(\d_)+\d$/g;
       let tabIDRegex = /tab\d/g;
-      if (tabIDRegex.test(str)) {
-        src = str.match(tabIDRegex)[0];
-        return "#" + src;
-      } else {
-        return "#";
-      };
-
       let src, start, end;
+
+      if (str == '') {
+        uri1 = window.frameElement.src;
+        if (tabIDRegex.test(uri1)) {
+          src = uri1.match(tabIDRegex)[0];
+          return `#${src}`;
+        }
+        uri2 = window.parent.frameElement.src;
+        if (tabIDRegex.test(uri2)) {
+          src = uri2.match(tabIDRegex)[0];
+          return `#${src}`;
+        }
+        uri3 = parent.document.URL;
+        if (tabIDRegex.test(uri3)) {
+          src = uri3.match(tabIDRegex)[0];
+          return `#${src}`;
+        }
+        return '#';
+      } else {
+        if (tabIDRegex.test(str)) {
+          src = str.match(tabIDRegex)[0];
+          return "#" + src;
+        } else {
+          return "#";
+        };
+      }
+
       src = str;
       start = src.indexOf("searchID=");
       src = src.substring(start);

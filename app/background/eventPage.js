@@ -589,7 +589,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
     }
 
     if (request.todo == "UpdateCommunityInfoToWP") {
-      var listingInfo = { listingInfo: request.listings };
+      var listingInfo = { listingInfo: JSON.stringify(request.listings) };
       let ajax_url = request.ajax_url;
       $.ajax({
         url: ajax_url,
@@ -597,6 +597,11 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
         data: listingInfo,
         success: function (res) {
           console.log("res::", JSON.stringify(res));
+          if (res === 'update done') {
+            sendResponse('Page Update Done');
+          } else {
+            sendResponse('Page Update Failed');
+          }
         },
       })
     }
