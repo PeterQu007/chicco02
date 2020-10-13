@@ -460,7 +460,7 @@ class SumBoxButtons extends React.Component {
 
   onSaveSubjectInfo() {
     console.log("add button clicked!");
-    var address = "16180 109A AVE";
+    var address = "14043 109 AVE";
     var id = "1234";
     ////////////////////
     ////MANUALLY SAVE OR UPDATE COMPLEX NAME TO THE DATABASE
@@ -522,9 +522,22 @@ class SumBoxButtons extends React.Component {
     var subjectCity = cells[cols.City].textContent;
     var maintenanceFee = cells[cols.StrataFeePSF].textContent;
     var neighborhood = cells[cols.Neighborhood].textContent;
+    const listPrice = $fx.convertStringToDecimal(cells[cols.ListPrice].textContent);
+    const soldPrice = $fx.convertStringToDecimal(cells[cols.SoldPrice].textContent);
+    const bcaChange = parseFloat(cells[cols.ChangeValuePercent].textContent) / 100.0;
 
     let urlLocationOptionLocal = $("#pid_local", top.document);
+    let htmlUpdateCurrentSubject = $("#checkUpdateSubjectInfo", top.document);
     let urlLocation = urlLocationOptionLocal.prop("checked");
+    let updateCurrentSubject = htmlUpdateCurrentSubject.prop("checked");
+    // get cma id
+    // ADD cma_ID to the array
+    let subjectOptions = $("select#SubjectProperty", top.document); // get the select element defined by MainMenu.js
+    let cmaSubject = subjectOptions.children()[
+      subjectOptions.prop("selectedIndex")
+    ];
+    let cmaID = cmaSubject.getAttribute("cmaID");
+
     let ajax_url = "";
 
     if (urlLocation) {
@@ -536,6 +549,7 @@ class SumBoxButtons extends React.Component {
     }
 
     var subjectInfo = {
+      cmaID: cmaID,
       address: subjectStreetAddress,
       unitNo: subjectUnitNo,
       age: subjectAge,
@@ -548,7 +562,11 @@ class SumBoxButtons extends React.Component {
       maintenanceFee: maintenanceFee,
       city: subjectCity,
       neighborhood: neighborhood,
+      listPrice: listPrice,
+      soldPrice: soldPrice,
+      bcaChange: bcaChange,
       ajax_url: ajax_url,
+      updateSubject: updateCurrentSubject,
       todo: "saveSubjectInfo",
       from: "uiSummaryTable",
     };

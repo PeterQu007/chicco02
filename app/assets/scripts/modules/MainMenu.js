@@ -41,6 +41,15 @@ export default class MainMenu {
     // this.selectSubjectProperty.insertAfter(this.appLeftBanner);
     this.txtSubjectAddress = document.getElementById("SubjectProperty");
 
+    //insert update current subject checkbox
+    this.chkUpdateSubject = $(`<div class="languagebox">
+                                <div id="checkUpdateSubjectInfoWrapper">
+                                    <label>Update Sub</label>
+                                    <input id="checkUpdateSubjectInfo" name="buttonUpdate" type = "checkbox" style="width: 14px!important"/>
+                                </div>
+                            </div>`);
+    this.formLoadSubject.append(this.chkUpdateSubject);
+
     //insert form to the banner
     this.formLoadSubject.insertAfter(this.appLeftBanner);
     this.subjectPropertyOptions = document.getElementsByClassName(
