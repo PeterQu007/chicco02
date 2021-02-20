@@ -50,6 +50,16 @@ export default class MainMenu {
                             </div>`);
     this.formLoadSubject.append(this.chkUpdateSubject);
 
+    //insert CMA/VPR options
+    this.selectCMAType = $(`<div class="languagebox">
+                                <select id="SelectCMAType" name="SelectCMAType" >
+                                <option value = "CMA">CMA<option>
+                                <option value = "VPR">VPR<option>
+                                <option value = "CMA4Exl">CMA4Exl<option>
+                                </select>
+                                </div>`);
+    this.formLoadSubject.append(this.selectCMAType);
+
     //insert form to the banner
     this.formLoadSubject.insertAfter(this.appLeftBanner);
     this.subjectPropertyOptions = document.getElementsByClassName(

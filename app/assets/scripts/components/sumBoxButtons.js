@@ -25,24 +25,53 @@ class SumBoxButtons extends React.Component {
       <div className="flex-container">
         <div>
           <div>
-            <button onClick={this.onExp.bind(this)}>Exp</button>
+            <button title="Send CMA Listings" onClick={this.onExp.bind(this)}>
+              Exp
+            </button>
           </div>
           <div>
-            <button onClick={() => this.onTaxSearch()}>Bca</button>
+            <button
+              title="Resume Tax Searches"
+              onClick={() => this.onTaxSearch()}
+            >
+              Bca
+            </button>
           </div>
           <div>
-            <button onClick={() => this.onSaveComplexInfo()}>Cpx</button>
+            <button
+              title="Save Complex Name"
+              onClick={() => this.onSaveComplexInfo()}
+            >
+              Cpx
+            </button>
           </div>
         </div>
         <div>
           <div>
-            <button onClick={() => this.onSaveSubjectInfo()}>Sub</button>
+            <button
+              title="Save CMA Subject Info"
+              onClick={() => this.onSaveSubjectInfo()}
+            >
+              Sub
+            </button>
           </div>
           <div>
-            < button id="mls-send-table-to-background" onClick={() => this.onSendTableInfoToBackground()}>Tbl</button>
+            <button
+              title="Send Listings Table to Map Search"
+              id="mls-send-table-to-background"
+              onClick={() => this.onSendTableInfoToBackground()}
+            >
+              Tbl
+            </button>
           </div>
           <div>
-            < button id="mls-get-data" onClick={() => this.onGetData()}>Get</button>
+            <button
+              title="Update RPS Listings Info(neighborhood)"
+              id="mls-get-data"
+              onClick={() => this.onGetData()}
+            >
+              RPS
+            </button>
           </div>
         </div>
       </div>
@@ -50,14 +79,15 @@ class SumBoxButtons extends React.Component {
   }
 
   onGetData(page = 1) {
-    console.log('get data');
+    console.log("get data");
     //{"viewID":1,"searchID":"tab4_1_2","paging":{"_search":false,"nd":1602269249984,"rows":250,"page":1,"sidx":"0_13_","sord":"asc","sidx2":null,"sord2":null,"sidx3":null,"sord3":null}}
     // https://bcres.paragonrels.com/ParagonLS/Services/Listing.svc/json/v1/GetData
-    let ajax_url = "https://bcres.paragonrels.com/ParagonLS/Services/Listing.svc/json/v1/GetData";
+    let ajax_url =
+      "https://bcres.paragonrels.com/ParagonLS/Services/Listing.svc/json/v1/GetData";
     let tabID = $fx.getSearchTabID();
     // remove '#' from tabID
-    tabID = tabID.replace('#', '');
-    var htmlTotalPages = $('#sp_1', parent.document);
+    tabID = tabID.replace("#", "");
+    var htmlTotalPages = $("#sp_1", parent.document);
     var totalPages = parseInt(htmlTotalPages.text());
     var currentPage = page;
     let listingData = {
@@ -73,8 +103,8 @@ class SumBoxButtons extends React.Component {
         sidx2: null,
         sord2: null,
         sidx3: null,
-        sord3: null
-      }
+        sord3: null,
+      },
     };
     //do ajax call
     let ajax_call = $.ajax.bind(this);
@@ -84,7 +114,7 @@ class SumBoxButtons extends React.Component {
       type: "POST",
       contentType: "application/json",
       data: JSON.stringify(listingData),
-      dataType: 'json',
+      dataType: "json",
       success: function (res) {
         //console.log("res::", JSON.stringify(res));
         let urlLocationOptionLocal = $("#pid_local", top.document);
@@ -104,40 +134,46 @@ class SumBoxButtons extends React.Component {
         let _listing = {};
         for (let i = 0; i < _listings.length; i++) {
           _listing = {
-            mlsNo: _listings[i]['cell'][1],
-            neighborhood: _listings[i]['cell'][8],
-            communityName: _listings[i]['cell'][31]
-          }
+            mlsNo: _listings[i]["cell"][1],
+            neighborhood: _listings[i]["cell"][8],
+            communityName: _listings[i]["cell"][31],
+          };
           listings.push(_listing);
         }
         let listingData = {
           listings: listings,
           ajax_url: ajax_url,
           todo: "UpdateCommunityInfoToWP",
-          from: "spreadsheet_get_data"
+          from: "spreadsheet_get_data",
         };
         chrome.runtime.sendMessage(listingData, (res) => {
           console.log(res);
-          if (res === 'Page Update Done') {
+          if (res === "Page Update Done") {
             // succeed, go to next page
             // htmlTotalPages = $('#sp_1', parent.document);
             // totalPages = (int)(htmlTotalPages.text());
             if (currentPage < totalPages) {
-              console.log(`(CommunityName & Neighborhoods) Updating Page:${currentPage + 1} Of ${totalPages}`);
+              console.log(
+                `(CommunityName & Neighborhoods) Updating Page:${
+                  currentPage + 1
+                } Of ${totalPages}`
+              );
               // go to update next page
               this.onGetData(currentPage + 1);
             } else {
-              alert(`(CommunityName & Neighborhoods) All Pages:${totalPages} UPDATED!`);
+              alert(
+                `(CommunityName & Neighborhoods) All Pages:${totalPages} UPDATED!`
+              );
             }
           } else {
             //failed, do not loop
             console.log(res);
           }
-        })
+        });
       }.bind(this),
       error: function (jqXhr, textStatus, errorThrown) {
         console.log(errorThrown);
-      }
+      },
     });
   }
 
@@ -173,7 +209,19 @@ class SumBoxButtons extends React.Component {
     }
 
     ////----SELECT COLUMNS FOR EXPORTING, MAKE THE TABLE FOR EXPORTING
-    this.selectExportTableRows(tabTitle, exportTableRows);
+    let expType = $("select#SelectCMAType", top.document); // get the select element defined by MainMenu.js
+    if (expType.find("option:selected").text() === "CMA4Exl") {
+      //// ----only export to an excel file
+      this.selectExportTableRows(tabTitle, exportTableRows);
+      cloneTable.appendTo($(htmlTable));
+
+      this.tableToExcel(cloneTable.attr("id"), "Listings Table");
+      cloneTable.remove();
+      return;
+    } else {
+      //// ----Send CMA records to mysql server
+      this.selectCMATableRows(tabTitle, exportTableRows);
+    }
 
     //////----PREPARE DATASET FOR MYSQL SERVER
     var rowValues = [];
@@ -221,11 +269,6 @@ class SumBoxButtons extends React.Component {
     chrome.runtime.sendMessage(cmaInfo, function (response) {
       console.log("save CMA Info");
     });
-
-    cloneTable.appendTo($(htmlTable));
-
-    this.tableToExcel(cloneTable.attr("id"), "Listings Table");
-    cloneTable.remove();
   }
 
   ////EXPORT TABLE TO EXCEL STEP 1
@@ -340,8 +383,8 @@ class SumBoxButtons extends React.Component {
     }
   }
 
-  ////EXPORT TABLE TO EXCEL STEP 3
-  selectExportTableRows(tabTitle, tableRows) {
+  ////EXPORT CMA/VPR TO MYSQL
+  selectCMATableRows(tabTitle, tableRows) {
     if (
       tabTitle == "Residential Attached" ||
       tabTitle == "Residential Detached" ||
@@ -356,14 +399,24 @@ class SumBoxButtons extends React.Component {
           $(row).remove();
         } else {
           $(row).height(40);
-          //REMOVE TAIL.CELLS
-          for (var j = 94; j >= 50; j--) {
+          //REMOVE TAIL.CELLS 94 - 82
+          for (var j = 94; j >= 82; j--) {
             $(row).children("td").eq(j).remove();
           }
+          // 79 - 70
+          for (var j = 79; j >= 70; j--) {
+            $(row).children("td").eq(j).remove();
+          }
+          // 63-50
+          for (var j = 63; j >= 50; j--) {
+            $(row).children("td").eq(j).remove();
+          }
+          // 47 - 41
           for (var j = 47; j >= 41; j--) {
             $(row).children("td").eq(j).remove();
           }
 
+          // 50
           //REMOVE HEADER.CELLS
           let RemovalHeadCellsNo = [
             39,
@@ -382,6 +435,74 @@ class SumBoxButtons extends React.Component {
             1,
             0,
           ];
+          for (var j in RemovalHeadCellsNo) {
+            $(row).children("td").eq(RemovalHeadCellsNo[j]).remove();
+          }
+        }
+      }
+    }
+
+    if (tabTitle == "Tour and Open House") {
+      for (var i = 0; i < tableRows.length; i++) {
+        var row = tableRows[i];
+        if (!$fx.inGreatVanArea($(row).children("td").eq(32).text())) {
+          $(row).remove();
+        } else {
+          $(row).height(40);
+          //REMOVE CELLS
+          let RemovalHeadCellsNo = [
+            94,
+            93,
+            92,
+            91,
+            40,
+            39,
+            38,
+            34,
+            28,
+            27,
+            20,
+            19,
+            18,
+            17,
+            8,
+            7,
+            6,
+            5,
+            4,
+            1,
+            0,
+          ];
+          for (var j in RemovalHeadCellsNo) {
+            $(row).children("td").eq(RemovalHeadCellsNo[j]).remove();
+          }
+        }
+      }
+    }
+  }
+
+  ////EXPORT TABLE TO EXCEL STEP 3
+  selectExportTableRows(tabTitle, tableRows) {
+    if (
+      tabTitle == "Residential Attached" ||
+      tabTitle == "Residential Detached" ||
+      tabTitle == "Market Monitor" ||
+      tabTitle == "Listing Carts" ||
+      tabTitle == "Quick Search" ||
+      tabTitle == "Multi-Class"
+    ) {
+      for (var i = 0; i < tableRows.length; i++) {
+        var row = tableRows[i];
+        if (!$fx.inGreatVanArea($(row).children("td").eq(32).text())) {
+          $(row).remove();
+        } else {
+          $(row).height(40);
+          //REMOVE TAIL.CELLS 94 - 82
+          for (var j = 79; j >= 74; j--) {
+            $(row).children("td").eq(j).remove();
+          }
+          //REMOVE HEADER.CELLS
+          let RemovalHeadCellsNo = [7, 6, 5, 4, 1, 0];
           for (var j in RemovalHeadCellsNo) {
             $(row).children("td").eq(RemovalHeadCellsNo[j]).remove();
           }
@@ -459,7 +580,7 @@ class SumBoxButtons extends React.Component {
   }
 
   onSaveSubjectInfo() {
-    console.log("add button clicked!");
+    console.log("onSaveSubjectInfo button clicked!");
     var address = "14043 109 AVE";
     var id = "1234";
     ////////////////////
@@ -519,15 +640,23 @@ class SumBoxButtons extends React.Component {
       cells[cols.TotalValue].textContent
     );
     var subjectHouseType = cells[cols.PropertyType].textContent;
+    var subjectDwellingType = cells[cols.HouseType].textContent;
     var subjectCity = cells[cols.City].textContent;
     var maintenanceFee = cells[cols.StrataFeePSF].textContent;
     var neighborhood = cells[cols.Neighborhood].textContent;
-    const listPrice = $fx.convertStringToDecimal(cells[cols.ListPrice].textContent);
-    const soldPrice = $fx.convertStringToDecimal(cells[cols.SoldPrice].textContent);
-    const bcaChange = parseFloat(cells[cols.ChangeValuePercent].textContent) / 100.0;
+    const listPrice = $fx.convertStringToDecimal(
+      cells[cols.ListPrice].textContent
+    );
+    const soldPrice = $fx.convertStringToDecimal(
+      cells[cols.SoldPrice].textContent
+    );
+    const bcaChange =
+      parseFloat(cells[cols.ChangeValuePercent].textContent) / 100.0;
 
     let urlLocationOptionLocal = $("#pid_local", top.document);
     let htmlUpdateCurrentSubject = $("#checkUpdateSubjectInfo", top.document);
+    let htmlCMAType = $("#SelectCMAType", top.document);
+    let cmaType = htmlCMAType.val();
     let urlLocation = urlLocationOptionLocal.prop("checked");
     let updateCurrentSubject = htmlUpdateCurrentSubject.prop("checked");
     // get cma id
@@ -550,6 +679,7 @@ class SumBoxButtons extends React.Component {
 
     var subjectInfo = {
       cmaID: cmaID,
+      cmaType: cmaType,
       address: subjectStreetAddress,
       unitNo: subjectUnitNo,
       age: subjectAge,
@@ -559,6 +689,7 @@ class SumBoxButtons extends React.Component {
       bcAssessLand: bcAssessLand,
       bcAssessTotal: bcAssessTotal,
       subjectHouseType: subjectHouseType,
+      subjectDwellingType: subjectDwellingType,
       maintenanceFee: maintenanceFee,
       city: subjectCity,
       neighborhood: neighborhood,
@@ -572,7 +703,7 @@ class SumBoxButtons extends React.Component {
     };
 
     ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
-    chrome.runtime.sendMessage(subjectInfo, function (response) { });
+    chrome.runtime.sendMessage(subjectInfo, function (response) {});
 
     ////FEEDBACK THE INPUT AREA WITH ADDED STAR SIGN
     // this.state.complexName.val(complexName + "*");
@@ -683,7 +814,7 @@ class SumBoxButtons extends React.Component {
       };
 
       ////SEND THE COMPLEX NAME INTO THE DATABASE BY CALL ADD.COMPLEX.INFO
-      chrome.runtime.sendMessage(complexInfo, function (response) { });
+      chrome.runtime.sendMessage(complexInfo, function (response) {});
 
       ////FEEDBACK THE INPUT AREA WITH ADDED STAR SIGN
       this.state.complexName.val(complexName + "*");
@@ -696,9 +827,9 @@ class SumBoxButtons extends React.Component {
     var htmlHead = document.querySelector(".ui-jqgrid-htable");
     var tableData = JSON.stringify(htmlTable.innerHTML);
     var tagsToReplace = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;'
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
     };
 
     function replaceTag(tag) {
@@ -710,16 +841,25 @@ class SumBoxButtons extends React.Component {
     }
     var array = [];
     var headers = [];
-    $('.ui-jqgrid-htable th').each(function (index, item) {
-      headers[index] = $(item).html().replace(/(<([^>]+)>)/gi, "").replace('&nbsp;', '').substr(0, 50);
+    $(".ui-jqgrid-htable th").each(function (index, item) {
+      headers[index] = $(item)
+        .html()
+        .replace(/(<([^>]+)>)/gi, "")
+        .replace("&nbsp;", "")
+        .substr(0, 50);
     });
-    $('#grid tr').has('td').each(function () {
-      var arrayItem = {};
-      $('td', $(this)).each(function (index, item) {
-        arrayItem[headers[index]] = $(item).html().replace(/(<([^>]+)>)/gi, "").replace('&nbsp;', '');
+    $("#grid tr")
+      .has("td")
+      .each(function () {
+        var arrayItem = {};
+        $("td", $(this)).each(function (index, item) {
+          arrayItem[headers[index]] = $(item)
+            .html()
+            .replace(/(<([^>]+)>)/gi, "")
+            .replace("&nbsp;", "");
+        });
+        array.push(arrayItem);
       });
-      array.push(arrayItem);
-    });
 
     var tableInfo = {
       table: JSON.stringify(array),

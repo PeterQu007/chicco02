@@ -2,9 +2,11 @@
 //message passed between background - defaultpage - iframes
 
 import database from "../assets/scripts/modules/Database";
+import dbOffline from "../assets/scripts/modules/Database Offline";
 import { callbackify } from "util";
 
 var db = new database();
+var dbo = new dbOffline();
 var $fx = L$();
 var newTaxYear = true; //beginning of new year, MLS tax db has not been updated, still use last year's assess. set newTaxYear to false
 var d = new Date();
@@ -244,30 +246,31 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
             return;
           }
           var today = $fx.getToday();
-          db.readStrataPlanSummary(strataPlan + "-" + today, function (
-            strataPlanSummaryToday
-          ) {
-            //console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday)
-            if (!strataPlanSummaryToday) {
-              //other wise , send out tax research command:
-              console.info("Chrome Tab ID is: ", chromeTabID);
-              chrome.tabs.query(
-                {
-                  active: true,
-                  currentWindow: true,
-                },
-                function (tabs) {
-                  chrome.tabs.sendMessage(tabs[0].id, {
-                    todo: "searchComplexListingCount",
-                    showResult: true,
-                    saveResult: true,
-                    strataPlan: strataPlan,
-                    complexName: complexName,
-                  });
-                }
-              );
+          db.readStrataPlanSummary(
+            strataPlan + "-" + today,
+            function (strataPlanSummaryToday) {
+              //console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday)
+              if (!strataPlanSummaryToday) {
+                //other wise , send out tax research command:
+                console.info("Chrome Tab ID is: ", chromeTabID);
+                chrome.tabs.query(
+                  {
+                    active: true,
+                    currentWindow: true,
+                  },
+                  function (tabs) {
+                    chrome.tabs.sendMessage(tabs[0].id, {
+                      todo: "searchComplexListingCount",
+                      showResult: true,
+                      saveResult: true,
+                      strataPlan: strataPlan,
+                      complexName: complexName,
+                    });
+                  }
+                );
+              }
             }
-          });
+          );
         }
       );
       sendResponse(">>>complex search has been processed in eventpage: ");
@@ -588,6 +591,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
       });
     }
 
+    // sync community names to pidhomes.ca & cn.pidhomes.ca
     if (request.todo == "UpdateCommunityInfoToWP") {
       var listingInfo = { listingInfo: JSON.stringify(request.listings) };
       let ajax_url = request.ajax_url;
@@ -597,13 +601,13 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
         data: listingInfo,
         success: function (res) {
           console.log("res::", JSON.stringify(res));
-          if (res === 'update done') {
-            sendResponse('Page Update Done');
+          if (res.indexOf("sync RPS community names done:") > -1) {
+            sendResponse("Page Update Done");
           } else {
-            sendResponse('Page Update Failed');
+            sendResponse("Page Update Failed");
           }
         },
-      })
+      });
     }
 
     if (request.todo == "saveTableInfo") {
@@ -617,10 +621,10 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
       let listingInfo = [];
       // search tax value
       mlsTable.forEach((row) => {
-        if (row['ML #'] == mlsNo) {
+        if (row["ML #"] == mlsNo) {
           listingInfo = row;
         }
-      })
+      });
       sendResponse(listingInfo);
     }
 

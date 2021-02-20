@@ -49,7 +49,7 @@ var fullRealtor = {
       this.listingID = $fx.getListingID(window.frameElement.src);
     }
 
-    if (!this.listingID || this.listingID.indexOf('https') >= 0) {
+    if (!this.listingID || this.listingID.indexOf("https") >= 0) {
       this.subTabID = $fx.getSubTabID(window.frameElement.src);
       this.listingID = $fx.getListingID(window.frameElement.src);
     }
@@ -284,7 +284,7 @@ var fullRealtor = {
               'div[style="top:198px;left:681px;width:83px;height:15px;"]'
             ); //P.I.D.
           }
-        } catch (err) { }
+        } catch (err) {}
         //top:198px;left:681px;width:83px;height:15px;
         self.complexOrSubdivision = $(
           'div[style="top:229px;left:393px;width:369px;height:13px;"]'
@@ -649,11 +649,16 @@ var fullRealtor = {
     var publicRemarks = this.publicRemarks.text();
     this.uiListingInfo.publicRemarks.text(publicRemarks);
     //highlight keyword in public remarks:
-    var keywordArray = this.keyword.val().toString().split(",");
+    let keywordArray;
     var self = this;
-    keywordArray.forEach(function (element) {
-      $fx.highlight_words(element, self.uiListingInfo.publicRemarks);
-    });
+    try {
+      keywordArray = this.keyword.val().toString().split(",");
+      keywordArray.forEach(function (element) {
+        $fx.highlight_words(element, self.uiListingInfo.publicRemarks);
+      });
+    } catch (e) {
+      console.error(e);
+    }
   },
 
   /******************
@@ -741,7 +746,7 @@ var fullRealtor = {
             showResult: true,
             saveResult: true,
           },
-          function (response) { }
+          function (response) {}
         );
       }
     );
@@ -970,8 +975,8 @@ var fullRealtor = {
           self.formalAddress.text("");
           var adrLink = $(
             '<a id="addressLink" target="_blank" href="https://www.google.com/search?q=Google+tutorial+create+link">' +
-            "Google tutorial create link" +
-            "</a> "
+              "Google tutorial create link" +
+              "</a> "
           );
           var adrInfo = new addressInfo(formalAddress, "auto", true);
           adrLink.attr("href", adrInfo.googleSearchLink);
@@ -1091,39 +1096,39 @@ var fullRealtor = {
         }
         self.bcAssess.text(
           (dataFromDB ? "total:  " : "total*:  ") +
-          $fx.removeDecimalFraction(totalValue)
+            $fx.removeDecimalFraction(totalValue)
         );
         self.bcLand.text(
           "land:  " + $fx.removeDecimalFraction(landValue) + landValuePerSF
         );
         self.bcImprovement.text(
           "house:" +
-          $fx.removeDecimalFraction(improvementValue) +
-          houseValuePerSF
+            $fx.removeDecimalFraction(improvementValue) +
+            houseValuePerSF
         );
         self.bcLand2ImprovementRatio.text(
           land2TotalRatio.toString() +
-          "%L-T " +
-          house2TotalRatio.toString() +
-          "%H-T " +
-          land2HouseRatio.toString() +
-          "L-H"
+            "%L-T " +
+            house2TotalRatio.toString() +
+            "%H-T " +
+            land2HouseRatio.toString() +
+            "L-H"
         );
         self.valueChange.text(
           "$" +
-          $fx.numberWithCommas(changeValue.toFixed(0)) +
-          " [ " +
-          changeValuePercent.toFixed(0).toString() +
-          "% ]   "
+            $fx.numberWithCommas(changeValue.toFixed(0)) +
+            " [ " +
+            changeValuePercent.toFixed(0).toString() +
+            "% ]   "
         );
         self.oldTimerLotValuePerSF.text(olderTimerLotValuePerSF);
         self.marketValuePerSF.text(
           "Lot:$" +
-          marketLotValuePerSF.toString() +
-          "/SF" +
-          " | Impv:$" +
-          marketHouseValuePerSF.toString() +
-          "/SF"
+            marketLotValuePerSF.toString() +
+            "/SF" +
+            " | Impv:$" +
+            marketHouseValuePerSF.toString() +
+            "/SF"
         );
         self.lotArea.text(
           $fx.numberWithCommas(
