@@ -1,10 +1,9 @@
 //background script, event mode
 //message passed between background - defaultpage - iframes
-// import regeneratorRuntime from "regenerator-runtime";
+
 import database from "../assets/scripts/modules/Database";
 import dbOffline from "../assets/scripts/modules/Database Offline";
 import { callbackify } from "util";
-require("chrome-extension-async");
 
 var db = new database();
 var dbo = new dbOffline();
@@ -25,24 +24,15 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
   console.warn("background events page chromeTabID is: ", chromeTabID);
 });
 
-tabQ();
-
-checkUpdate();
-readStoragePID();
-
 (function () {
   //console.log("Hello!-1");
 
-  // chrome.storage.local.set({
-  //   landValue: 0,
-  //   improvementValue: 0,
-  //   totalValue: 0,
-  //   curTabID: null,
-  //   taxYear: taxYear,
-  // });
-
-  initBackground().then((res) => {
-    console.log(res);
+  chrome.storage.local.set({
+    landValue: 0,
+    improvementValue: 0,
+    totalValue: 0,
+    curTabID: null,
+    taxYear: taxYear,
   });
 
   chrome.browserAction.onClicked.addListener(function (activeTab) {
@@ -63,6 +53,23 @@ readStoragePID();
       url: [{ hostContains: ".paragonrels.com" }],
     }
   );
+
+  // chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+  //   var timer = new chrome.Interval();
+  //   timer.start();
+
+  //   var port = chrome.tabs.connect(tabs[0].id);
+  //   port.postMessage({ counter: 1 });
+  //   port.onMessage.addListener(function getResp(response) {
+  //     if (response.counter < 1000) {
+  //       port.postMessage({ counter: response.counter });
+  //     } else {
+  //       timer.stop();
+  //       var usec = Math.round(timer.microseconds() / response.counter);
+  //       console.info("usec is::", usec);
+  //     }
+  //   });
+  // });
 
   //receive message from iframes, then transfer the message to Main Page content script
   chrome.runtime.onMessage.addListener(function (
@@ -626,51 +633,3 @@ readStoragePID();
 
   //End of Main Function
 })();
-
-function initBackground() {
-  return new Promise((res, rej) => {
-    chrome.storage.local.set(
-      {
-        landValue: 0,
-        improvementValue: 0,
-        totalValue: 0,
-        curTabID: null,
-        taxYear: taxYear,
-      },
-      (response) => {
-        res(response);
-      }
-    );
-  });
-}
-
-async function checkUpdate() {
-  try {
-    // API is chrome.runtime.requestUpdateCheck(function (status, details) { ... });
-    // Instead we use deconstruction-assignment and await
-    const { status, details } = await chrome.runtime.requestUpdateCheck();
-    //alert(`Status: ${status}\nDetails: ${JSON.stringify(details)}`);
-  } catch (err) {
-    // Handle errors from chrome.runtime.requestUpdateCheck or my code
-  }
-}
-
-async function readStoragePID() {
-  try {
-    //
-    const currentPID = await chrome.storage.local.get("PID");
-    console.log(currentPID);
-  } catch (err) {
-    // Handle errors
-  }
-}
-
-async function tabQ() {
-  try {
-    const tabs = await chrome.tabs.query({ title: "Paragon 5" });
-    const activeTabID = tabs[0].id;
-    console.log(activeTabID);
-  } catch (err) {
-    // Handle errors
-  }
-}
