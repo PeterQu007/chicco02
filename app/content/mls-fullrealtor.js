@@ -86,6 +86,11 @@ var fullRealtor = {
       .replace(",", "")
       .replace(" ", "");
     $fx.setHouseType(this.houseListingType);
+    if (this.houseListingType === "Detached") {
+      this.listingAgentName = $(
+        'div[style="top:784px;left:595px;width:163px;height:15px;"]'
+      );
+    }
     this.getMorePropertyInfo(); //get pid, complexName, lotArea, etc.
     this.calculateSFPrice();
     ////CHANGE THE MODEL.BOX WIDTH
@@ -169,6 +174,13 @@ var fullRealtor = {
     'div[style="top:860px;left:53px;width:713px;height:35px;"]'
   ), //'div[style="top:860px;left:53px;width:710px;height:35px;"]'
   publicRemarks: $('div[style="top:897px;left:4px;width:758px;height:73px;"]'),
+  // add listing agent name and telephone number
+  listingAgentName: $(
+    'div[style="top:784px;left:525px;width:233px;height:15px;"]'
+  ),
+  listingAgentNumber: $(
+    'div[style="top:796px;left:612px;width:153px;height:13px;"]'
+  ),
   keyword: $(
     "div#app_banner_links_left input.select2-search__field",
     top.document
@@ -648,6 +660,31 @@ var fullRealtor = {
     //get public remarks:
     var publicRemarks = this.publicRemarks.text();
     this.uiListingInfo.publicRemarks.text(publicRemarks);
+    // add listing agent sms
+    let listingAgentFirstName = this.listingAgentName.text().split(" ")[0];
+    // transfer to Capital Case
+    listingAgentFirstName =
+      listingAgentFirstName.charAt(0).toUpperCase() +
+      listingAgentFirstName.slice(1).toLowerCase();
+    // get cell number
+    let listingAgentNumber = this.listingAgentNumber.text().replaceAll("-", "");
+    var listingAgentSMS = `Hi ${listingAgentFirstName}, this is Peter Qu from Magsen Realty. 
+                          I am wondering if your listing ${this.address.text()} [${this.mlsNo.text()}] is still available? Please advise. 
+                          Thank you.
+                          </br>
+                          Peter Qu</br>
+                          Magsen Realty Inc.</br>
+                          ${listingAgentNumber}`;
+    this.uiListingInfo.listingAgentSMS.html(listingAgentSMS);
+    //highlight no-name words
+    let noNames = ["text", "touchbase", "email", "hi please"];
+    try {
+      noNames.forEach((noName) => {
+        $fx.highlight_words(noName, this.uiListingInfo.listingAgentSMS);
+      });
+    } catch (e) {
+      console.error(e);
+    }
     //highlight keyword in public remarks:
     let keywordArray;
     var self = this;
@@ -656,6 +693,10 @@ var fullRealtor = {
       keywordArray.forEach(function (element) {
         $fx.highlight_words(element, self.uiListingInfo.publicRemarks);
       });
+      keywordArray.forEach((keyword) => {
+        $fx.highlight_words(keyword, self.uiListingInfo.realtorRemarks);
+      });
+      chrome.storage.local.set({ keywords: this.keyword.val().toString() });
     } catch (e) {
       console.error(e);
     }

@@ -64,6 +64,8 @@ export default class UIListingInfo {
     //divs for remarks:
     this.realtorRemarks = $('<div id="realtorRemarks"></div>');
     this.publicRemarks = $('<div id="publicRemarks"></div>');
+    //divs for listing agent sms:
+    this.listingAgentSMS = $('<div id="listingAgentSMS"></div>');
     //divs for showing info:
     this.showingInfo = $('<div id="showingInfo">Showing info:</div>');
     this.inputClientName = $(
@@ -143,6 +145,8 @@ export default class UIListingInfo {
     uiDiv.append(this.oldTimerLotValuePerSF);
     uiDiv.append(this.marketValuePerSF);
     //add remarks
+    uiDiv.append($("<hr/>"));
+    uiDiv.append(this.listingAgentSMS);
     uiDiv.append($("<hr/>"));
     uiDiv.append(this.realtorRemarks);
     uiDiv.append(this.publicRemarks);

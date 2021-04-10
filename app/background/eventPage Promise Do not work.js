@@ -1,9 +1,11 @@
 //background script, event mode
 //message passed between background - defaultpage - iframes
-
+// import regeneratorRuntime from "regenerator-runtime";
 import database from "../assets/scripts/modules/Database";
 import dbOffline from "../assets/scripts/modules/Database Offline";
 import { callbackify } from "util";
+import searchTax from "./searchTax";
+require("chrome-extension-async");
 
 var db = new database();
 var dbo = new dbOffline();
@@ -24,20 +26,19 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
   console.warn("background events page chromeTabID is: ", chromeTabID);
 });
 
-(function () {
-  //console.log("Hello!-1");
+tabQ();
 
-  chrome.storage.local.set({
-    landValue: 0,
-    improvementValue: 0,
-    totalValue: 0,
-    curTabID: null,
-    taxYear: taxYear,
+checkUpdate();
+readStoragePID();
+
+(function () {
+  initBackground().then((res) => {
+    console.log(res);
   });
 
   chrome.browserAction.onClicked.addListener(function (activeTab) {
-    //open a link
-    // var newURL = "http://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword";
+    //open a PARAGON PAGE IN A NEW TAB
+    // var newURL = "http://idp.gvfv.clareitysecurity.net/idp/Authn/UserPassword"; //OBSOLETE PARAGON LOGIN LINK
     let newURL = "https://gvfv.clareityiam.net/idp/login";
     chrome.tabs.create({
       url: newURL,
@@ -60,7 +61,9 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
     sender,
     sendResponse
   ) {
-    console.log("onMessage.eventPage got a message", request);
+    console.log(
+      `onMessage.eventPage got a message from ${sender} with ${request.from}`
+    );
 
     //message from Warning iframe
     if (request.todo == "warningMessage") {
@@ -82,20 +85,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
 
     //message from Logout iframe
     if (request.todo == "logoutMessage") {
-      //console.log("I got logout message!");
-      //pass the message to defaultpage(Main Home Page)
-      console.info("Chrome Tab ID is: ", chromeTabID);
-      chrome.tabs.query(
-        {
-          active: true,
-          currentWindow: true,
-        },
-        function (tabs) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            todo: "logoutMLS",
-          });
-        }
-      );
+      logOut(request);
     }
 
     if (request.todo == "switchTab") {
@@ -120,170 +110,24 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
     }
 
     if (request.todo == "taxSearch") {
-      //get request to search tax info of Property with PID saved to storage
-      //console.log(">>>I got tax search command!");
-      try {
-        chrome.storage.local.get("PID", function (result) {
-          //check database, if assess exist, send it back
-          //console.log(">>>PID is: ", result.PID);
-          var taxID = result.PID + "-" + taxYear;
-          var requester = request.from;
-          db.readAssess(taxID, function (assess) {
-            //console.log(">>>read from , assess is: ", assess)
-            if (!assess._id) {
-              //other wise , send out tax research command:
-              try {
-                console.info("Chrome Tab ID is: ", chromeTabID);
-                chrome.tabs.query(
-                  {
-                    active: true,
-                    currentWindow: true,
-                  },
-                  function (tabs) {
-                    console.warn("taxSearch get chrome tabs:", tabs);
-                    if (tabs.length > 0) {
-                      chrome.tabs.sendMessage(tabs[0].id, {
-                        todo: "taxSearchFor" + requester,
-                      });
-                    } else {
-                      if (
-                        String(assess.from).indexOf(
-                          "taxSearchFor" + requester
-                        ) < 0
-                      ) {
-                        assess.from = assess.from + "-taxSearchFor" + requester;
-                      }
-                      assess.from += "-TaxSearchFailed";
-                      chrome.storage.local.set(assess);
-                    }
-                  }
-                );
-              } catch (err) {
-                console.error("taxSearch Errors: ", err);
-              }
-            } else {
-              if (String(assess.bcaSearch).indexOf("failed") > -1) {
-                if (String(assess.addedDate).indexOf($today) > -1) {
-                  assess.from =
-                    assess.from + "-TaxSearchFailed-taxSearchFor" + requester;
-                } else {
-                  //Re-Search the tax Data EveryDay
-                  try {
-                    console.info("Chrome Tab ID is: ", chromeTabID);
-                    chrome.tabs.query(
-                      {
-                        active: true,
-                        currentWindow: true,
-                      },
-                      function (tabs) {
-                        console.warn("taxSearch get chrome tabs:", tabs);
-                        if (tabs.length > 0) {
-                          chrome.tabs.sendMessage(tabs[0].id, {
-                            todo: "taxSearchFor" + requester,
-                          });
-                        } else {
-                          if (
-                            String(assess.from).indexOf(
-                              "taxSearchFor" + requester
-                            ) < 0
-                          ) {
-                            assess.from =
-                              assess.from + "-taxSearchFor" + requester;
-                          }
-                          assess.from += "-TaxSearchFailed";
-                          chrome.storage.local.set(assess);
-                        }
-                      }
-                    );
-                  } catch (err) {
-                    console.error("taxSearch Errors: ", err);
-                  }
-                }
-              } else if (
-                String(assess.from).indexOf("taxSearchFor" + requester) < 0
-              ) {
-                assess.from = assess.from + "-taxSearchFor" + requester;
-              }
-              chrome.storage.local.set(assess);
-            }
-          });
-        });
-        sendResponse(">>>tax search has been processed in EventPage: ");
-      } catch (err) {
-        sendResponse(">>>tax search gets errors in EventPage: ");
-      }
+      searchTax(request, sendResponse, db);
+      // taxSearch(request)
+      //   .then((res) => sendResponse(res))
+      //   .catch((err) => sendResponse(err));
     }
 
     if (request.todo == "searchStrataPlanSummary") {
-      //get request to search tax info of Property with PID saved to storage
       //console.log(">>>I got search StrataPlanSummary command!");
 
-      chrome.storage.local.get(
-        ["strataPlan", "complexNameForListingCount"],
-        function (result) {
-          //check database, if assess exist, send it back
-          //console.log(">>>strataPlan is: ", result.strataPlan);
-          var strataPlan = result.strataPlan;
-          var complexName = result.complexNameForListingCount;
-          if (!strataPlan || strataPlan == "PLAN" || strataPlan == "PL") {
-            return;
-          }
-          var today = $fx.getToday();
-          db.readStrataPlanSummary(
-            strataPlan + "-" + today,
-            function (strataPlanSummaryToday) {
-              //console.log(">>>read from , strataPlanSummary is: ", strataPlanSummaryToday)
-              if (!strataPlanSummaryToday) {
-                //other wise , send out tax research command:
-                console.info("Chrome Tab ID is: ", chromeTabID);
-                chrome.tabs.query(
-                  {
-                    active: true,
-                    currentWindow: true,
-                  },
-                  function (tabs) {
-                    chrome.tabs.sendMessage(tabs[0].id, {
-                      todo: "searchComplexListingCount",
-                      showResult: true,
-                      saveResult: true,
-                      strataPlan: strataPlan,
-                      complexName: complexName,
-                    });
-                  }
-                );
-              }
-            }
-          );
-        }
-      );
-      sendResponse(">>>complex search has been processed in eventpage: ");
+      searchStrataPlanSummary(request)
+        .then((res) => sendResponse(res))
+        .catch((err) => sendResponse(err));
     }
 
     if (request.todo == "searchComplexInfo") {
-      var complexID = request._id;
-      var requestFrom = request.from;
-      delete request.from;
-      var complexInfo = request;
-
-      db.readComplex(complexInfo, function (cInfo) {
-        //console.log('>>>read the complex info from database:', complexInfo);
-        if (cInfo) {
-          if (cInfo.name.length > 0) {
-            cInfo.from += "-" + requestFrom;
-            cInfo.complexName = cInfo.name;
-          } else {
-            cInfo.from += "-" + requestFrom;
-            cInfo.complexName = "::";
-          }
-
-          chrome.storage.local.set(cInfo, function () {
-            console.log("complexInfo is: ", cInfo);
-          });
-        } else {
-          //error for complexInfo
-          console.log("Complex Name does not exist in Database");
-        }
-      });
+      searchComplexInfo(request)
+        .then((cInfo) => console.log(cInfo))
+        .catch((err) => console.log(err));
     }
 
     if (request.todo == "saveComplexInfo") {
@@ -616,3 +460,212 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
 
   //End of Main Function
 })();
+
+function initBackground() {
+  return new Promise((res, rej) => {
+    chrome.storage.local.set(
+      {
+        landValue: 0,
+        improvementValue: 0,
+        totalValue: 0,
+        curTabID: null,
+        taxYear: taxYear,
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          rej(chrome.runtime.lastError.message);
+        } else {
+          res("Background Evenpage Init Done!");
+        }
+      }
+    );
+  });
+}
+
+async function checkUpdate() {
+  try {
+    // API is chrome.runtime.requestUpdateCheck(function (status, details) { ... });
+    // Instead we use deconstruction-assignment and await
+    const { status, details } = await chrome.runtime.requestUpdateCheck();
+    //alert(`Status: ${status}\nDetails: ${JSON.stringify(details)}`);
+  } catch (err) {
+    // Handle errors from chrome.runtime.requestUpdateCheck or my code
+  }
+}
+
+async function readStoragePID() {
+  try {
+    //
+    const currentPID = await chrome.storage.local.get("PID");
+    console.log(currentPID);
+  } catch (err) {
+    // Handle errors
+  }
+}
+
+async function tabQ() {
+  try {
+    const tabs = await chrome.tabs.query({ title: "Paragon 5" });
+    const activeTabID = tabs[0].id;
+    console.log(activeTabID);
+  } catch (err) {
+    // Handle errors
+  }
+}
+
+async function warningMessage(request) {
+  if (request.todo == "warningMessage") {
+    //console.log("I got the warning message!");
+    //pass the message to defaultpage(Main Home Page)
+    console.info("Chrome Tab ID is: ", chromeTabID);
+    const tabs = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+
+    const ignoreWarning = await chrome.tabs.sendMessage(tabs[0].id, {
+      todo: "ignoreWarning",
+    });
+  }
+}
+
+async function logOut(request) {
+  if (request.todo == "logoutMessage") {
+    //console.log("I got logout message!");
+    //pass the message to defaultpage(Main Home Page)
+    const tabs = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    const logoutMLS = await chrome.tabs.sendMessage(tabs[0].id, {
+      todo: "logoutMLS",
+    });
+    console.log(`logout MLS from Tab ${tabs[0].id}`);
+  }
+}
+
+async function taxSearch(request, sendResponse) {
+  //get request to search tax info of Property with PID saved to storage
+  //console.log(">>>I got tax search command!");
+  try {
+    const currentPID = await chrome.storage.local.get("PID");
+    const taxID = currentPID.PID + "-" + taxYear;
+    const requester = request.from;
+    const taxAssess = await db.readAssess_promise(taxID);
+    let tabs = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (!taxAssess._id) {
+      //if not taxAssess found in db, send out tax search command:
+      try {
+        if (tabs.length > 0) {
+          await chrome.tabs.sendMessage(tabs[0].id, {
+            todo: "taxSearchFor" + requester,
+          });
+        } else {
+          if (String(taxAssess.from).indexOf("taxSearchFor" + requester) < 0) {
+            taxAssess.from = taxAssess.from + "-taxSearchFor" + requester;
+          }
+          taxAssess.from += "-TaxSearchFailed";
+          await chrome.storage.local.set(taxAssess);
+        }
+      } catch (err) {
+        console.error("taxSearch Errors: ", err);
+      }
+    } else {
+      if (String(taxAssess.bcaSearch).indexOf("failed") > -1) {
+        if (String(taxAssess.addedDate).indexOf($today) > -1) {
+          taxAssess.from =
+            taxAssess.from + "-TaxSearchFailed-taxSearchFor" + requester;
+        } else {
+          try {
+            if (tabs.length > 0) {
+              await chrome.tabs.sendMessage(tabs[0].id, {
+                todo: "taxSearchFor" + requester,
+              });
+            } else {
+              if (
+                String(taxAssess.from).indexOf("taxSearchFor" + requester) < 0
+              ) {
+                taxAssess.from = taxAssess.from + "-taxSearchFor" + requester;
+              }
+              taxAssess.from += "-TaxSearchFailed";
+              await chrome.storage.local.set(taxAssess);
+            }
+          } catch (err) {
+            console.error("taxSearch Errors: ", err);
+          }
+        }
+      } else if (
+        String(taxAssess.from).indexOf("taxSearchFor" + requester) < 0
+      ) {
+        taxAssess.from = taxAssess.from + "-taxSearchFor" + requester;
+      }
+      await chrome.storage.local.set(taxAssess);
+    }
+
+    return Promise.resolve(">>>tax search has been processed in EventPage: ");
+  } catch (err) {
+    return Promise.reject(">>>tax search gets errors in EventPage: ");
+  }
+}
+
+async function searchStrataPlanSummary(request) {
+  const strataInfo = await chrome.storage.local.get([
+    "strataPlan",
+    "complexNameForListingCount",
+  ]);
+
+  let strataPlan = strataInfo.strataPlan;
+  let complexName = strataInfo.complexNameForListingCount;
+
+  if (!strataPlan || strataPlan == "PLAN" || strataPlan == "PL") {
+    return Promise.reject("Non Strata Plan!");
+  }
+
+  let today = $fx.getToday();
+  let strataPlanSummaryToday = await db.readStrataPlanSummary_Promise(
+    strataPlan + "-" + today
+  );
+  if (!strataPlanSummaryToday) {
+    const tabs = chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    await chrome.tabs.sendMessage(tabs[0].id, {
+      todo: "searchComplexListingCount",
+      showResult: true,
+      saveResult: true,
+      strataPlan: strataPlan,
+      complexName: complexName,
+    });
+  } else {
+    return Promise.resolve("Complex Search Has Been Processed in eventpage");
+  }
+}
+
+async function searchComplexInfo(request) {
+  let complexID = request._id;
+  let requestFrom = request.from;
+  delete request.from;
+
+  let complexInfo = await db.readComplex_Promise(request);
+  //console.log('>>>read the complex info from database:', complexInfo);
+  if (complexInfo) {
+    if (complexInfo.name.length > 0) {
+      complexInfo.from += "-" + requestFrom;
+      complexInfo.complexName = complexInfo.name;
+    } else {
+      complexInfo.from += "-" + requestFrom;
+      complexInfo.complexName = "::";
+    }
+
+    await chrome.storage.local.set(complexInfo);
+    console.log("complexInfo is: ", complexInfo);
+    return Promise.resolve("Complex Name Found!");
+  } else {
+    //error for complexInfo
+    return Promise.reject("Complex Name does not exist in Database");
+  }
+}

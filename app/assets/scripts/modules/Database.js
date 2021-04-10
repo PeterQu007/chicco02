@@ -13,22 +13,22 @@ class Database {
       "http://localhost:5984/strataplansummary"
     );
     this.dbShowing = new PouchDB("http://localhost:5984/showing");
-    this.dbAssess.info().then(function(info) {
+    this.dbAssess.info().then(function (info) {
       //console.log(info);
     });
-    this.dbComplex.info().then(function(info) {
+    this.dbComplex.info().then(function (info) {
       //console.log(info);
     });
-    this.dbExposure.info().then(function(info) {
+    this.dbExposure.info().then(function (info) {
       // console.log(info);
     });
-    this.dbListing.info().then(function(info) {
+    this.dbListing.info().then(function (info) {
       console.log(info);
     });
-    this.dbStrataPlanSummary.info().then(function(info) {
+    this.dbStrataPlanSummary.info().then(function (info) {
       //console.log(info);
     });
-    this.dbShowing.info().then(function(info) {
+    this.dbShowing.info().then(function (info) {
       //console.log(info);
     });
     this.assess = null;
@@ -39,12 +39,25 @@ class Database {
     //console.groupEnd('database constructor');
   }
 
+  async readAssess_promise(taxID) {
+    var self = this;
+    try {
+      let taxAssess = await self.dbAssess.get(taxID);
+      self.assess = taxAssess;
+      taxAssess.from = "assess-" + Math.random().toFixed(8);
+      taxAssess.dataFromDB = true;
+      return Promise.resolve(taxAssess);
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
   readAssess(taxID, callback) {
     //console.group(">>>readAssess");
     var self = this;
     self.dbAssess
       .get(taxID)
-      .then(function(doc) {
+      .then(function (doc) {
         var assess = (self.assess = doc);
         //console.log(">>>read the tax info in database is: ", assess);
         assess.from = "assess-" + Math.random().toFixed(8);
@@ -61,7 +74,7 @@ class Database {
         // );
         callback(self.assess);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         //console.log(">>>read database error: ", err);
         self.assess = {};
         self.assess.from = "assess-" + Math.random().toFixed(8);
@@ -76,7 +89,7 @@ class Database {
     //console.group(">>>readAssess");
     var self = this;
     try {
-      self.dbAssess.get(taxID, function(err, doc) {
+      self.dbAssess.get(taxID, function (err, doc) {
         if (err) {
           self.assess = null;
           callback(self.assess);
@@ -104,24 +117,46 @@ class Database {
       d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
     self.dbAssess
       .put(assess)
-      .then(function() {
+      .then(function () {
         return self.dbAssess.get(taxID);
       })
-      .then(function(doc) {
+      .then(function (doc) {
         //console.log(">>>bc assessment has been saved to db: ", doc);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         //console.log(">>>save bc assessment error: ", err);
         self.dbAssess
           .get(taxID)
-          .then(function(doc) {
+          .then(function (doc) {
             return self.dbAssess.remove(doc);
           })
-          .catch(function(err) {
+          .catch(function (err) {
             //console.log(">>>remove bc assess error: ", err);
           });
       });
     //console.groupEnd('writeAssess');
+  }
+
+  async readStrataPlanSummary_Promise(strataPlan) {
+    //console.group('readStrataPlanSummary');
+    //console.log(">>>this in Database is: ", this);
+    var self = this;
+    try {
+      let strataPlan = await self.dbStrataPlanSummary.get(strataPlan);
+      self.strataPlan = strataPlan;
+      await chrome.storage.local.set({
+        active: strataPlan.active,
+        sold: strataPlan.sold,
+        count: strataPlan.count,
+        searchDate: strataPlan.searchDate,
+        complex: strataPlan.complex,
+        strataPlan: strataPlan._id,
+        from: "strataPlanSummary" + Math.random().toFixed(8),
+      });
+      return Promise.resolve(strataPlan);
+    } catch (err) {
+      return Promise.reject(err);
+    }
   }
 
   readStrataPlanSummary(strataPlan, callback) {
@@ -130,7 +165,7 @@ class Database {
     var self = this;
     self.dbStrataPlanSummary
       .get(strataPlan)
-      .then(function(doc) {
+      .then(function (doc) {
         self.strataPlan = doc;
         //console.log(">>>read the strataPlanSummary in database is: ", self.strataPlan);
         chrome.storage.local.set({
@@ -140,11 +175,11 @@ class Database {
           searchDate: doc.searchDate,
           complex: doc.complex,
           strataPlan: doc._id,
-          from: "strataPlanSummary" + Math.random().toFixed(8)
+          from: "strataPlanSummary" + Math.random().toFixed(8),
         });
         callback(self.strataPlan);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         //console.log(">>>read database strataPlanSummary error: ", err);
         self.strataPlan = null;
         callback(self.strataPlan);
@@ -158,24 +193,40 @@ class Database {
     var self = this;
     self.dbStrataPlanSummary
       .put(strataplan)
-      .then(function() {
+      .then(function () {
         return self.dbStrataPlanSummary.get(strataPlan);
       })
-      .then(function(doc) {
+      .then(function (doc) {
         //console.log(">>>StrataPlan Summary has been saved to dbComplex: ", doc);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         //console.log(">>>save StrataPlan Summary error: ", err);
         self.dbStrataPlanSummary
           .get(strataPlan)
-          .then(function(doc) {
+          .then(function (doc) {
             return self.dbStrataPlanSummary.remove(doc);
           })
-          .catch(function(err) {
+          .catch(function (err) {
             //console.log(">>>remove StrataPlan Summary error: ", err);
           });
       });
     //console.groupEnd('writeStrataPlanSummary');
+  }
+
+  readComplex_Promise(complexInfo) {
+    //console.group(">>>readComplex");
+    var self = this;
+    self.complex = complexInfo;
+    try {
+      let complexDoc = self.dbComplex.get(complexInfo._id);
+      self.complex = complexDoc;
+      self.complex.from = "complexInfo" + Math.random().toFixed(8);
+      return Promise.resolve(self.complex);
+    } catch (err) {
+      self.writeComplex(self.complex);
+      self.complex.from = "complexInfo-saved to db-" + Math.random().toFixed(8);
+      return Promise.resolve(self.complex);
+    }
   }
 
   readComplex(complexInfo, callback) {
@@ -183,7 +234,7 @@ class Database {
     var self = this;
     self.complex = complexInfo;
 
-    self.dbComplex.get(complexInfo._id, function(err, doc) {
+    self.dbComplex.get(complexInfo._id, function (err, doc) {
       if (err) {
         self.writeComplex(self.complex);
         self.complex.from =
@@ -195,35 +246,6 @@ class Database {
         callback(self.complex);
       }
     });
-
-    // self.dbComplex.get(complexInfo._id).then(function (doc) {
-    // 	self.complex = doc;
-    // 	//console.log(">>>read the Complex info in database is: ", self.complex);
-    // 	// chrome.storage.local.set({
-    // 	// 	complexID: doc._id,
-    // 	// 	complexName: doc.name+'*',
-    // 	// 	strataPlan: doc.strataPlan,
-    // 	// 	addDate: doc.addDate,
-    // 	// 	subArea: doc.subArea,
-    // 	// 	neighborhood: doc.neighborhood,
-    // 	// 	postcode: doc.postcode,
-    // 	// 	streetName: doc.streetName,
-    // 	// 	streetNumber: doc.streetNumber,
-    // 	// 	dwellingType: doc.dwellingType,
-    // 	// 	totalUnits: doc.totalUnits,
-    // 	// 	devUnits: doc.devUnits,
-    // 	// 	from: 'complex' + Math.random().toFixed(8)
-    // 	// });
-    // 	self.complex.from = 'complex' + Math.random().toFixed(8);
-    // 	callback(self.complex);
-    // }).catch(function (err) {
-    // 	//console.log(">>>read database Complex error: ", err);
-    // 	//self.complex = null;
-    // 	self.writeComplex(self.complex);
-    // 	self.complex.from = 'complex-saved to db-' + Math.random().toFixed(8);;
-    // 	callback(self.complex);
-    // })
-    // //console.groupEnd(">>>readComplex");
   }
 
   writeComplex(complex) {
@@ -233,24 +255,24 @@ class Database {
     var complexName = complex.name;
     self.dbComplex
       .get(complexID)
-      .then(function(doc) {
+      .then(function (doc) {
         //console.log('writeComplex...the complex EXISTS, pass writing');
         doc["name"] = complexName;
         doc["complexName"] = complexName;
         self.dbComplex.put(doc);
         return [doc, "complex updated!"];
       })
-      .catch(function(err) {
+      .catch(function (err) {
         self.dbComplex
           .put(complex)
-          .then(function() {
+          .then(function () {
             //console.log('SAVED the complex info to database:', complex.name);
             return self.dbComplex.get(complexID);
           })
-          .then(function(doc) {
+          .then(function (doc) {
             //console.log(">>>Complex Info has been saved to dbComplex: ", doc);
           })
-          .catch(function(err) {
+          .catch(function (err) {
             //console.log(">>>save Complex info error: ", err);
           });
       });
@@ -262,7 +284,7 @@ class Database {
     var self = this;
     self.exposure = exposureInfo;
 
-    self.dbExposure.get(exposureInfo._id, function(err, doc) {
+    self.dbExposure.get(exposureInfo._id, function (err, doc) {
       if (err) {
         self.writeExposure(self.exposure);
         self.exposure.from = "exposure-saved to db-" + Math.random().toFixed(8);
@@ -282,23 +304,23 @@ class Database {
     var exposureName = exposure.name;
     self.dbExposure
       .get(exposureID)
-      .then(function(doc) {
+      .then(function (doc) {
         //console.log('writeComplex...the complex EXISTS, pass writing');
         doc["name"] = exposureName;
         self.dbExposure.put(doc);
         return [doc, "exposure updated!"];
       })
-      .catch(function(err) {
+      .catch(function (err) {
         self.dbExposure
           .put(exposure)
-          .then(function() {
+          .then(function () {
             //console.log('SAVED the complex info to database:', complex.name);
             return self.dbExposure.get(exposureID);
           })
-          .then(function(doc) {
+          .then(function (doc) {
             //console.log(">>>Complex Info has been saved to dbComplex: ", doc);
           })
-          .catch(function(err) {
+          .catch(function (err) {
             //console.log(">>>save Complex info error: ", err);
           });
       });
@@ -310,7 +332,7 @@ class Database {
     var self = this;
     self.listing = listingInfo;
 
-    self.dbListing.get(listingInfo._id, function(err, doc) {
+    self.dbListing.get(listingInfo._id, function (err, doc) {
       if (err) {
         self.writeListing(self.listing);
         self.listing.from = "listing-saved to db-" + Math.random().toFixed(8);
@@ -330,23 +352,23 @@ class Database {
     var listingName = listing.name;
     self.dbListing
       .get(listingID)
-      .then(function(doc) {
+      .then(function (doc) {
         //console.log('writeListing...the listing EXISTS, pass writing');
         doc["name"] = listingName;
         self.dbListing.put(doc);
         return [doc, "listing updated!"];
       })
-      .catch(function(err) {
+      .catch(function (err) {
         self.dbListing
           .put(listing)
-          .then(function() {
+          .then(function () {
             //console.log('SAVED the listing info to database:', listing.name);
             return self.dbListing.get(listingID);
           })
-          .then(function(doc) {
+          .then(function (doc) {
             //console.log(">>>Listing Info has been saved to dbListing: ", doc);
           })
-          .catch(function(err) {
+          .catch(function (err) {
             //console.log(">>>save Listing info error: ", err);
           });
       });
@@ -358,7 +380,7 @@ class Database {
     var self = this;
     self.showing = showingInfo;
 
-    self.dbShowing.get(showingInfo._id, function(err, doc) {
+    self.dbShowing.get(showingInfo._id, function (err, doc) {
       if (err) {
         //console.log(">>>read database showing error: ", err);
         self.writeShowing(self.showing);
@@ -385,7 +407,7 @@ class Database {
     //console.group('>>>writeShowing');
     self.dbShowing
       .get(showingID)
-      .then(function(doc) {
+      .then(function (doc) {
         //console.log('writeShowing...the showing info EXISTS, pass writing!');
         doc["name"] = showingName;
         doc["clientName"] = clientName;
@@ -395,17 +417,17 @@ class Database {
         self.dbShowing.put(doc);
         return [doc, "showing updated!"];
       })
-      .catch(function(err) {
+      .catch(function (err) {
         self.dbShowing
           .put(showing)
-          .then(function() {
+          .then(function () {
             //console.log('SAVED the showing info to database:', showing.clientName);
             return self.dbShowing.get(showingID);
           })
-          .then(function(doc) {
+          .then(function (doc) {
             //console.log(">>>Showing Info has been saved to dbShowing: ", doc);
           })
-          .catch(function(err) {
+          .catch(function (err) {
             //console.log(">>>save showing info error: ", err);
           });
       });

@@ -22,7 +22,7 @@ let DefaultPage = {
       if (!window.console) window.console = {};
       var methods = ["log", "debug", "warn", "info"];
       for (var i = 0; i < methods.length; i++) {
-        console[methods[i]] = function () { };
+        console[methods[i]] = function () {};
       }
     }
     // Open frequently used tabs:
@@ -36,11 +36,20 @@ let DefaultPage = {
     this.onMessage();
     this.onChanged();
     this.post();
+    chrome.storage.local.get("keywords", (results) => {
+      console.log(results.keywords);
+      // this.powerSearch.text(results.keywords);
+      this.powerSearch.val(results.keywords);
+    });
   },
 
   mainMenu: new MainMenu(),
   //tabs: new Tabs(),
   mainNavBar: null,
+  powerSearch: $(
+    "div#app_banner_links_left input.select2-search__field",
+    top.document
+  ),
 
   onMessage() {
     (function (self) {
