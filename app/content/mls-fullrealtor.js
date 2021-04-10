@@ -637,6 +637,9 @@ var fullRealtor = {
     chrome.runtime.sendMessage(listingInfo, function (response) {
       if (response) {
         self.uiListingInfo.inputListing.text(response.name);
+        navigator.clipboard.writeText(response.name).then(() => {
+          console.log("Listing Status Copied Done!");
+        });
       }
     });
   },
@@ -833,7 +836,7 @@ var fullRealtor = {
       self.saveExposureButton.click(self.saveExposureInfo.bind(self));
     })(this);
   },
-
+  // add listing status, response to listing status button
   addListingEvent: function () {
     (function event(self) {
       self.saveListingButton.click(self.saveListingInfo.bind(self));
@@ -913,6 +916,7 @@ var fullRealtor = {
   },
 
   saveListingInfo: function () {
+    // save listing status
     console.log("save Listing button clicked!");
     //manually save or update complex name to the database
 
@@ -1231,6 +1235,20 @@ var fullRealtor = {
     chrome.storage.local.get("listingName", function (result) {
       listingName = result.listingName;
       $inputName.val(listingName + "::");
+      $inputName.focus();
+      $inputName.select();
+      navigator.clipboard.writeText(listingName).then(
+        () => {
+          console.log("Copy Listing Status Done!");
+          $inputName.blur();
+          $inputName.css("background-color", "lightgreen");
+        },
+        (err) => {
+          console.log("Copy ListingName Failed", err);
+          $inputName.blur();
+          $inputName.css("background-color", "lightgrey");
+        }
+      );
     });
   },
   //update showing fields:

@@ -344,7 +344,7 @@ chrome.tabs.query({ title: "Paragon 5" }, function (tabs) {
       }
     }
 
-    // Listing
+    // Listing Status
     if (request.todo == "searchListing") {
       var requestFrom = request.from;
       delete request.from;
