@@ -1,6 +1,6 @@
 {
   "name": "MLSHelper",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "manifest_version": 2,
   "description": "MLS Helper",
   "icons": {
@@ -180,11 +180,12 @@
     {
       //Paragon Resdiential Attached, Detached & Land Listing Search Results Page (Tab3/4/5_?_2): Full Realtor Report View
       //Target: Single Listing View Page
+      // viewID CHANGEED ON JULY 13, 2021 FROM c65 TO C3792
       //Function: Add Extra Listing Info Box, Add Property Tax Info, etc...
       "run_at": "document_end",
       "matches": [
-        "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c65*",
-        "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?*viewID=c65*listingIDs=*"
+        "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?listingIDs=*viewID=c3792*",
+        "https://bcres.paragonrels.com/ParagonLS/Reports/Report.mvc?*viewID=c3792listingIDs=*"
       ],
       "js": [
         "./assets/lib/jquery/dist/jquery.min.js",

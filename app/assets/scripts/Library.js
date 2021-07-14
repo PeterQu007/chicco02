@@ -380,6 +380,7 @@
         case "Multi-Class":
         case "Market Monitor":
         case "Quick Search":
+        case "":
           cols = {
             RecordNo: 0, //index 0
             Status: 8,
@@ -435,7 +436,7 @@
         case "Tour and Open House":
           cols = {
             RecordNo: 0, //index 0
-            status: 20,
+            Status: 20,
             Price: 11,
             ListPrice: 11,
             PricePSF: 12,
@@ -458,7 +459,7 @@
         default:
           cols = {
             RecordNo: 0, //index 0
-            status: 8,
+            Status: 8,
             Price: 12,
             ListPrice: 14,
             SoldPrice: 18,

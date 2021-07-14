@@ -196,8 +196,8 @@ var fullRealtor = {
   //complex info:
   address: $('div[style="top:4px;left:134px;width:483px;height:17px;"]'),
   houseListingType: null,
-  subArea: $('div[style="top:20px;left:134px;width:480px;height:13px;"]'),
-  neighborhood: $('div[style="top:33px;left:134px;width:479px;height:13px;"]'),
+  subArea: $('div[style="top:20px;left:134px;width:483px;height:13px;"]'),
+  neighborhood: $('div[style="top:33px;left:134px;width:483px;height:13px;"]'),
   postcode: $('div[style="top:46px;left:306px;width:130px;height:13px;"]'),
   dwellingType: $('div[style="top:46px;left:4px;width:137px;height:15px;"]'),
   totalUnits: null, //from getMorePropertyInfo
@@ -672,11 +672,12 @@ var fullRealtor = {
     // get cell number
     let listingAgentNumber = this.listingAgentNumber.text().replaceAll("-", "");
     var listingAgentSMS = `Hi ${listingAgentFirstName}, this is Peter Qu from Magsen Realty. 
-                          I am wondering if your listing ${this.address.text()} [${this.mlsNo.text()}] is still available? Please advise. 
+                          I am wondering if your listing ${this.address.text()} [${this.mlsNo.text()}, ${this.neighborhood.text()} | ${this.subArea.text()}, 
+                            asking ${this.lp.text()}, ${this.finishedFloorArea.text()}SF] is still available? Please advise. 
                           Thank you.
-                          </br>
+                          </br></br>
                           Peter Qu</br>
-                          Magsen Realty Inc.</br>
+                          Magsen Realty Inc.</br></br>
                           ${listingAgentNumber}`;
     this.uiListingInfo.listingAgentSMS.html(listingAgentSMS);
     //highlight no-name words

@@ -221,8 +221,10 @@ let DefaultPage = {
     // );
 
     $.ajax({
+      //url:
+      //  "http://localhost/pidrealty4/wp-content/themes/RealHomes-child-3/db/data.php",
       url:
-        "http://localhost/pidrealty4/wp-content/themes/RealHomes-child-3/db/data.php",
+        "http://pidrealty4.local/wp-content/themes/RealHomes-child-3/db/data.php",
       method: "post",
       data: { postTitle: title, postID: id },
       success: function (res) {

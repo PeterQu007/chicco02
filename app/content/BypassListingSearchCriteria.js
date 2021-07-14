@@ -60,6 +60,8 @@ $(function () {
     if (urlLocation) {
       ajax_url =
         "http://localhost/pidrealty4/wp-content/themes/Realhomes-child-3/db/dbAddCMACriteria.php";
+      ajax_url =
+        "http://pidrealty4.local/wp-content/themes/Realhomes-child-3/db/dbAddCMACriteria.php";
     } else {
       ajax_url =
         "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dbAddCMACriteria.php";

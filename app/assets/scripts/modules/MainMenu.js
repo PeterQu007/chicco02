@@ -164,6 +164,8 @@ export default class MainMenu {
     if (urlOption) {
       ajax_url =
         "http://localhost/pidrealty4/wp-content/themes/realhomes-child-3/db/loadSubjectData.php";
+      ajax_url =
+        "http://pidrealty4.local/wp-content/themes/realhomes-child-3/db/loadSubjectData.php";
     } else {
       ajax_url =
         "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/loadSubjectData.php";
