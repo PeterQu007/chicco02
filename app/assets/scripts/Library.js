@@ -500,6 +500,7 @@
         "Lions Bay",
         "Abbotsford",
         "Anmore",
+        "Belcarra"
       ];
       if (cities.includes(city)) {
         return true;

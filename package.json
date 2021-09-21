@@ -24,6 +24,7 @@
     "jquery": "^2.2.4",
     "lazysizes": "^3.0.0-rc4",
     "mathjs": "^5.2.3",
+    "natives": "^1.1.6",
     "normalize.css": "^4.2.0",
     "pouchdb": "^7.1.1",
     "underscore": "^1.9.2",

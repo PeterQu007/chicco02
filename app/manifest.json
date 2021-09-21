@@ -22,8 +22,7 @@
     ],
     "persistent": false
   },
-  "content_scripts": [
-    {
+  "content_scripts": [{
       //Paragon Login Page
       //Function: Automatically login with Username and Password
       "matches": [
@@ -127,7 +126,12 @@
       ],
       "js": [
         "./assets/lib/jquery/dist/jquery.min.js",
-        "./temp/scripts/MLS-BypassListingSearchCriteria.js"
+        //"./temp/scripts/CountSearch.js",
+        "./temp/scripts/CountBody1-jquery.js",
+        "./temp/scripts/CountBody2-Modulejs.js",
+        "./temp/scripts/CountBody3-SearchCriteriajs.js",
+        //"./temp/scripts/MLS-BypassListingSearchCriteria.js"
+        "./temp/scripts/BypassListingSearchCriteria.js"
       ],
       "all_frames": true
     },

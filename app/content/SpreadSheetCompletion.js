@@ -243,7 +243,7 @@ var computeSFPrices = {
             );
             sumPSFListedPrice += listingPricePSF;
             listPricePSF.push(listingPricePSF);
-            row.push(listingPricePSF); ////COL 3: LISTING.ASKING.PRICE.PER.SQUARE.FEET?????????????????
+            row.push(listingPricePSF); ////COL 3: LISTING.ASKING.PRICE.PER.SQUARE.FEET?????????????????????
             ////ACTIVE LISTING VS SOLD LISTING
             switch (status) {
               case "A":
@@ -567,6 +567,8 @@ var computeSFPrices = {
     if (urlLocation) {
       ajax_url =
         "http://localhost/pidrealty4/wp-content/themes/Realhomes-child-3/db/dataComplexInfo.php";
+      ajax_url =
+        "http://pidrealty4.local/wp-content/themes/Realhomes-child-3/db/dataComplexInfo.php";
     } else {
       ajax_url =
         "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dataComplexInfo.php";
