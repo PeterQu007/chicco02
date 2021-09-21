@@ -74,6 +74,9 @@ $(function () {
   var btnFirstCriteria = $(
     `<button id="mls_helper_first_criteria">First</button>`
   );
+  var btnPriceDistributionCurve = $(
+    `<button id="mls_helper_price_curve">Curve</button>`
+  );
   var keyword = $(
     "div#app_banner_links_left input.select2-search__field",
     top.document
@@ -82,7 +85,7 @@ $(function () {
   $(divContainer).append(btnSaveCriteria);
   $(divContainer).append(btnFirstCriteria);
   $(divContainer).append(btnNextCriteria);
-
+  $(divContainer).append(btnPriceDistributionCurve);
 
   var publicRemarkKeywords = $("ul.f_551")
     .children("li")
@@ -187,14 +190,90 @@ $(function () {
 
   }); //mls_helper_first_criteria
 
-  $("#mls_helper_next_criteria").on("click", (e) => {
+  $("#mls_helper_next_criteria").on("click", async (e) => {
     console.log(e);
     console.log('next clicked');
     let highPrice = $("#f_5_High__1-2-3-4-5");
     let lowPrice = $("#f_5_Low__1-2-3-4-5");
-    let lowPrice2 = $("#f_5_Low_1__1-2-3-4-5");
-    console.log(highPrice.val());
+    lowPrice.val(highPrice.val());
+    let newHighPrice;
+    let iCount = 0,
+      iCountOld = 0;
+    let iLoop = 0;
+    do {
+      iLoop++;
+      console.group();
+      if (iCount <= 1300) {
+        if (iLoop < 6) {
+          newHighPrice = parseInt(parseInt(highPrice.val()) * 1.1);
+        } else {
+          newHighPrice = 9999999;
+        }
+      }
+      if (iCount >= 1500) {
+        newHighPrice = parseInt(parseInt(highPrice.val()) * 0.95);
+      }
+      highPrice.val(newHighPrice);
+      console.log("New High Price: ", newHighPrice);
+      iCountOld = iCount;
+      iCount = await $.focusFx.searchFormCount();
+      iCount = parseInt(iCount);
+      console.log("Count: ", iCount);
+      console.groupEnd();
+    } while (iLoop <= 6 && (iCount <= 1300 || iCount >= 1500))
+
+    $(".CountBtn").removeAttr('disable');
+    $('.SearchBtn').removeAttr('disable');
+    console.log(inputCountResult.val());
+    console.log(iCount);
+    inputCountResult.focus();
   }); //id: mls_helper_next_criteria
+
+  $("#mls_helper_price_curve").on("click", async (e) => {
+    console.log('curve clicked');
+    let highPrice = $("#f_5_High__1-2-3-4-5");
+    let lowPrice = $("#f_5_Low__1-2-3-4-5");
+    let lowPrice2 = $("#f_5_Low_1__1-2-3-4-5");
+    lowPrice2.val('001');
+    let newHighPrice;
+    let iCount = 0;
+    let iLoop = 0;
+    let curve = {
+      priceRange: [0],
+      listingCount: [0]
+    };
+    console.group();
+    // Scatter Curve
+    // do {
+    //   iLoop++;
+    //   newHighPrice = parseInt(parseInt(highPrice.val()) + 200);
+    //   highPrice.val(newHighPrice);
+    //   iCount = await $.focusFx.searchFormCount();
+    //   iCount = parseInt(iCount);
+    //   curve.priceRange.push(newHighPrice);
+    //   curve.listingCount.push(iCount);
+    //   console.log("Price Point: ", newHighPrice);
+    //   console.log("Listing Count: ", iCount);
+    // } while (iLoop <= 100)
+    // Distribution Curve
+    do {
+      iLoop++;
+      lowPrice.val(highPrice.val());
+      newHighPrice = parseInt(parseInt(highPrice.val()) + 200);
+      highPrice.val(newHighPrice);
+      iCount = await $.focusFx.searchFormCount();
+      iCount = parseInt(iCount);
+      curve.priceRange.push(newHighPrice);
+      curve.listingCount.push(iCount);
+      console.log("Price Point: ", newHighPrice);
+      console.log("Listing Count: ", iCount);
+    } while (iLoop <= 100)
+    console.groupEnd();
+    $(".CountBtn").removeAttr('disable');
+    $('.SearchBtn').removeAttr('disable');
+    console.log('Price Distribution Curve: ', curve);
+  }); //id: mls_helper_next_criteria
+
 
   $(".CountResultText").bind("input propertychange", (e) => {
     console.log('CountResult Changed');
