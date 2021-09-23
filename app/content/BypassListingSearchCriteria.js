@@ -1,7 +1,7 @@
 //Targe Tab3//4/5_1_2 ML Default Spreadsheet View
+
 //https://bcres.paragonrels.com/ParagonLS/Search/Property.mvc/Index/2/?savedSearchID=1781753&searchID=tab3_1
 window.g_urlCountAction = '/ParagonLS/Search/Property.mvc/Count/0';
-
 
 (function (elementExample, Object, window) {
 
@@ -57,13 +57,19 @@ $(function () {
   var inputCountResult = $("#CountResult");
   var divCountSearch = $("#CountSearch");
 
+  var curve = {
+    priceRange: [0],
+    listingCount: [0]
+  };
+  var priceRange;
+  var listingCount;
+
+  var lastCount = false;
+  var nextLowPrice = 0;
+
   //remove inputCountResult ReadOnly Attr
   inputCountResult.removeAttr('readonly');
   inputCountResult.attr('value', 'Counting...');
-
-  //off btnCount click event listener
-  btnCount.off('click');
-  $(document).off('click', '#Count');
 
   var btnSaveCriteria = $(
     `<button id="mls_helper_save_criteria">Save</button>`
@@ -158,37 +164,162 @@ $(function () {
     let highPrice = $("#f_5_High__1-2-3-4-5");
     let lowPrice = $("#f_5_Low__1-2-3-4-5");
     let lowPrice2 = $("#f_5_Low_1__1-2-3-4-5");
-    let lowPriceInitial = 30;
-    let highPriceInitial = 500;
-    lowPrice.val(lowPriceInitial);
-    highPrice.val(highPriceInitial);
+    let highPriceInitial = parseInt(lowPrice.val() || 0) + 500;
     lowPrice2.val(1);
-    // $(".CountResultText").val("Counting...");
-    console.log('Start Count Loop:');
-    let iCount = 0;
-    do {
+    let iCount = 0,
+      iCountTotal = 0;
+    /* get total listing Count base on the lowPrice:
+      lowPrice is set manually
+      highPrice is indefinite
+    */
+    highPrice.val('');
+    iCountTotal = await $.focusFx.searchFormCount();
+    iCount = iCountTotal;
+    if (iCountTotal <= 1500) {
+      lastCount = True;
+    } else {
       console.group();
-      if (iCount <= 1300) {
-        highPriceInitial += 100;
+      while (iCountTotal > 1500 && (iCount < 1300 || iCount > 1500)) {
+        highPrice.val(highPriceInitial);
+        iCount = await $.focusFx.searchFormCount();
+        iCount = parseInt(iCount);
+        console.log(`LowPrice: ${lowPrice.val()} - HighPrice: ${highPriceInitial}`, " | Count: ", iCount);
+        switch (true) {
+          case iCount < 200:
+            highPriceInitial += 1500;
+            break;
+          case iCount < 500:
+            highPriceInitial += 1000;
+            break;
+          case iCount < 1000:
+            highPriceInitial += 400;
+            break;
+          case iCount < 1300:
+            highPriceInitial += 200;
+            break;
+          case iCount > 4000:
+            highPriceInitial -= 300;
+            break;
+          case iCount > 3000:
+            highPriceInitial -= 200;
+            break;
+          case iCount > 2000:
+            highPriceInitial -= 100;
+            break;
+          case iCount > 1500:
+            highPriceInitial -= 50;
+            break;
+        }
       }
-      if (iCount >= 1500) {
-        highPriceInitial -= 50;
-      }
-      highPrice.val(highPriceInitial);
-      console.log("High Price: ", highPriceInitial);
-      iCount = await $.focusFx.searchFormCount();
-      iCount = parseInt(iCount);
-      console.log("Count: ", iCount);
       console.groupEnd();
-    } while (iCount <= 1300 || iCount >= 1500)
+    }
 
     $(".CountBtn").removeAttr('disable');
     $('.SearchBtn').removeAttr('disable');
     console.log(inputCountResult.val());
     console.log(iCount);
-    inputCountResult.focus();
+
+    nextLowPrice = highPrice.val();
+    priceRange = parseInt(highPrice.val() || 0);
+    listingCount = iCount;
 
   }); //mls_helper_first_criteria
+
+  $("#mls_helper_price_curve").on("click", async (e) => {
+    console.log('curve clicked');
+    let highPrice = $("#f_5_High__1-2-3-4-5");
+    let lowPrice = $("#f_5_Low__1-2-3-4-5");
+    let lowPrice2 = $("#f_5_Low_1__1-2-3-4-5");
+    let highPriceInitial, newHighPrice, oldHighPrice, oldLowPrice;
+    let lastCount = false;
+    let iCount = 0,
+      iCountTotal = 0;
+    console.group();
+
+    lowPrice.val('');
+    highPrice.val('');
+    nextLowPrice = 0;
+    curve = {
+      priceRange: [0],
+      listingCount: [0]
+    };
+
+    do {
+      /* get total listing Count base on the lowPrice:
+        lowPrice is set manually
+        highPrice is indefinite
+      */
+      highPrice.val('');
+      lowPrice.val(nextLowPrice);
+      iCountTotal = await $.focusFx.searchFormCount();
+      iCount = iCountTotal;
+      if (iCountTotal <= 1500) {
+        lastCount = True;
+        $(".CountBtn").removeAttr('disable');
+        $('.SearchBtn').removeAttr('disable');
+        console.log(inputCountResult.val());
+        console.log(iCount);
+
+        priceRange = 99999;
+        listingCount = iCount;
+        curve.priceRange.push(priceRange);
+        curve.listingCount.push(listingCount);
+        break;
+      } else {
+        console.group();
+        highPriceInitial = parseInt(lowPrice.val() || 0) + 500;
+        lowPrice2.val('001');
+        while (iCountTotal > 1500 && (iCount < 1300 || iCount > 1500)) {
+          highPrice.val(highPriceInitial);
+          iCount = await $.focusFx.searchFormCount();
+          iCount = parseInt(iCount);
+          console.log(`LowPrice: ${lowPrice.val()} - HighPrice: ${highPriceInitial}`, " | Count: ", iCount);
+          nextLowPrice = highPrice.val();
+          switch (true) {
+            case iCount < 200:
+              highPriceInitial += 1500;
+              break;
+            case iCount < 500:
+              highPriceInitial += 1000;
+              break;
+            case iCount < 1000:
+              highPriceInitial += 400;
+              break;
+            case iCount < 1300:
+              highPriceInitial += 200;
+              break;
+            case iCount > 4000:
+              highPriceInitial -= 300;
+              break;
+            case iCount > 3000:
+              highPriceInitial -= 200;
+              break;
+            case iCount > 2000:
+              highPriceInitial -= 100;
+              break;
+            case iCount > 1500:
+              highPriceInitial -= 50;
+              break;
+            default:
+              $(".CountBtn").removeAttr('disable');
+              $('.SearchBtn').removeAttr('disable');
+              console.log(inputCountResult.val());
+              console.log(iCount);
+
+              priceRange = parseInt(highPrice.val() || 0);
+              listingCount = iCount;
+              curve.priceRange.push(priceRange);
+              curve.listingCount.push(listingCount);
+              break;
+          }
+        }
+        console.groupEnd();
+      }
+
+    } while (!lastCount)
+
+  });
+
 
   $("#mls_helper_next_criteria").on("click", async (e) => {
     console.log(e);
@@ -229,55 +360,108 @@ $(function () {
     inputCountResult.focus();
   }); //id: mls_helper_next_criteria
 
-  $("#mls_helper_price_curve").on("click", async (e) => {
-    console.log('curve clicked');
-    let highPrice = $("#f_5_High__1-2-3-4-5");
-    let lowPrice = $("#f_5_Low__1-2-3-4-5");
-    let lowPrice2 = $("#f_5_Low_1__1-2-3-4-5");
-    lowPrice2.val('001');
-    let newHighPrice;
-    let iCount = 0;
-    let iLoop = 0;
-    let curve = {
-      priceRange: [0],
-      listingCount: [0]
-    };
-    console.group();
-    // Scatter Curve
-    // do {
-    //   iLoop++;
-    //   newHighPrice = parseInt(parseInt(highPrice.val()) + 200);
-    //   highPrice.val(newHighPrice);
-    //   iCount = await $.focusFx.searchFormCount();
-    //   iCount = parseInt(iCount);
-    //   curve.priceRange.push(newHighPrice);
-    //   curve.listingCount.push(iCount);
-    //   console.log("Price Point: ", newHighPrice);
-    //   console.log("Listing Count: ", iCount);
-    // } while (iLoop <= 100)
-    // Distribution Curve
-    do {
-      iLoop++;
-      lowPrice.val(highPrice.val());
-      newHighPrice = parseInt(parseInt(highPrice.val()) + 200);
-      highPrice.val(newHighPrice);
-      iCount = await $.focusFx.searchFormCount();
-      iCount = parseInt(iCount);
-      curve.priceRange.push(newHighPrice);
-      curve.listingCount.push(iCount);
-      console.log("Price Point: ", newHighPrice);
-      console.log("Listing Count: ", iCount);
-    } while (iLoop <= 100)
-    console.groupEnd();
-    $(".CountBtn").removeAttr('disable');
-    $('.SearchBtn').removeAttr('disable');
-    console.log('Price Distribution Curve: ', curve);
-  }); //id: mls_helper_next_criteria
+  // $("#mls_helper_price_curve").on("click", async (e) => {
+  //   console.log('curve clicked');
+  //   let highPrice = $("#f_5_High__1-2-3-4-5");
+  //   let lowPrice = $("#f_5_Low__1-2-3-4-5");
+  //   let lowPrice2 = $("#f_5_Low_1__1-2-3-4-5");
+  //   lowPrice2.val('001');
+  //   let newHighPrice, oldHighPrice, oldLowPrice;
+  //   let countAccumulate, countTotal;
+  //   let lastCount = false;
+  //   let iCount = 0;
+  //   let iLoop = 0;
+  //   console.group();
+  //   // Scatter Curve
+  //   // do {
+  //   //   iLoop++;
+  //   //   newHighPrice = parseInt(parseInt(highPrice.val()) + 200);
+  //   //   highPrice.val(newHighPrice);
+  //   //   iCount = await $.focusFx.searchFormCount();
+  //   //   iCount = parseInt(iCount);
+  //   //   curve.priceRange.push(newHighPrice);
+  //   //   curve.listingCount.push(iCount);
+  //   //   console.log("Price Point: ", newHighPrice);
+  //   //   console.log("Listing Count: ", iCount);
+  //   // } while (iLoop <= 100)
+  //   // Distribution Curve
+  //   lowPrice.val(0);
+  //   highPrice.val(0);
+
+  //   let priceIncrements = [140, 160, 180, 200, 220, 500, 1500, 2000, 2500];
+  //   let priceIncrementRegularPointer = 3; // try 200
+  //   let priceIncrementPointer = priceIncrementRegularPointer;
+  //   lowPrice.val();
+  //   highPrice.val();
+  //   // get the total listing Count:
+  //   countTotal = parseInt(await $.focusFx.searchFormCount());
+
+  //   do {
+  //     try {
+  //       oldLowPrice = lowPrice.val(); // save the old low price
+  //       lowPrice.val(highPrice.val());
+  //       oldHighPrice = highPrice.val(); // save the old high price
+  //       if (priceIncrementPointer >= 0 && priceIncrementPointer < priceIncrements.length) {
+  //         newHighPrice = parseInt(highPrice.val()) + priceIncrements[priceIncrementPointer]; // try 200
+  //       } else if (priceIncrementPointer >= priceIncrements.length) {
+  //         newHighPrice = null;
+  //         lastCount = true;
+  //       } else {
+  //         newHighPrice -= 20;
+  //       }
+  //       highPrice.val(newHighPrice);
+  //       iCount = await $.focusFx.searchFormCount();
+  //       iCount = parseInt(iCount);
+  //       if (iCount >= 1200 && iCount <= 1500) {
+  //         iLoop++;
+  //         curve.priceRange.push(newHighPrice);
+  //         curve.listingCount.push(iCount);
+  //         console.log("Price Point: ", newHighPrice);
+  //         console.log("Listing Count: ", iCount);
+  //         // sum up the accumulated count:
+  //         countAccumulate = curve.listingCount.reduce((sum, a) => sum + a, 0);
+  //         if (countTotal - countAccumulate <= 1500) {
+  //           lastCount = true;
+  //         }
+  //         priceIncrementPointer = priceIncrementRegularPointer; // reset the Pointer
+  //       } else {
+  //         throw iCount;
+  //       }
+  //     } catch (e) {
+  //       console.log(e);
+  //       iCount = parseInt(e);
+  //       lowPrice.val(oldLowPrice); // restore the old low price;
+  //       highPrice.val(oldHighPrice); // restore the old high price;
+  //       switch (true) {
+  //         case iCount < 200:
+  //           priceIncrementPointer += 4;
+  //           break;
+  //         case iCount >= 200 && iCount < 500:
+  //           priceIncrementPointer += 3;
+  //           break;
+  //         case iCount >= 500 && iCount < 1000:
+  //           priceIncrementPointer += 2;
+  //           break;
+  //         case iCount >= 1000 && iCount < 1200:
+  //           priceIncrementPointer += 1;
+  //           break;
+  //         case iCount > 1500:
+  //           // priceIncrement is too big, try a smaller increment
+  //           priceIncrementPointer--;
+  //           break;
+  //       }
+  //     }
+  //   } while (iLoop <= 100 && !lastCount)
+  //   console.groupEnd();
+  //   $(".CountBtn").removeAttr('disable');
+  //   $('.SearchBtn').removeAttr('disable');
+  //   console.log('Price Distribution Curve: ', curve);
+  // }); //id: mls_helper_next_criteria
 
 
-  $(".CountResultText").bind("input propertychange", (e) => {
-    console.log('CountResult Changed');
-  });
+  // $(".CountResultText").bind("input propertychange", (e) => {
+  //   console.log('CountResult Changed');
+  // });
 
   // $("#CountResult").on("change", () => {
   //   console.log('input result changed');
