@@ -59,10 +59,12 @@ $(function () {
 
   var curve = {
     priceRange: [0],
-    listingCount: [0]
+    listingCount: [0],
+    testControlCount: []
   };
   var priceRange;
   var listingCount;
+  var priceRangePointer = 0;
 
   var lastCount = false;
   var nextLowPrice = 0;
@@ -77,8 +79,11 @@ $(function () {
   var btnNextCriteria = $(
     `<button id="mls_helper_next_criteria">Next</button>`
   );
+  var btnPrevCriteria = $(
+    `<button id="mls_helper_prev_criteria">Prev</button>`
+  );
   var btnFirstCriteria = $(
-    `<button id="mls_helper_first_criteria">First</button>`
+    `<button id="mls_helper_first_criteria">Test</button>`
   );
   var btnPriceDistributionCurve = $(
     `<button id="mls_helper_price_curve">Curve</button>`
@@ -90,6 +95,7 @@ $(function () {
   var divContainer = $("div.f-cs-link")[0];
   $(divContainer).append(btnSaveCriteria);
   $(divContainer).append(btnFirstCriteria);
+  $(divContainer).append(btnPrevCriteria);
   $(divContainer).append(btnNextCriteria);
   $(divContainer).append(btnPriceDistributionCurve);
 
@@ -164,10 +170,13 @@ $(function () {
     let highPrice = $("#f_5_High__1-2-3-4-5");
     let lowPrice = $("#f_5_Low__1-2-3-4-5");
     let lowPrice2 = $("#f_5_Low_1__1-2-3-4-5");
-    let highPriceInitial = parseInt(lowPrice.val() || 0) + 500;
+    let highPriceInitial = 600;
+    let points = [];
+
     lowPrice2.val(1);
     let iCount = 0,
       iCountTotal = 0;
+    let iTestControl = [0, 0, 0, 0, 0, 0, 0, 0, 0];
     /* get total listing Count base on the lowPrice:
       lowPrice is set manually
       highPrice is indefinite
@@ -176,39 +185,72 @@ $(function () {
     iCountTotal = await $.focusFx.searchFormCount();
     iCount = iCountTotal;
     if (iCountTotal <= 1500) {
-      lastCount = True;
+      lastCount = true;
+      curve.priceRange.push(999999);
+      curve.listingCount.push(iCount);
+      curve.testControlCount.push(iTestControl);
     } else {
       console.group();
-      while (iCountTotal > 1500 && (iCount < 1300 || iCount > 1500)) {
+      iTestControl = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+      highPriceInitial = parseInt(lowPrice.val() || 0) + 500 * (highPriceInitial / 500);
+      while (iCountTotal > 1500 && (iCount < 1000 || iCount > 1500)) {
+        highPriceInitial = Math.floor(highPriceInitial / 10) * 10;
         highPrice.val(highPriceInitial);
         iCount = await $.focusFx.searchFormCount();
         iCount = parseInt(iCount);
+        points.push({
+          x: highPriceInitial,
+          y: iCount
+        });
         console.log(`LowPrice: ${lowPrice.val()} - HighPrice: ${highPriceInitial}`, " | Count: ", iCount);
+        // if (points.length === 2) {
+        //   let y_for_1500 = 1500.00;
+        //   let x_for_1500 = (y_for_1500 - points[1].y) * (points[0].x - points[1].x) / (points[0].y - points[1].y) + points[1].x;
+        //   console.log(x_for_1500);
+        //   highPriceInitial = Math.floor(x_for_1500 / 10) * 10;
+        //   continue;
+        // }
         switch (true) {
           case iCount < 200:
-            highPriceInitial += 1500;
+            iTestControl[0]++;
+            highPriceInitial *= 1.33;
             break;
           case iCount < 500:
-            highPriceInitial += 1000;
+            iTestControl[1]++;
+            highPriceInitial *= 1.33;
+            break;
+          case iCount < 800:
+            iTestControl[1]++;
+            highPriceInitial *= 1.33;
             break;
           case iCount < 1000:
-            highPriceInitial += 400;
+            iTestControl[2]++;
+            highPriceInitial *= 1.33;
             break;
-          case iCount < 1300:
-            highPriceInitial += 200;
+          case iCount > 8000:
+            iTestControl[4]++;
+            highPriceInitial *= 0.85;
             break;
           case iCount > 4000:
-            highPriceInitial -= 300;
+            iTestControl[5]++;
+            highPriceInitial *= 0.85;
             break;
           case iCount > 3000:
-            highPriceInitial -= 200;
+            iTestControl[6]++;
+            highPriceInitial *= 0.85;
             break;
           case iCount > 2000:
-            highPriceInitial -= 100;
+            iTestControl[7]++;
+            highPriceInitial *= 0.85;
             break;
           case iCount > 1500:
-            highPriceInitial -= 50;
+            iTestControl[8]++;
+            highPriceInitial *= 0.85;
             break;
+          default:
+            curve.priceRange.push(highPriceInitial);
+            curve.listingCount.push(iCount);
+            curve.testControlCount.push(iTestControl);
         }
       }
       console.groupEnd();
@@ -223,6 +265,8 @@ $(function () {
     priceRange = parseInt(highPrice.val() || 0);
     listingCount = iCount;
 
+    console.log(curve);
+
   }); //mls_helper_first_criteria
 
   $("#mls_helper_price_curve").on("click", async (e) => {
@@ -230,19 +274,16 @@ $(function () {
     let highPrice = $("#f_5_High__1-2-3-4-5");
     let lowPrice = $("#f_5_Low__1-2-3-4-5");
     let lowPrice2 = $("#f_5_Low_1__1-2-3-4-5");
-    let highPriceInitial, newHighPrice, oldHighPrice, oldLowPrice;
+    let highPriceInitial = 600;
     let lastCount = false;
     let iCount = 0,
       iCountTotal = 0;
+    let iTestControl = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     console.group();
 
     lowPrice.val('');
     highPrice.val('');
     nextLowPrice = 0;
-    curve = {
-      priceRange: [0],
-      listingCount: [0]
-    };
 
     do {
       /* get total listing Count base on the lowPrice:
@@ -251,10 +292,10 @@ $(function () {
       */
       highPrice.val('');
       lowPrice.val(nextLowPrice);
-      iCountTotal = await $.focusFx.searchFormCount();
+      iCountTotal = parseInt(await $.focusFx.searchFormCount());
       iCount = iCountTotal;
       if (iCountTotal <= 1500) {
-        lastCount = True;
+        lastCount = true;
         $(".CountBtn").removeAttr('disable');
         $('.SearchBtn').removeAttr('disable');
         console.log(inputCountResult.val());
@@ -264,12 +305,15 @@ $(function () {
         listingCount = iCount;
         curve.priceRange.push(priceRange);
         curve.listingCount.push(listingCount);
+        console.log(curve);
         break;
       } else {
         console.group();
-        highPriceInitial = parseInt(lowPrice.val() || 0) + 500;
+        iTestControl = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+        highPriceInitial = parseInt(lowPrice.val() || 0) + 500 * (highPriceInitial / 500);
         lowPrice2.val('001');
-        while (iCountTotal > 1500 && (iCount < 1300 || iCount > 1500)) {
+        while (iCountTotal > 1500 && (iCount < 1000 || iCount > 1500)) {
+          highPriceInitial = Math.floor(highPriceInitial / 10) * 10;
           highPrice.val(highPriceInitial);
           iCount = await $.focusFx.searchFormCount();
           iCount = parseInt(iCount);
@@ -277,28 +321,40 @@ $(function () {
           nextLowPrice = highPrice.val();
           switch (true) {
             case iCount < 200:
-              highPriceInitial += 1500;
+              iTestControl[0]++;
+              highPriceInitial *= 1.33;
               break;
             case iCount < 500:
-              highPriceInitial += 1000;
+              iTestControl[1]++;
+              highPriceInitial *= 1.33;
+              break;
+            case iCount < 800:
+              iTestControl[1]++;
+              highPriceInitial *= 1.33;
               break;
             case iCount < 1000:
-              highPriceInitial += 400;
+              iTestControl[2]++;
+              highPriceInitial *= 1.33;
               break;
-            case iCount < 1300:
-              highPriceInitial += 200;
+            case iCount > 8000:
+              iTestControl[4]++;
+              highPriceInitial *= 0.85;
               break;
             case iCount > 4000:
-              highPriceInitial -= 300;
+              iTestControl[5]++;
+              highPriceInitial *= 0.85;
               break;
             case iCount > 3000:
-              highPriceInitial -= 200;
+              iTestControl[6]++;
+              highPriceInitial *= 0.85;
               break;
             case iCount > 2000:
-              highPriceInitial -= 100;
+              iTestControl[7]++;
+              highPriceInitial *= 0.85;
               break;
             case iCount > 1500:
-              highPriceInitial -= 50;
+              iTestControl[8]++;
+              highPriceInitial *= 0.85;
               break;
             default:
               $(".CountBtn").removeAttr('disable');
@@ -310,6 +366,7 @@ $(function () {
               listingCount = iCount;
               curve.priceRange.push(priceRange);
               curve.listingCount.push(listingCount);
+              curve.testControlCount.push(iTestControl);
               break;
           }
         }
@@ -326,38 +383,22 @@ $(function () {
     console.log('next clicked');
     let highPrice = $("#f_5_High__1-2-3-4-5");
     let lowPrice = $("#f_5_Low__1-2-3-4-5");
-    lowPrice.val(highPrice.val());
-    let newHighPrice;
-    let iCount = 0,
-      iCountOld = 0;
-    let iLoop = 0;
-    do {
-      iLoop++;
-      console.group();
-      if (iCount <= 1300) {
-        if (iLoop < 6) {
-          newHighPrice = parseInt(parseInt(highPrice.val()) * 1.1);
-        } else {
-          newHighPrice = 9999999;
-        }
-      }
-      if (iCount >= 1500) {
-        newHighPrice = parseInt(parseInt(highPrice.val()) * 0.95);
-      }
-      highPrice.val(newHighPrice);
-      console.log("New High Price: ", newHighPrice);
-      iCountOld = iCount;
-      iCount = await $.focusFx.searchFormCount();
-      iCount = parseInt(iCount);
-      console.log("Count: ", iCount);
-      console.groupEnd();
-    } while (iLoop <= 6 && (iCount <= 1300 || iCount >= 1500))
+    let lowPrice2 = $("#f_5_Low_1__1-2-3-4-5");
+    let iCount = 0;
 
-    $(".CountBtn").removeAttr('disable');
-    $('.SearchBtn').removeAttr('disable');
-    console.log(inputCountResult.val());
-    console.log(iCount);
-    inputCountResult.focus();
+    if (priceRangePointer === curve.priceRange.length - 1) {
+      priceRangePointer = 0;
+    }
+
+    let lowPriceRange = curve.priceRange[priceRangePointer++];
+    let highPriceRange = curve.priceRange[priceRangePointer];
+
+
+    lowPrice.val(lowPriceRange);
+    lowPrice2.val('001');
+    highPrice.val(highPriceRange);
+    iCount = await $.focusFx.searchFormCount();
+    iCount = parseInt(iCount);
   }); //id: mls_helper_next_criteria
 
   // $("#mls_helper_price_curve").on("click", async (e) => {
