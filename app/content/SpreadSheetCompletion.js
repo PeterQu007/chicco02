@@ -90,6 +90,7 @@ var computeSFPrices = {
   recordCount: 0,
   //recordPointer: 0,
   table: [], //for assessment search
+  assessInfos: [], //for assess search
   rowNumber: [], //for table col 0 , keep the listing row number of spreadsheet
   complexInfos: [], //for complexName search
   cols: null,
@@ -156,10 +157,11 @@ var computeSFPrices = {
           var x0 = $("div#dialogStats", parent.document); ////LOOK FOR THE SUMMARY.SECTION FOR ADDING EXTRA THIS.uiTable
           self.uiTable.showUI(x0);
           self.table.length = 0;
+          self.assessInfos.length = 0; // clear the assessInfo container
 
           var i;
           var row = []; //current row
-          var complexInfo = {}; //complex info json object
+          // var complexInfo = {}; //complex info json object
           var col14_Price = []; //List Price
           var col22_FloorArea = []; //FloorArea
           var col23_ActivePricePSF = []; //Listed / asking Price per SqFt
@@ -323,13 +325,15 @@ var computeSFPrices = {
           // var avgListedSFP = (sumPSFListedPrice / self.recordCount).toFixed(0);
           // var avgSoldSFP = (sumPSFSoldPrice / countSoldListing).toFixed(0);
           self.uiTable.setSumValues(
-            /*id for panel 1*/ 1,
+            /*id for panel 1*/
+            1,
             col23_ActivePricePSF,
             countActiveListing,
             "$"
           );
           self.uiTable.setSumValues(
-            /*id for panel 2*/ 2,
+            /*id for panel 2*/
+            2,
             col24_SoldPricePSF,
             countSoldListing,
             "$"
@@ -525,13 +529,17 @@ var computeSFPrices = {
           return;
         }
         ////SEND TAX SEARCH COMMAND TO BACKGROUND SCRIPT
-        chrome.storage.local.set({ PID: pid });
+        chrome.storage.local.set({
+          PID: pid
+        });
         chrome.storage.local.get("PID", function (result) {
           //console.log(">>>PID saved for tax search: ", result.PID);
           //////////////////////////////////////////////////////////
           //SEND OUT SEARCH TAX COMMAND
-          chrome.runtime.sendMessage(
-            { from: "SpreadSheet", todo: "taxSearch" },
+          chrome.runtime.sendMessage({
+              from: "SpreadSheet",
+              todo: "taxSearch"
+            },
             function (response) {
               console.log("SpreadSheet got tax response:", response);
               self.table[unTaxed][10] = true; ////SET UP THE ROW.SEARCHED TO TRUE
@@ -544,6 +552,7 @@ var computeSFPrices = {
         console.log("taxSearch done!");
         ////START TO SEARCH COMPLEX.NAME
         this.updateSpreadsheet();
+        // this.postAssessInfo();
         ////UPDATE THE STATS
         var i = 0;
         for (i = 0; i < self.table.length; i++) {
@@ -568,7 +577,7 @@ var computeSFPrices = {
       ajax_url =
         "http://localhost/pidrealty4/wp-content/themes/Realhomes-child-3/db/dataComplexInfo.php";
       ajax_url =
-        "http://pidrealty4.local/wp-content/themes/Realhomes-child-3/db/dataComplexInfo.php";
+        "https://pidrealty4.local/wp-content/themes/Realhomes-child-3/db/dataComplexInfo.php";
     } else {
       ajax_url =
         "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dataComplexInfo.php";
@@ -577,7 +586,9 @@ var computeSFPrices = {
     $.ajax({
       url: ajax_url,
       method: "post",
-      data: { complexInfos: uniqueComplexInfos },
+      data: {
+        complexInfos: uniqueComplexInfos
+      },
       success: function (res) {
         console.log("ajax::", res);
         res = JSON.parse(res);
@@ -587,6 +598,38 @@ var computeSFPrices = {
       },
     });
   },
+
+  // post Assess information to mySQL table wp_pid_assess
+  postAssessInfo: function () {
+    //console.log(this.complexInfos);
+    let urlLocationOptionLocal = $("#pid_local", top.document);
+    let urlLocation = urlLocationOptionLocal.prop("checked");
+    let ajax_url = "";
+
+    if (urlLocation) {
+      ajax_url =
+        "https://pidrealty4.local/wp-content/themes/realhomes-child-3/db/dataAssessInfo.php";
+    } else {
+      ajax_url =
+        "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dataAssessInfo.php";
+    }
+
+    $.ajax({
+      url: ajax_url,
+      method: "post",
+      data: {
+        assessInfos: this.assessInfos
+      },
+      success: function (res) {
+        console.log("ajax::", res);
+        res = JSON.parse(res);
+        res.forEach((assessInfo) => {
+          console.log(assessInfo);
+        });
+      },
+    });
+  },
+
 
   updateAssess: function () {
     ////ON TAX.SEARCH EVENT, CHROME.STORAGE GET A NEW.VALUE CONTAINS 'assess' AND 'ForSpreadSheet'
@@ -602,7 +645,12 @@ var computeSFPrices = {
         "lotSize",
         "address",
         "bcaDataUpdateDate",
+        "bcaDescription",
         "planNum",
+        "taxYear",
+        "taxRollNumber",
+        "legal",
+        "grossTaxes",
         "dataFromDB",
       ],
       function (result) {
@@ -612,6 +660,12 @@ var computeSFPrices = {
         var landValue = result.landValue;
         var lotSize = result.lotSize;
         var planNum = result.planNum;
+        let taxYear = result.taxYear;
+        let bcaDataUpdateDate = result.bcaDataUpdateDate;
+        let bcaDescription = result.bcaDescription;
+        let taxRollNumber = result.taxRollNumber;
+        let grossTaxes = result.grossTaxes;
+        let legal = result.legal;
         var formalAddress = "";
         var isFormalAddress = false;
         if (
@@ -634,6 +688,28 @@ var computeSFPrices = {
           var checkPID = self.table[i][4];
           var c = "";
           var newPID = "";
+          // create assess object
+          let
+            assessInfo = {
+              landValue: null,
+              improvementValue: null,
+              assessID: null,
+              totalValue: null,
+              pid: null,
+              taxYear: null,
+              address: null,
+              legal: null,
+              taxRollNumber: null,
+              grossTaxes: null,
+              planNum: null,
+              houseType: null,
+              lotSize: null,
+              bcaDataUpdateDate: null,
+              bcaDescription: null,
+              floorArea: null,
+              bcaFloorArea: null
+            };
+
           //only keep numbers and dash character
           for (var n = 0; n < checkPID.length; n++) {
             c = checkPID[n];
@@ -680,12 +756,33 @@ var computeSFPrices = {
               ).toFixed(0);
               self.table[i][8] = changeValuePercent;
             }
+
+            // fill in assessInfo
+            assessInfo.landValue = landValue;
+            assessInfo.improvementValue = improvementValue;
+            assessInfo.totalValue = totalValue;
+            assessInfo.planNum = planNum;
+            assessInfo.address = formalAddress;
+            assessInfo.houseType = houseType;
+            assessInfo.lotSize = lotSize;
+            assessInfo.assessID = pid + "-" + taxYear;
+            assessInfo.pid = pid;
+            assessInfo.taxYear = taxYear;
+            assessInfo.bcaDataUpdateDate = bcaDataUpdateDate;
+            assessInfo.bcaDescription = bcaDescription;
+            assessInfo.taxRollNumber = taxRollNumber;
+            assessInfo.legal = legal;
+            assessInfo.grossTaxes = grossTaxes;
+            assessInfo.update = true;
+            self.assessInfos.push(assessInfo);
+            console.log(assessInfo);
           }
         }
 
         console.log(
           "SpreadSheet - ASSESS SEARCHing LandValue: ",
-          /*self.table,*/ landValue,
+          /*self.table,*/
+          landValue,
           rowNumber.length,
           "/",
           i
@@ -745,14 +842,17 @@ var computeSFPrices = {
             } else {
               //format the address of table col 13:
               aInfo = new addressInfo(
-                /*address col 13 */ self.table[i][13],
-                /*houseType col 14*/ self.table[i][14]
+                /*address col 13 */
+                self.table[i][13],
+                /*houseType col 14*/
+                self.table[i][14]
               );
               formalAddress = aInfo.formalAddress;
               planNum = "NPN"; ////NPN STANDS FOR NO.PLAN.NUMBER
               self.table[i][9] = "NPN"; ////UPDATE THE TABLE CELL FOR PLAN.NUMBER
               self.table[i][16] =
-                /*planNum need to get from legalDescription */ planNum +
+                /*planNum need to get from legalDescription */
+                planNum +
                 aInfo.addressID; //complexID
             }
 
@@ -773,7 +873,8 @@ var computeSFPrices = {
 
         console.log(
           "SpreadSheet: table & landValue FAILED=> ",
-          /*self.table,*/ landValue,
+          /*self.table,*/
+          landValue,
           rowNumber.length
         );
         var x = $("table#grid tbody");
@@ -849,6 +950,7 @@ var computeSFPrices = {
             if (i == self.table.length - 1) {
               console.log("Single House ComplexSearch Done!");
               self.updateSpreadsheet();
+              self.postAssessInfo(); // post assess to mySQL for detached properties
             }
             continue;
           }
@@ -866,7 +968,7 @@ var computeSFPrices = {
             from: "spreadSheetCompletion",
           };
 
-          chrome.runtime.sendMessage(complexInfo, function (response) { });
+          chrome.runtime.sendMessage(complexInfo, function (response) {});
           ////////////////////////////////////////
           break;
         }
@@ -900,18 +1002,15 @@ var computeSFPrices = {
             TitleToLand: fields[self.cols.TitleToLand].textContent,
             Units: fields[self.cols.Units].textContent,
             Storeys: fields[self.cols.Storeys].textContent,
-            BylawRentalRestriction:
-              fields[self.cols.BylawRentalRestriction].textContent,
+            BylawRentalRestriction: fields[self.cols.BylawRentalRestriction].textContent,
             FloodPlain: fields[self.cols.FloodPlain].textContent,
             Zoning: fields[self.cols.Zoning].textContent,
             BylawRestriction: fields[self.cols.BylawRestriction].textContent,
             Parking: fields[self.cols.Parking].textContent,
             ManagementCoName: fields[self.cols.ManagementCoName].textContent,
             ManagementCoPhone: fields[self.cols.ManagementCoPhone].textContent,
-            BylawPetRestriction:
-              fields[self.cols.BylawPetRestriction].textContent,
-            BylawAgeRestriction:
-              fields[self.cols.BylawAgeRestriction].textContent,
+            BylawPetRestriction: fields[self.cols.BylawPetRestriction].textContent,
+            BylawAgeRestriction: fields[self.cols.BylawAgeRestriction].textContent,
             NeighborhoodCode: fields[self.cols.NeighborhoodCode].textContent,
             Region: fields[self.cols.Region].textContent,
             Province: fields[self.cols.Province].textContent,
@@ -920,8 +1019,7 @@ var computeSFPrices = {
             Amenities: fields[self.cols.Amenities].textContent,
             SiteInfluences: fields[self.cols.SiteInfluences].textContent,
             StrataFeePSF: fields[self.cols.StrataFeePSF].textContent,
-            MaintenanceFeeInclude:
-              fields[self.cols.MaintenanceFeeInclude].textContent,
+            MaintenanceFeeInclude: fields[self.cols.MaintenanceFeeInclude].textContent,
             AddedDate: $fx.formatDate_Y_m_d(new Date()),
           };
           self.complexInfos.push(complexInfo);
@@ -929,6 +1027,8 @@ var computeSFPrices = {
 
         // console.log("complexSearch done::", self.complexInfos);
         self.postComplexInfo();
+        // send assess infos to mySql Table
+        // self.postAssessInfo();
       }
     }
   },
@@ -1081,13 +1181,15 @@ var computeSFPrices = {
     }
 
     self.uiTable.setSumValues(
-      /*id for panel 1*/ 1,
+      /*id for panel 1*/
+      1,
       assessChangeActive,
       countActiveListing,
       "%"
     );
     self.uiTable.setSumValues(
-      /*id for panel 2*/ 2,
+      /*id for panel 2*/
+      2,
       assessChangeSold,
       countSoldListing,
       "%"
@@ -1095,13 +1197,15 @@ var computeSFPrices = {
     self.uiTable.render(2);
 
     self.uiTable.setSumValues(
-      /*id for panel 1*/ 1,
+      /*id for panel 1*/
+      1,
       assessActive,
       countActiveListing,
       "$"
     );
     self.uiTable.setSumValues(
-      /*id for panel 2*/ 2,
+      /*id for panel 2*/
+      2,
       assessSold,
       countSoldListing,
       "$"
@@ -1117,8 +1221,12 @@ var computeSFPrices = {
   /////////////////////////////////////////////////////////////////////////////
 
   addLock: function (tabID) {
-    chrome.runtime.sendMessage(
-      { from: "SpreadSheet", todo: "addLock", tabID, tabID },
+    chrome.runtime.sendMessage({
+        from: "SpreadSheet",
+        todo: "addLock",
+        tabID,
+        tabID
+      },
       function (response) {
         console.log("SpreadSheet got tax response:", response);
       }
@@ -1136,7 +1244,7 @@ $(function () {
     if (!window.console) window.console = {};
     var methods = ["log", "debug", "warn", "info"];
     for (var i = 0; i < methods.length; i++) {
-      console[methods[i]] = function () { };
+      console[methods[i]] = function () {};
     }
   }
   console.log($loadingNotice);

@@ -71,7 +71,8 @@ $(function () {
 
   //remove inputCountResult ReadOnly Attr
   inputCountResult.removeAttr('readonly');
-  inputCountResult.attr('value', 'Counting...');
+  //inputCountResult.attr('value', 'Counting...');
+  btnCount.click();
 
   var btnSaveCriteria = $(
     `<button id="mls_helper_save_criteria">Save</button>`

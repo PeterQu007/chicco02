@@ -43,11 +43,11 @@ let taxDetails = {
 
   newTaxAssessRecord: false,
 
-  init: function() {
+  init: function () {
     let self = this;
     chrome.storage.local.get(
       ["houseType", "taxSearchRequester", "taxYear"],
-      function(result) {
+      function (result) {
         self.houseType = result.houseType;
         console.log("houseType is: ", self.houseType);
         console.log("TopPosition: ", self.ActualTotalsTopPosition);
@@ -71,8 +71,7 @@ let taxDetails = {
           bcaDataUpdateDate: self.bcaDataUpdateDate,
           bcaDescription: self.bcaDescription,
           bcaSearch: "success",
-          from:
-            "assess-" +
+          from: "assess-" +
             result.taxSearchRequester +
             "-" +
             Math.random().toFixed(8),
@@ -88,7 +87,7 @@ let taxDetails = {
           assess.bcaSearch = "failed";
         }
 
-        chrome.storage.local.set(assess, function() {
+        chrome.storage.local.set(assess, function () {
           console.log("TaxDetails.bcAssessment is...", assess);
           // self.getReportLink(function () {
           // 	self.reportLink[0].click();
@@ -98,12 +97,11 @@ let taxDetails = {
           // });
         });
         // if (!self.newTaxAssessRecord) {
-        chrome.runtime.sendMessage(
-          {
+        chrome.runtime.sendMessage({
             todo: "saveTax",
             taxData: assess
           },
-          function(response) {
+          function (response) {
             console.log("tax Data has been save to the database!");
           }
         );
@@ -123,7 +121,7 @@ let taxDetails = {
   // 	});
   // },
 
-  getAssessClass: function(reportTitleClass) {
+  getAssessClass: function (reportTitleClass) {
     var assessClass = "";
     console.log("reportTitleClass is: ", reportTitleClass);
     assessClass = "mls" + (Number(reportTitleClass.replace("mls", "")) + 7);
@@ -131,7 +129,7 @@ let taxDetails = {
     return assessClass;
   },
 
-  getPlanNumClass: function(reportTitleClass) {
+  getPlanNumClass: function (reportTitleClass) {
     var planNumClass = "";
     console.log("reportTitleClass is: ", reportTitleClass);
     planNumClass = "mls" + (Number(reportTitleClass.replace("mls", "")) + 5);
@@ -139,7 +137,7 @@ let taxDetails = {
     return planNumClass;
   },
 
-  getOtherFieldsClass: function(reportTitleClass) {
+  getOtherFieldsClass: function (reportTitleClass) {
     var otherFieldsClass = "";
     console.log("reportTitleClass is: ", reportTitleClass);
     otherFieldsClass =
@@ -148,11 +146,12 @@ let taxDetails = {
     return otherFieldsClass;
   },
 
-  getTaxReportDetails: function() {
+  getTaxReportDetails: function () {
     var x0 = $("div#" + divContainerID)
       .children(0)
       .children();
     var i;
+    // LOOP ALL THE CELLS IN THE "DETAILED TAX REPORT"
     for (i = 0; i <= x0.length; i++) {
       if ($(x0[i]).is("div")) {
         if (x0[i].textContent == "Prop Address") {
@@ -185,6 +184,10 @@ let taxDetails = {
         }
         if (x0[i].textContent == "PlanNum") {
           this.planNum = x0[i + 9].textContent;
+        }
+        // ADD LEGAL FULLDESCRIPTION
+        if (x0[i].textContent == "Legal Information") {
+          this.legal = x0[i + 1].textContent;
         }
         if (x0[i].textContent == "BCA Description") {
           this.bcaDescription = x0[i + 1].textContent;
@@ -220,7 +223,7 @@ let taxDetails = {
     }
   },
   //Revision 0, legacy version
-  getTaxReportDetails_R0: function() {
+  getTaxReportDetails_R0: function () {
     var self = this;
 
     var assessClass = self.getAssessClass(self.reportTitleClass);
@@ -253,7 +256,7 @@ let taxDetails = {
 };
 
 // start point:
-$(function() {
+$(function () {
   console.log("mls-taxdetails iFrame: ");
   taxDetails.init();
 });
