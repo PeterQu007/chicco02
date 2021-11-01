@@ -11,7 +11,10 @@
 
 import uiSummaryTable from "../assets/scripts/ui/uiSummaryTable.js";
 import addressInfo from "../assets/scripts/modules/AddressInfo";
+// import test from "./modules/test.js";
 //import * as math from "../assets/lib/mathjs/math.min.js";
+import Assess from "./modules/Assessment";
+import Complex from "./modules/Complex";
 
 var $fx = L$(); //add library module
 
@@ -552,7 +555,6 @@ var computeSFPrices = {
         console.log("taxSearch done!");
         ////START TO SEARCH COMPLEX.NAME
         this.updateSpreadsheet();
-        // this.postAssessInfo();
         ////UPDATE THE STATS
         var i = 0;
         for (i = 0; i < self.table.length; i++) {
@@ -561,73 +563,9 @@ var computeSFPrices = {
             self.table[i][15] = true; ////BECAUSE OF PLAN.NUMBER ERROR, PASSED THIS RECORD
           }
         }
-        self.searchComplex();
+        self.searchComplex(); //FIRST Complex Search
       }
     }
-  },
-
-  postComplexInfo: function () {
-    //console.log(this.complexInfos);
-    var uniqueComplexInfos = $fx.normalizeComplexInfos(this.complexInfos);
-    let urlLocationOptionLocal = $("#pid_local", top.document);
-    let urlLocation = urlLocationOptionLocal.prop("checked");
-    let ajax_url = "";
-
-    if (urlLocation) {
-      ajax_url =
-        "http://localhost/pidrealty4/wp-content/themes/Realhomes-child-3/db/dataComplexInfo.php";
-      ajax_url =
-        "https://pidrealty4.local/wp-content/themes/Realhomes-child-3/db/dataComplexInfo.php";
-    } else {
-      ajax_url =
-        "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dataComplexInfo.php";
-    }
-
-    $.ajax({
-      url: ajax_url,
-      method: "post",
-      data: {
-        complexInfos: uniqueComplexInfos
-      },
-      success: function (res) {
-        console.log("ajax::", res);
-        res = JSON.parse(res);
-        res.forEach((complexInfo) => {
-          console.log(complexInfo);
-        });
-      },
-    });
-  },
-
-  // post Assess information to mySQL table wp_pid_assess
-  postAssessInfo: function () {
-    //console.log(this.complexInfos);
-    let urlLocationOptionLocal = $("#pid_local", top.document);
-    let urlLocation = urlLocationOptionLocal.prop("checked");
-    let ajax_url = "";
-
-    if (urlLocation) {
-      ajax_url =
-        "https://pidrealty4.local/wp-content/themes/realhomes-child-3/db/dataAssessInfo.php";
-    } else {
-      ajax_url =
-        "https://pidhomes.ca/wp-content/themes/realhomes-child-3/db/dataAssessInfo.php";
-    }
-
-    $.ajax({
-      url: ajax_url,
-      method: "post",
-      data: {
-        assessInfos: this.assessInfos
-      },
-      success: function (res) {
-        console.log("ajax::", res);
-        res = JSON.parse(res);
-        res.forEach((assessInfo) => {
-          console.log(assessInfo);
-        });
-      },
-    });
   },
 
 
@@ -950,7 +888,9 @@ var computeSFPrices = {
             if (i == self.table.length - 1) {
               console.log("Single House ComplexSearch Done!");
               self.updateSpreadsheet();
-              self.postAssessInfo(); // post assess to mySQL for detached properties
+              // self.postAssessInfo(); // post assess to mySQL for detached properties
+              let assess = new Assess();
+              assess.postAssessInfos(self.assessInfos);
             }
             continue;
           }
@@ -1026,9 +966,13 @@ var computeSFPrices = {
         }
 
         // console.log("complexSearch done::", self.complexInfos);
-        self.postComplexInfo();
-        // send assess infos to mySql Table
+        // self.postComplexInfo();
+        let complex = new Complex();
+        complex.postComplexInfos(this.complexInfos);
+        // send strata property assess infos to mySql Table
         // self.postAssessInfo();
+        let assess = new Assess();
+        assess.postAssessInfos(self.assessInfos);
       }
     }
   },
@@ -1235,7 +1179,7 @@ var computeSFPrices = {
 };
 
 //entry point:
-$(function () {
+$(async function () {
   console.log("Spreadsheet Document State:", document.readyState);
   var $loadingNotice = document.querySelector("#load_grid");
   // Define Debug Status::
@@ -1248,6 +1192,10 @@ $(function () {
     }
   }
   console.log($loadingNotice);
+  // const src1 = chrome.runtime.getURL("d:/wamp64/www/ChromeX/MLSHelper/App/content/modules/test.js");
+  // const src1 = "test.js";
+  // const contentTest = await import(src1);
+  // test();
   computeSFPrices.init();
 });
 
